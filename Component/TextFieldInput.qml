@@ -8,10 +8,10 @@ TextField {
     property bool isBold: false
     property real radius: 12
     property color borderColor: palette.highlight
+    property color backgroundColor: palette.base
 
-    placeholderText: qsTr("This Is Placeholder text")
     placeholderTextColor: "#FFFFFF"
-    font.pixelSize: 24
+    font.pixelSize: Style.h5
     font.bold: isBold ? Font.Bold : Font.Normal
     font.weight: isBold ? Font.Bold : Font.Normal
     color: palette.dark
@@ -19,6 +19,7 @@ TextField {
         implicitHeight: control.implicitHeight
         implicitWidth: control.implicitWidth
         radius: control.radius
+        color: control.backgroundColor
         border.width:  control.activeFocus ? 2 : 1
         border.color: control.borderColor
     }

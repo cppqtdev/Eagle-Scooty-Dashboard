@@ -68,7 +68,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("1")
                         }
                         IconButton{
@@ -80,7 +80,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("2")
                         }
                         IconButton{
@@ -92,7 +92,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("3")
                         }
                         IconButton{
@@ -108,7 +108,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("4")
                         }
                         IconButton{
@@ -120,7 +120,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("5")
                         }
                         IconButton{
@@ -132,7 +132,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("6")
                         }
                         IconButton{
@@ -148,7 +148,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("7")
                         }
                         IconButton{
@@ -160,7 +160,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("8")
                         }
                         IconButton{
@@ -172,7 +172,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("9")
                         }
                         IconButton{
@@ -197,7 +197,7 @@ EaglePage {
                         PrefsLabel{
                             anchors.centerIn: parent
                             font.pixelSize: Style.h1
-                            color: "#7C7C7C"
+                            color: Style.grayColor
                             text: qsTr("0")
                         }
                         IconButton{

@@ -48,7 +48,7 @@ EaglePage {
                             PrefsLabel{
                                 Layout.alignment: Qt.AlignLeft
                                 font.pixelSize: Style.h2
-                                color: "#7C7C7C"
+                                color: Style.grayColor
                                 text: qsTr("Range")
                             }
 
@@ -62,7 +62,7 @@ EaglePage {
                             PrefsLabel{
                                 Layout.alignment: Qt.AlignLeft
                                 font.pixelSize: Style.h2
-                                color: "#7C7C7C"
+                                color: Style.grayColor
                                 text: qsTr("Top Speed")
                             }
 
@@ -76,7 +76,7 @@ EaglePage {
                             PrefsLabel{
                                 Layout.alignment: Qt.AlignLeft
                                 font.pixelSize: Style.h2
-                                color: "#7C7C7C"
+                                color: Style.grayColor
                                 text: qsTr("0 to 100% Charging")
                             }
 
@@ -98,7 +98,7 @@ EaglePage {
                             PrefsLabel{
                                 Layout.alignment: Qt.AlignLeft
                                 font.pixelSize: Style.h2
-                                color: "#7C7C7C"
+                                color: Style.grayColor
                                 text: qsTr("Ride Modes")
                             }
 
@@ -112,7 +112,7 @@ EaglePage {
                             PrefsLabel{
                                 Layout.alignment: Qt.AlignLeft
                                 font.pixelSize: Style.h2
-                                color: "#7C7C7C"
+                                color: Style.grayColor
                                 text: qsTr("0 to 60 KMPH")
                             }
 
@@ -126,7 +126,7 @@ EaglePage {
                             PrefsLabel{
                                 Layout.alignment: Qt.AlignLeft
                                 font.pixelSize: Style.h2
-                                color: "#7C7C7C"
+                                color: Style.grayColor
                                 text: qsTr("Max Power")
                             }
 

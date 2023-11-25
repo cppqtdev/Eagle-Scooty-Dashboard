@@ -62,7 +62,7 @@ EaglePage {
                     PrefsLabel{
                         Layout.alignment: Qt.AlignLeft
                         font.pixelSize: Style.h4
-                        color: "#7C7C7C"
+                        color: Style.grayColor
                         text: qsTr("Now Discover As \"People E-bike\"")
                     }
                     Item{
@@ -73,7 +73,7 @@ EaglePage {
                     PrefsLabel{
                         Layout.alignment: Qt.AlignLeft
                         font.pixelSize: Style.h4
-                        color: "#7C7C7C"
+                        color: Style.grayColor
                         text: qsTr("On your bluetooth to connect with the device")
                     }
                 }

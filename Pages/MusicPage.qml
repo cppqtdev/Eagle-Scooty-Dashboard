@@ -21,7 +21,7 @@ EaglePage {
                 PrefsLabel{
                     Layout.alignment: Qt.AlignLeft
                     font.pixelSize: Style.h6
-                    color: "#7C7C7C"
+                    color: Style.grayColor
                     text: qsTr("Now Playing")
                 }
                 Item{
@@ -31,21 +31,21 @@ EaglePage {
                     spacing: 5
                     PrefsLabel{
                         Layout.alignment: Qt.AlignLeft
-                        color: "#7C7C7C"
+                        color: Style.grayColor
                         text: qsTr("Purple Haze")
                     }
 
                     PrefsLabel{
                         Layout.alignment: Qt.AlignLeft
                         font.pixelSize: Style.h5
-                        color: "#7C7C7C"
+                        color: Style.grayColor
                         text: qsTr("Jonathan Wishperbrook")
                     }
 
                     PrefsLabel{
                         Layout.alignment: Qt.AlignLeft
                         font.pixelSize: Style.paragraph
-                        color: "#7C7C7C"
+                        color: Style.grayColor
                         text: qsTr("Woodstock")
                     }
                 }
@@ -78,7 +78,7 @@ EaglePage {
             tooltipVisible:false
             Layout.alignment: Qt.AlignHCenter
             value: 76
-            checkedColor: "#045457"
+            checkedColor: Style.styleColor
             handlerColor:"#FFFFFF"
             width:  parent.width * 0.5
         }
@@ -89,14 +89,14 @@ EaglePage {
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.paragraph
-                color: "#7C7C7C"
+                color: Style.grayColor
                 text: qsTr("00:00")
             }
 
             PrefsLabel{
                 Layout.alignment: Qt.AlignRight
                 font.pixelSize: Style.paragraph
-                color: "#7C7C7C"
+                color: Style.grayColor
                 text: qsTr("04:00")
             }
         }
@@ -115,7 +115,7 @@ EaglePage {
                 iconWidth: 20
                 iconHeight: 24
                 roundIcon: true
-                iconBackground: "#045457"
+                iconBackground: Style.styleColor
                 setIcon: "qrc:/Icons/Music/Left.svg"
             }
 
@@ -125,7 +125,7 @@ EaglePage {
                 implicitWidth: 60
                 iconWidth: 24
                 iconHeight: 28
-                iconBackground: "#045457"
+                iconBackground: Style.styleColor
                 setIcon: "qrc:/Icons/Music/Play.svg"
             }
 
@@ -133,7 +133,7 @@ EaglePage {
                 iconWidth: 20
                 iconHeight: 24
                 roundIcon: true
-                iconBackground: "#045457"
+                iconBackground: Style.styleColor
                 setIcon: "qrc:/Icons/Music/right.svg"
             }
 

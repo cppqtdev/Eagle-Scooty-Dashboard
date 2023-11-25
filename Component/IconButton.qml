@@ -18,6 +18,7 @@ Button {
     property bool isGlow: false
     property bool roundIcon: false
     property alias iconSource: iconSource
+    property alias roundIconSource: roundIconSource
 
     id: control
     implicitHeight: 55
@@ -38,6 +39,7 @@ Button {
     }
 
     Image{
+        id:roundIconSource
         z:2
         visible: roundIcon && !setIconText
         mirror: isMirror

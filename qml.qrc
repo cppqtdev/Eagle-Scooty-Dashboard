@@ -120,5 +120,38 @@
         <file>fonts/HelveticaNeueLTCom-Md.ttf</file>
         <file>fonts/HelveticaNeueLTCom-Roman.ttf</file>
         <file>Component/PrefsLabel.qml</file>
+        <file>Icons/topIcons/icn_batterytemp_glow.svg</file>
+        <file>Icons/topIcons/icn_highbeam_glow.svg</file>
+        <file>Icons/topIcons/icn_lowbeam_glow.svg</file>
+        <file>Icons/topIcons/icn_sidestandenabled_glow.svg</file>
+        <file>Icons/topIcons/icn_tyrepressure_glow.svg</file>
+        <file>Icons/topIcons/eva_bluetooth-fill -on.svg</file>
+        <file>Icons/topIcons/wifi1.svg</file>
+        <file>Icons/topIcons/wifi2.svg</file>
+        <file>Icons/topIcons/wifi3.svg</file>
+        <file>Icons/topIcons/wifi/network-cellular-signal-excellent-svgrepo-com.svg</file>
+        <file>Icons/topIcons/wifi/network-cellular-signal-good-svgrepo-com.svg</file>
+        <file>Icons/topIcons/wifi/network-cellular-signal-ok-svgrepo-com.svg</file>
+        <file>Icons/topIcons/wifi/network-cellular-signal-weak-svgrepo-com.svg</file>
+        <file>Icons/topIcons/wifi/network-cellular-signal-none-svgrepo-com.svg</file>
+        <file>Pages/Charing.qml</file>
+        <file>Pages/MapPage.qml</file>
+        <file>Icons/MapIcons/searchIcon.svg</file>
+        <file>Icons/MapIcons/Add.svg</file>
+        <file>Icons/MapIcons/Search.svg</file>
+        <file>Icons/MapIcons/switch.svg</file>
+        <file>Component/MapDetails.qml</file>
+        <file>Icons/MapIcons/charing.svg</file>
+        <file>Icons/MapIcons/Plus.svg</file>
+        <file>Icons/MapIcons/save.svg</file>
+        <file>Icons/MapIcons/direction.svg</file>
+        <file>Icons/MapIcons/saveLocation.svg</file>
+        <file>Icons/MapIcons/Line.png</file>
+        <file>Component/IconWithLabel.qml</file>
+        <file>Icons/MapIcons/pump.svg</file>
+        <file>Icons/footericon.svg</file>
+        <file>Icons/dark/bottom_dark.png</file>
+        <file>Icons/dark/bottom_dark2.png</file>
+        <file>Icons/dark/top_dark.png</file>
     </qresource>
 </RCC>

@@ -13,26 +13,29 @@ Image{
             text: qsTr("23rd January")
         }
         Item{
-            Layout.fillWidth: true
+            Layout.fillWidth: true //2BD150
         }
 
         RowLayout{
             Layout.preferredWidth: parent.width * 0.5
             IconButton{
                 id:leftIndicator
+                roundIcon: true
+                iconWidth: 60
+                iconHeight: 60
                 checkable: true
                 setIcon: leftIndicator.checked ? "qrc:/Icons/topIcons/icn_leftindicator_glow.svg" : "qrc:/Icons/topIcons/icn_leftindicator.svg"
                 SequentialAnimation {
                     running: leftIndicator.checked
                     loops: Animation.Infinite
                     OpacityAnimator {
-                        target: leftIndicator.iconSource
+                        target: leftIndicator.roundIcon ? leftIndicator.roundIconSource : leftIndicator.iconSource
                         from: 0;
                         to: 1;
                         duration: 500
                     }
                     OpacityAnimator {
-                        target: leftIndicator.iconSource
+                        target: leftIndicator.roundIcon ? leftIndicator.roundIconSource : leftIndicator.iconSource
                         from: 1;
                         to: 0;
                         duration: 500
@@ -45,40 +48,58 @@ Image{
                 }
             }
             IconButton{
+                roundIcon: true
+                iconWidth: 60
+                iconHeight: 60
                 checkable: true
-                setIcon:"qrc:/Icons/topIcons/icn_lowbeam.svg"
+                setIcon: checked ? "qrc:/Icons/topIcons/icn_lowbeam_glow.svg" : "qrc:/Icons/topIcons/icn_lowbeam.svg"
             }
             IconButton{
+                roundIcon: true
+                iconWidth: 65
+                iconHeight: 65
                 checkable: true
-                setIcon:"qrc:/Icons/topIcons/icn_sidestandenabled.svg"
+                setIcon:checked ? "qrc:/Icons/topIcons/icn_sidestandenabled_glow.svg" : "qrc:/Icons/topIcons/icn_sidestandenabled.svg"
             }
             IconButton{
+                roundIcon: true
+                iconWidth: 60
+                iconHeight: 60
                 checkable: true
-                setIcon:"qrc:/Icons/topIcons/icn_batterytemp.svg"
+                setIcon: checked ? "qrc:/Icons/topIcons/icn_batterytemp_glow.svg" : "qrc:/Icons/topIcons/icn_batterytemp.svg"
             }
             IconButton{
+                roundIcon: true
+                iconWidth: 60
+                iconHeight: 60
                 checkable: true
-                setIcon:"qrc:/Icons/topIcons/icn_tyrepressure.svg"
+                setIcon: checked ? "qrc:/Icons/topIcons/icn_tyrepressure_glow.svg" : "qrc:/Icons/topIcons/icn_tyrepressure.svg"
             }
             IconButton{
+                roundIcon: true
+                iconWidth: 60
+                iconHeight: 60
                 checkable: true
-                setIcon:"qrc:/Icons/topIcons/icn_highbeam.svg"
+                setIcon:checked ? "qrc:/Icons/topIcons/icn_highbeam_glow.svg" : "qrc:/Icons/topIcons/icn_highbeam.svg"
             }
             IconButton{
                 id:rightIndicator
+                roundIcon: true
+                iconWidth: 60
+                iconHeight: 60
                 checkable: true
                 setIcon: rightIndicator.checked ? "qrc:/Icons/topIcons/icn_rightindicator _glow.svg" : "qrc:/Icons/topIcons/icn_rightindicator.svg"
                 SequentialAnimation {
                     running: rightIndicator.checked
                     loops: Animation.Infinite
                     OpacityAnimator {
-                        target: rightIndicator.iconSource
+                        target: rightIndicator.roundIcon ? rightIndicator.roundIconSource : rightIndicator.iconSource
                         from: 0;
                         to: 1;
                         duration: 500
                     }
                     OpacityAnimator {
-                        target: rightIndicator.iconSource
+                        target: rightIndicator.roundIcon ? rightIndicator.roundIconSource : rightIndicator.iconSource
                         from: 1;
                         to: 0;
                         duration: 500
@@ -99,16 +120,45 @@ Image{
         RowLayout{
             spacing: 10
             IconButton{
-                checkable: true
-                setIcon:"qrc:/Icons/topIcons/wifi.svg"
+                id:wifiIcon
+                checkable: false
+                roundIcon: true
+                iconWidth: 37
+                iconHeight: 37
+                setIcon: getWifiIcon(3)
             }
             IconButton{
                 checkable: true
-                setIcon:"qrc:/Icons/topIcons/eva_bluetooth-fill.svg"
+                setIcon: checked ? "qrc:/Icons/topIcons/eva_bluetooth-fill -on.svg" : "qrc:/Icons/topIcons/eva_bluetooth-fill.svg"
             }
         }
         PrefsLabel{
             text: qsTr("04:36 PM")
         }
+    }
+
+    function getWifiIcon(index){
+        switch(index){
+        case 1:
+            return "qrc:/Icons/topIcons/wifi/network-cellular-signal-weak-svgrepo-com.svg"
+        case 2:
+            return "qrc:/Icons/topIcons/wifi/network-cellular-signal-ok-svgrepo-com.svg"
+        case 3:
+            return "qrc:/Icons/topIcons/wifi/network-cellular-signal-good-svgrepo-com.svg"
+        case 4:
+            return "qrc:/Icons/topIcons/wifi/network-cellular-signal-excellent-svgrepo-com.svg"
+        default:
+            return  "qrc:/Icons/topIcons/wifi/network-cellular-signal-none-svgrepo-com.svg"
+        }
+    }
+
+    Timer{
+        running: true
+        repeat: true
+        interval: 2500
+        onTriggered: wifiIcon.setIcon = getWifiIcon(generateRandomNumber())
+    }
+    function generateRandomNumber() {
+        return Math.floor(Math.random() * 5);
     }
 }

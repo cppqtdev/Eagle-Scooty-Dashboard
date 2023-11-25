@@ -25,14 +25,14 @@ EaglePage {
         PrefsLabel{
             Layout.alignment: Qt.AlignHCenter
             font.pixelSize: Style.h4
-            color: "#7C7C7C"
+            color: Style.grayColor
             text: qsTr("Jonathan")
         }
 
         PrefsLabel{
             Layout.alignment: Qt.AlignHCenter
             font.pixelSize: Style.paragraph
-            color: "#7C7C7C"
+            color: Style.grayColor
             text: qsTr("Calling")
         }
 
@@ -51,7 +51,7 @@ EaglePage {
                 PrefsLabel{
                     Layout.alignment: Qt.AlignHCenter
                     font.pixelSize: Style.paragraph
-                    color: "#7C7C7C"
+                    color: Style.grayColor
                     text: qsTr("Keypad")
                 }
             }
@@ -75,7 +75,7 @@ EaglePage {
                 PrefsLabel{
                     Layout.alignment: Qt.AlignHCenter
                     font.pixelSize: Style.paragraph
-                    color: "#7C7C7C"
+                    color: Style.grayColor
                     text: qsTr("Add Call")
                 }
             }
@@ -98,7 +98,7 @@ EaglePage {
                 PrefsLabel{
                     Layout.alignment: Qt.AlignHCenter
                     font.pixelSize: Style.paragraph
-                    color: "#7C7C7C"
+                    color: Style.grayColor
                     text: qsTr("Mute")
                 }
             }

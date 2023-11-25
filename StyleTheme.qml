@@ -6,6 +6,7 @@ QtObject {
     readonly property color fontColor: "#FFFFFF"
     readonly property color baseColor: systemPalette.windowText
     readonly property color styleColor: "#045457"
+    readonly property color grayColor: "#7C7C7C"
 
     property int left : 0
     property int right : 1

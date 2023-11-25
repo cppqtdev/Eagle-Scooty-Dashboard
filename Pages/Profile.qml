@@ -32,7 +32,7 @@ EaglePage {
                 spacing: 20
                 PrefsLabel{
                     font.pixelSize: Style.h2
-                    color: "#757575"
+                    color: Style.grayColor
                     text: qsTr("Model Number")
                 }
                 PrefsLabel{
@@ -50,7 +50,7 @@ EaglePage {
                 spacing: 20
                 PrefsLabel{
                     font.pixelSize: Style.h2
-                    color: "#757575"
+                    color: Style.grayColor
                     text: qsTr("Registration Number")
                 }
                 PrefsLabel{
@@ -68,7 +68,7 @@ EaglePage {
                 spacing: 20
                 PrefsLabel{
                     font.pixelSize: Style.h2
-                    color: "#757575"
+                    color: Style.grayColor
                     text: qsTr("Vin Number")
                 }
                 PrefsLabel{

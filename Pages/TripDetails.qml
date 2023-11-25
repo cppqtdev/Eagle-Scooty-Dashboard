@@ -133,36 +133,8 @@ EaglePage {
                 anchors.leftMargin: 20
                 radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop | Qt.AlignBottom
 
-                PositionSource {
-                    id: positionSource
-                }
-
-                Plugin {
-                    id: mapPlugin
-                    name: "osm" // "mapboxgl", "esri", ...
-                    // specify plugin parameters if necessary
-                    // PluginParameter {
-                    //     name:
-                    //     value:
-                    // }
-                }
-
-                Map {
-                    id: map
-                    anchors.fill: parent
-                    plugin: mapPlugin
-                    center: QtPositioning.coordinate(59.91, 10.75) // Oslo
-                    zoomLevel: 14
-                    property MapCircle circle
-
-                    Component.onCompleted: {
-                        circle = Qt.createQmlObject('import QtLocation 5.3; MapCircle {}', root)
-                        circle.center = positionSource.position.coordinate
-                        circle.radius = 5000.0
-                        circle.color = 'green'
-                        circle.border.width = 3
-                        map.addMapItem(circle)
-                    }
+                MapDetails{
+                    id:mapview
                 }
             }
         }

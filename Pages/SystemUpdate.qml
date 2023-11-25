@@ -28,7 +28,7 @@ EaglePage {
             implicitWidth: 300
             text: qsTr("Check For Update")
             borderWidth: 1
-            borderColor: "#045457"
+            borderColor: Style.styleColor
             textColor : borderColor
             backgroundColor: "transparent"
             onClicked: gEagleStack.pop()
@@ -57,7 +57,7 @@ EaglePage {
                 height: parent.height
                 width: 10
                 radius: 10
-                color: "#045457"
+                color: Style.styleColor
             }
 
             PrefsLabel{
@@ -96,7 +96,7 @@ EaglePage {
                 implicitWidth: 150
                 text: qsTr("Update")
                 borderWidth: 1
-                borderColor: "#045457"
+                borderColor: Style.styleColor
                 textColor : borderColor
                 backgroundColor: "transparent"
                 onClicked: gEagleStack.pop()

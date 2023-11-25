@@ -126,13 +126,13 @@ Page {
             Layout.alignment: Qt.AlignLeft
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
-                color: "#226969"
+                isStyle: true
                 text: qsTr("Trip A")
             }
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.h6
-                color: "#747474"
+                color: Style.grayColor
                 text: qsTr("230 Km")
             }
         }
@@ -144,13 +144,13 @@ Page {
             Layout.alignment: Qt.AlignLeft
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
-                color: "#226969"
+                isStyle: true
                 text: qsTr("Odometer")
             }
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.h6
-                color: "#747474"
+                color: Style.grayColor
                 text: qsTr("2,030 Km")
             }
         }
@@ -162,13 +162,13 @@ Page {
             Layout.alignment: Qt.AlignLeft
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
-                color: "#226969"
+                isStyle: true
                 text: qsTr("Temperature")
             }
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.h6
-                color: "#747474"
+                color: Style.grayColor
                 text: qsTr("30 F")
             }
         }
@@ -193,7 +193,7 @@ Page {
             }
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
-                color: "#747474"
+                color: Style.grayColor
                 text: qsTr("23m Time")
             }
         }
@@ -203,7 +203,7 @@ Page {
             }
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
-                color: "#747474"
+                color: Style.grayColor
                 text: qsTr("1.2km Distance")
             }
         }

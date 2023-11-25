@@ -18,12 +18,32 @@ ApplicationWindow {
 
     header: Header{}
     footer: Footer{
+        id:footerLayout
         onSettingsClicked: {
             mainLoader.item.replace(null,settingsPage)
         }
         onMusicClicked: mainLoader.item.replace(null,musicPage)
         onCallingClicked: mainLoader.item.replace(null,callingPage)
+        onHomeClicked: mainLoader.item.replace(null,homePage)
+        onChargeClicked: mainLoader.item.replace(null,chargingPage)
+        onMapClicked: mainLoader.item.replace(null,mapPage)
+
     }
+
+    Component{
+        id:chargingPage
+        Charing{
+
+        }
+    }
+
+    Component{
+        id:mapPage
+        MapPage{
+
+        }
+    }
+
     Component{
         id:homePage
         HomePage{
@@ -48,6 +68,7 @@ ApplicationWindow {
     Component{
         id:settingsPage
         SettingsPage{
+            objectName: "SettingsPage"
             onBackToHome: {
                 mainLoader.item.replace(null,homePage)
             }
@@ -60,6 +81,18 @@ ApplicationWindow {
         sourceComponent:StackView{
             id:mainStack
             initialItem:homePage
+            onCurrentItemChanged: {
+                var footer = footerlayout()
+                if(currentItem.objectName == "SettingsPage"){
+                    footer.visible = false
+                }else{
+                    footer.visible = true
+                }
+            }
         }
+    }
+
+    function footerlayout(){
+        return footerLayout
     }
 }

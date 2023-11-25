@@ -108,7 +108,7 @@ EaglePage {
                     height: parent.height
                     width: 10
                     radius: 10
-                    color: "#045457"
+                    color: Style.styleColor
                 }
 
                 ColumnLayout{
