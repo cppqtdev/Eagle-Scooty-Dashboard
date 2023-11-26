@@ -195,7 +195,7 @@ EaglePage {
                                     implicitHeight: 35
                                     implicitWidth: 120
                                     text: qsTr("Direction")
-                                    backgroundColor: palette.light
+                                    backgroundColor: palette.dark
                                     setIcon:"qrc:/Icons/MapIcons/direction.svg"
                                     smallBackgroundColor: palette.dark
                                 }
@@ -206,7 +206,7 @@ EaglePage {
                                     implicitHeight: 35
                                     implicitWidth: 120
                                     text: qsTr("Save")
-                                    backgroundColor: palette.light
+                                    backgroundColor: palette.dark
                                     setIcon:"qrc:/Icons/MapIcons/saveLocation.svg"
                                     smallBackgroundColor: palette.dark
                                 }
@@ -217,7 +217,7 @@ EaglePage {
                                     implicitHeight: 35
                                     implicitWidth: 120
                                     text: qsTr("Add Stop")
-                                    backgroundColor: palette.light
+                                    backgroundColor: palette.dark
                                     setIcon:"qrc:/Icons/MapIcons/Plus.svg"
                                     smallBackgroundColor: palette.dark
                                 }

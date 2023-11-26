@@ -102,6 +102,7 @@ EaglePage {
                 height: 220
                 radius: 10
                 radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop | Qt.AlignBottom
+                color: Style.isDark ? palette.dark : palette.light
                 Rectangle{
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter

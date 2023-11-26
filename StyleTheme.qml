@@ -2,9 +2,10 @@ pragma Singleton
 
 import QtQuick 2.15
 QtObject {
-    readonly property color background: "#DCF3F3"
+    property bool isDark: false
+    readonly property color background: isDark ? "#00000000" : "#DCF3F3"
     readonly property color fontColor: "#FFFFFF"
-    readonly property color baseColor: systemPalette.windowText
+    readonly property color baseColor: isDark ? systemPalette.base : systemPalette.windowText
     readonly property color styleColor: "#045457"
     readonly property color grayColor: "#7C7C7C"
 

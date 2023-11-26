@@ -51,17 +51,17 @@ EaglePage {
             RowLayout{
                 spacing: 30
                 PrefsButton{
-                    implicitHeight: 50
                     implicitWidth: 160
                     backgroundColor: "#FFFFFF"
                     textColor: "#000000"
                     text: qsTr("Light")
+                    onClicked: Style.isDark = false
                 }
                 PrefsButton{
-                    implicitHeight: 50
-                    implicitWidth: 150
+                    implicitWidth: 160
                     backgroundColor:"#000000"
                     text: qsTr("Dark")
+                    onClicked: Style.isDark = true
                 }
             }
         }

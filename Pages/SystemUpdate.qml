@@ -51,6 +51,7 @@ EaglePage {
             width: parent.width * 0.78
             height: 100
             radius: 10
+            color : Style.isDark ? palette.dark : palette.light
             Rectangle{
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter

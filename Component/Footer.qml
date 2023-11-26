@@ -5,8 +5,8 @@ import Style 1.0
 Image{
     id:root
     width: parent.width
-    source: "qrc:/Icons/green.png"
-    sourceSize: Qt.size(root.width , 134)
+    source: Style.isDark ? "qrc:/Icons/dark/bottom_dark.png" : "qrc:/Icons/green.png"
+    sourceSize: Qt.size(root.width , Style.isDark ? 150 : 134)
     signal settingsClicked()
     signal musicClicked()
     signal callingClicked()
@@ -14,7 +14,8 @@ Image{
     signal mapClicked()
     signal chargeClicked()
     Image{
-        source: "qrc:/Icons/white.png"
+        visible: !Style.isDark
+        source: Style.isDark ? "qrc:/Icons/dark/bottom_dark2.png" : "qrc:/Icons/white.png"
         sourceSize.height: 116
         width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
@@ -53,6 +54,7 @@ Image{
     RowLayout{
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: 12
         width: parent.width * 0.9
         Item{
             Layout.preferredWidth: 75

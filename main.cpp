@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Eagle Theme");
     QCoreApplication::setOrganizationName("TechCoderHub");
 #endif
+    qputenv("QT_QUICK_CONTROLS_STYLE", QByteArray("Basic"));
     QGuiApplication app(argc, argv);
     app.setWindowIcon(QIcon(":/app.ico"));
 

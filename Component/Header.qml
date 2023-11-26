@@ -4,13 +4,13 @@ import QtQuick.Layouts 1.3
 import Style 1.0
 
 Image{
-    source: "qrc:/Icons/topbar.svg"
+    source: Style.isDark ? "qrc:/Icons/dark/top_dark.png" : "qrc:/Icons/topbar.svg"
     RowLayout{
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         width: parent.width * 0.85
         PrefsLabel{
-            text: qsTr("23rd January")
+            text: new Date().toLocaleDateString()
         }
         Item{
             Layout.fillWidth: true //2BD150
@@ -118,13 +118,12 @@ Image{
         }
 
         RowLayout{
-            spacing: 10
             IconButton{
                 id:wifiIcon
                 checkable: false
                 roundIcon: true
-                iconWidth: 37
-                iconHeight: 37
+                iconWidth: 32
+                iconHeight: 32
                 setIcon: getWifiIcon(3)
             }
             IconButton{
@@ -133,7 +132,7 @@ Image{
             }
         }
         PrefsLabel{
-            text: qsTr("04:36 PM")
+            text: new Date().toLocaleTimeString(Qt.locale(), "hh:mm AP")
         }
     }
 

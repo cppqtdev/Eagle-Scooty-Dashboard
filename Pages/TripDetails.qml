@@ -91,7 +91,7 @@ EaglePage {
             height: 610.5
             radius: 15
             radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop | Qt.AlignBottom
-
+            color : Style.isDark ? palette.dark : palette.light
             PrefsLabel{
                 id:dateLabel
                 anchors.left: parent.left
@@ -132,7 +132,7 @@ EaglePage {
                 anchors.left: time_line.right
                 anchors.leftMargin: 20
                 radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop | Qt.AlignBottom
-
+                color : Style.isDark ? palette.dark : palette.light
                 MapDetails{
                     id:mapview
                 }

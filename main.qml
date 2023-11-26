@@ -14,6 +14,15 @@ ApplicationWindow {
     color: Style.background
     title: qsTr("Eagle Theme")
 
+    background: Item{
+        anchors.fill: parent
+        Image{
+            anchors.fill: parent
+            visible: Style.isDark
+            source: "qrc:/Icons/dark/background.png"
+        }
+    }
+
     Component.onCompleted: root.showMaximized()
 
     header: Header{}

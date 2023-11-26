@@ -15,7 +15,7 @@ Page {
         id:themeIcon
         Image{
             sourceSize: Qt.size(1120.89,596)
-            source: "qrc:/Icons/Eagle/5.png"
+            source: Style.isDark ? "qrc:/Icons/Eagle/5.png" : "qrc:/Icons/Eagle/7.png"
         }
     }
     PrefsLabel{

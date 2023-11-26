@@ -153,5 +153,7 @@
         <file>Icons/dark/bottom_dark.png</file>
         <file>Icons/dark/bottom_dark2.png</file>
         <file>Icons/dark/top_dark.png</file>
+        <file>Icons/dark/background.png</file>
+        <file>Icons/dark/stars.png</file>
     </qresource>
 </RCC>

@@ -36,6 +36,7 @@ Button {
         }
         PrefsLabel{
             z:2
+            color: control.textColor
             font.pixelSize: Style.paragraph
             text: control.text
         }

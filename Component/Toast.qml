@@ -23,7 +23,7 @@ Popup{
         padding:0
         background: Rectangle{
             anchors.fill: parent
-            color: palette.base
+            color : Style.isDark ? palette.dark : palette.light
             radius: 15
             Rectangle{
                 anchors.left: parent.left

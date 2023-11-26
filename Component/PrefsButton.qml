@@ -18,8 +18,8 @@ Button {
     property real iconFactor: 0.8
     property bool mirror: false
 
-    implicitWidth: 46
-    implicitHeight: 46
+    implicitWidth: 55
+    implicitHeight: 55
     SystemPalette { id: myPalette; colorGroup: SystemPalette.Active }
 
     contentItem:ColumnLayout{
