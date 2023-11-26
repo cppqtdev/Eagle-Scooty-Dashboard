@@ -19,7 +19,8 @@ Eagle Scooty  Light and Dark Theme Dashboard written in QT QML With Figma Design
 ![tripdetailsmap](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/tripdetailsmap.png)
 ![update](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/update.png)
 ![Calling](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/calling.png)
+![Keypad](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/keypad.png)
 ![Calling Dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/clling-dark.png)
 ![Charging](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/charing.png)
-![Keypad](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/keypad.png)
+
 
