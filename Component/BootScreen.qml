@@ -2,8 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import Style 1.0
 
-// Key-on: the logo, then each system checks in, then the ride view fades in once
-// the vehicle reports ready.
+// Key-on: the logo and every telltale lit, then each system checks in and the
+// lamps go out, then the ride view fades in once the vehicle reports ready.
 Rectangle {
     id: root
 
@@ -22,6 +22,16 @@ Rectangle {
         repeat: true
         running: root.passed < root.checks.length
         onTriggered: root.passed++
+    }
+
+    // The bulb check: every telltale lit while the systems check in, then all
+    // dark before the ride view shows, so a dead lamp is seen at every start.
+    TelltaleStrip {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: parent.top
+        anchors.topMargin: 44
+        lampCheck: root.passed < root.checks.length
+        opacity: logo.opacity
     }
 
     ColumnLayout {

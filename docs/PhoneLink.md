@@ -121,7 +121,7 @@ it skips MediaArt to save airtime).
 | 3 | Ride mode | 0 eco, 1 city, 2 sport — taken only at a standstill |
 | 4 | Charge limit | 80, 90 or 100 % |
 | 5 | Volume | 0–100 % |
-| 6 | Language | index into the cluster's list (reserved) |
+| 6 | Language | index into the cluster's list: 0 English, 1 Hindi |
 | 7 | Navigation arrow | 0 solid, 1 ribbon, 2 chevrons, 3 outline, 4 sign |
 
 Test vector: SettingSet volume (5) to 40 has the payload `05 28 00`. A cluster

@@ -23,6 +23,7 @@ EaglePage {
         { icon: "notifications", title: qsTr("Notifications"), value: qsTr("On"), page: systemNotificationPage },
         { icon: "update", title: qsTr("System Update"), value: qsTr("v%1").arg(Qt.application.version), page: systemUpdatePage },
         { icon: "profile", title: qsTr("Profile"), value: qsTr("Rider"), page: profilePage },
+        { icon: "language", title: qsTr("Language"), value: language.currentName, page: languagePage },
         { icon: "about", title: qsTr("About"), value: "", page: aboutPage },
     ]
 
@@ -32,6 +33,7 @@ EaglePage {
     Component { id: wifiPage; Wifi {} }
     Component { id: mytripPage; MyTrips {} }
     Component { id: aboutPage; About {} }
+    Component { id: languagePage; Language {} }
     Component { id: soundPage; Sound {} }
     Component { id: systemNotificationPage; SystemNotification {} }
     Component { id: systemUpdatePage; SystemUpdate {} }

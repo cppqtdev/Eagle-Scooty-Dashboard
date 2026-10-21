@@ -1,6 +1,7 @@
 #include "phonelinkbridge.h"
 
 #include "dashboarddata.h"
+#include "languagecontroller.h"
 #include "phonelink/iphonelink.h"
 #include "phonelink/phonelinkcodec.h"
 #include "phoneservice.h"
@@ -68,15 +69,25 @@ PhoneLinkBridge::PhoneLinkBridge(phonelink::IPhoneLink *link, DashboardData *dat
     publishSettings();
 }
 
+void PhoneLinkBridge::setLanguage(LanguageController *language)
+{
+    m_language = language;
+    connect(language, &LanguageController::currentChanged, this, &PhoneLinkBridge::publishSettings);
+    publishSettings();
+}
+
 void PhoneLinkBridge::publishSettings()
 {
     namespace setting = phonelink::wire::setting;
-    m_link->publishSettings({{setting::Theme, int(m_theme->mode())},
+    QList<std::pair<int, int>> values{{setting::Theme, int(m_theme->mode())},
                              {setting::Brightness, m_theme->brightness()},
                              {setting::RideMode, int(m_data->rideMode())},
                              {setting::ChargeLimit, m_data->chargeLimitPercent()},
                              {setting::Volume, m_phone->volume()},
-                             {setting::ArrowStyle, m_theme->arrowStyle()}});
+                             {setting::ArrowStyle, m_theme->arrowStyle()}};
+    if (m_language)
+        values.append({setting::Language, m_language->current()});
+    m_link->publishSettings(values);
 }
 
 void PhoneLinkBridge::applySetting(int key, int value)
@@ -104,6 +115,10 @@ void PhoneLinkBridge::applySetting(int key, int value)
         break;
     case setting::ArrowStyle:
         m_theme->setArrowStyle(value);
+        break;
+    case setting::Language:
+        if (m_language)
+            m_language->setCurrent(value);
         break;
     default:
         break;   // a setting this cluster does not have

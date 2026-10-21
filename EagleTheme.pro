@@ -29,6 +29,7 @@ SOURCES += \
         canvehiclesource.cpp \
         dashboarddata.cpp \
         harnessinputs.cpp \
+        languagecontroller.cpp \
         main.cpp \
         phoneservice.cpp \
         phonelinkbridge.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
         canvehiclesource.h \
         dashboarddata.h \
         harnessinputs.h \
+        languagecontroller.h \
         phoneservice.h \
         phonelinkbridge.h \
         phonelink/iphonelink.h \
@@ -66,6 +68,12 @@ HEADERS += \
         wifimanager.h
 
 RESOURCES += qml.qrc
+
+# Translations: lupdate EagleTheme.pro refreshes the .ts files from the code;
+# the build compiles them to .qm and embeds them under :/i18n/.
+TRANSLATIONS += i18n/eagle_hi.ts
+CONFIG += lrelease embed_translations
+QM_FILES_RESOURCE_PREFIX = /i18n
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =

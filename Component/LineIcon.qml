@@ -30,6 +30,7 @@ Image {
         chevronsLeft: "M12 5l-7 7l7 7M20 5l-7 7l7 7",
         chevronsRight: "M4 5l7 7l-7 7M12 5l7 7l-7 7",
         engine: "M3 10h2V8h3V6h7v2h2l2 2h2v6h-2l-2 2H8l-2-2H5v-3H3zM9 6V4h5v2",
+        language: "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18",
         chevronDown: "M5 8l7 7l7-7",
         chevronsDown: "M5 5l7 7l7-7M5 12l7 7l7-7",
         recents: "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM12 7v5l3 2",

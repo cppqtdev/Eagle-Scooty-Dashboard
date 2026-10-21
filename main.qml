@@ -89,20 +89,6 @@ ApplicationWindow {
             source: "qrc:/Icons/dark/background.png"
         }
 
-        // The header casts the same soft shadow as the footer; the dark artwork has its own.
-        Rectangle {
-            visible: !Style.isDark
-            anchors.top: header.bottom
-            anchors.topMargin: -header.height * 0.18
-            anchors.horizontalCenter: header.horizontalCenter
-            width: header.width * 0.9
-            height: 34
-            radius: 17
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: Qt.rgba(0.05, 0.23, 0.23, 0.14) }
-                GradientStop { position: 1.0; color: Qt.rgba(0.05, 0.23, 0.23, 0.0) }
-            }
-        }
         Header {
             id: header
             width: parent.width

@@ -5,6 +5,7 @@
 #include <QTimer>
 
 class DashboardData;
+class LanguageController;
 class PhoneService;
 class ThemeController;
 class VehicleSimulator;
@@ -22,6 +23,9 @@ public:
     PhoneLinkBridge(phonelink::IPhoneLink *link, DashboardData *data, VehicleSimulator *simulator,
                     ThemeController *theme, PhoneService *phone, QObject *parent = nullptr);
 
+    // Optional: lets the app read and set the language (setting 6).
+    void setLanguage(LanguageController *language);
+
 private:
     void syncGuidance();
     void publishVehicle();
@@ -33,6 +37,7 @@ private:
     VehicleSimulator *m_simulator;
     ThemeController *m_theme;
     PhoneService *m_phone;
+    LanguageController *m_language = nullptr;
     bool m_guiding = false;
     QTimer m_publish; // folds a burst of vehicle changes into one message
 };

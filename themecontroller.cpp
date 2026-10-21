@@ -7,7 +7,8 @@ namespace {
 constexpr auto kThemeModeKey = "appearance/themeMode";
 constexpr auto kLegacyDarkThemeKey = "appearance/darkTheme";
 constexpr auto kBrightnessKey = "display/brightness";
-constexpr auto kArrowStyleKey = "navigation/arrowStyle";
+// v2: the sign style became the default; choices saved before it are not carried over.
+constexpr auto kArrowStyleKey = "navigation/arrowStyle2";
 }
 
 ThemeController::ThemeController(QObject *parent)

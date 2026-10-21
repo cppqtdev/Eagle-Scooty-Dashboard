@@ -23,7 +23,7 @@ EaglePage {
         PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: qsTr("Version %1 · TechCoderHub").arg(Qt.application.version) }
 
         Caption { Layout.topMargin: 18; text: qsTr("Built with") }
-        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Qt 6 · Qt Quick · C++17"); value: qsTr("LGPL v3"); valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Qt 6 · Qt Quick · C++20"); value: qsTr("LGPL v3"); valueColor: Style.textMuted }
         InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Orbitron typeface"); value: qsTr("SIL Open Font License"); valueColor: Style.textMuted }
         InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Target"); value: boardMode ? qsTr("HMI panel") : qsTr("Desktop preview"); valueColor: Style.textMuted }
         Item { Layout.fillHeight: true }

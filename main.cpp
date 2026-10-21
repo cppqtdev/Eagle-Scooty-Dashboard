@@ -6,12 +6,14 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
+#include <QSettings>
 
 #include "alertcenter.h"
 #include "bluetoothmanager.h"
 #include "canvehiclesource.h"
 #include "dashboarddata.h"
 #include "harnessinputs.h"
+#include "languagecontroller.h"
 #include "phonelink/protocolphonelink.h"
 #include "phonelink/tcpphonetransport.h"
 #include "phonelinkbridge.h"
@@ -116,6 +118,13 @@ int main(int argc, char *argv[])
                       QStringLiteral("dir")});
     parser.process(app);
 
+    // A snapshot run changes theme, arrow and the rest as it walks the screens;
+    // it keeps those in its own folder, never in the rider's settings.
+    if (parser.isSet(QStringLiteral("snapshot"))) {
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, parser.value(QStringLiteral("snapshot")));
+    }
+
     ThemeController themeController;
     SystemClock systemClock;
     DashboardData dashboardData;
@@ -125,6 +134,8 @@ int main(int argc, char *argv[])
     VehicleDocuments documents;
     CanVehicleSource can(&dashboardData);
     HarnessInputs harnessInputs(&dashboardData);
+    LanguageController language;
+    language.load();
     BluetoothManager bluetooth(&phone);
     WifiManager wifi;
 
@@ -154,6 +165,7 @@ int main(int argc, char *argv[])
         phone.attachLink(phoneLink.get());
         phoneBridge = std::make_unique<PhoneLinkBridge>(phoneLink.get(), &dashboardData, &simulator,
                                                         &themeController, &phone);
+        phoneBridge->setLanguage(&language);
         phoneLink->start();
     }
 
@@ -175,6 +187,8 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();
+    language.setEngine(&engine);
+    context->setContextProperty(QStringLiteral("language"), &language);
     if (phoneLink)
         engine.addImageProvider(QStringLiteral("phoneart"), new PhoneArtProvider(phoneLink.get()));
     context->setContextProperty(QStringLiteral("themeController"), &themeController);

@@ -376,7 +376,7 @@ Item {
 
     // Where to turn: a ring pulsing on the junction.
     Item {
-        visible: root.hasSideRoad && !root.reverse && root.drop < 0.1
+        visible: root.hasSideRoad && !root.reverse && root.drop < 0.1 && Style.arrowStyle !== "sign"
         x: root.cx + root.turnSide * root.width * 0.4 - width / 2
         y: root.joinY + root.height * 0.02 - height / 2
         width: root.width * 0.09

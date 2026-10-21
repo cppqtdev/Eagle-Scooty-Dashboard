@@ -34,12 +34,35 @@ Item {
         NumberAnimation { target: glyph; property: "opacity"; from: 0; to: 1; duration: 260 }
     }
 
+    // A ring pulsing out from behind the arrow: here, now.
+    Rectangle {
+        id: pulse
+        anchors.centerIn: parent
+        width: parent.width * 0.9
+        height: width
+        radius: width / 2
+        color: "transparent"
+        border.color: root.color
+        border.width: 3
+        visible: root.running
+        SequentialAnimation on scale {
+            running: pulse.visible
+            loops: Animation.Infinite
+            NumberAnimation { from: 0.7; to: 1.35; duration: 1400; easing.type: Easing.OutCubic }
+        }
+        SequentialAnimation on opacity {
+            running: pulse.visible
+            loops: Animation.Infinite
+            NumberAnimation { from: 0.7; to: 0; duration: 1400; easing.type: Easing.OutCubic }
+        }
+    }
+
     Canvas {
         id: glyph
         width: root.width
         height: root.height
-        x: root.heading[0] * root.nudge * root.width * 0.06
-        y: root.heading[1] * root.nudge * root.height * 0.06
+        x: root.heading[0] * root.nudge * root.width * 0.1
+        y: root.heading[1] * root.nudge * root.height * 0.1
 
         readonly property var key: [root.maneuver, root.color, width, height]
         onKeyChanged: requestPaint()
