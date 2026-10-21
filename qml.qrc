@@ -9,6 +9,8 @@
         <file>app.ico</file>
         <file>Icons/topbar.svg</file>
         <file>Icons/topbar.png</file>
+        <file>Icons/theme_light.png</file>
+        <file>Icons/theme_dark.png</file>
         <file>Icons/footerbar.svg</file>
         <file>Icons/Eagle.png</file>
         <file>Icons/green.png</file>

@@ -107,10 +107,23 @@ EaglePage {
                     Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
                     onClicked: root.shown = modelData
 
+                    // The soft fill of every row, washed from the left in the card's status colour.
                     background: Rectangle {
-                        radius: Style.metrics.radiusLg
-                        color: Style.surface
-                        border.color: Style.border
+                        id: cardBackground
+                        readonly property color tone: root.statusColor(card.modelData.status)
+                        radius: Style.metrics.radiusMd
+                        color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
+                        border.color: Style.alpha(tone, 0.45)
+                        border.width: 1
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: parent.radius
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: Style.alpha(cardBackground.tone, Style.isDark ? 0.22 : 0.12) }
+                                GradientStop { position: 0.9; color: Style.alpha(cardBackground.tone, 0.0) }
+                            }
+                        }
                     }
                     contentItem: ColumnLayout {
                         spacing: 8
@@ -133,7 +146,6 @@ EaglePage {
                     }
                 }
 
-                ScrollBar.horizontal: ScrollBar { policy: cards.contentWidth > cards.width ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff }
             }
 
             PrefsLabel { Layout.topMargin: 10; font.pixelSize: Style.h4; color: Style.textMuted; text: qsTr("Vehicle") }

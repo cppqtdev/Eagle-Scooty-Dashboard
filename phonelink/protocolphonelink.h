@@ -64,7 +64,11 @@ public slots:
     void previousTrack() override;
     void callContact(int slot) override;
     void publishVehicle(const phonelink::VehicleSummary &summary) override;
-    void publishSettings(const QList<std::pair<int, int>> &values) override;
+    void publishClusterSettings(const phonelink::wire::ClusterSettings &settings) override;
+    void publishWifiStatus(const phonelink::wire::WifiStatus &status) override;
+    void publishWifiNetworks(const QList<phonelink::wire::WifiNetwork> &networks) override;
+    void publishFaults(const QList<phonelink::wire::FaultEntry> &faults) override;
+    void publishFirmwareStatus(const phonelink::wire::FirmwareStatus &status) override;
 
 private:
     struct PhoneState
@@ -119,7 +123,9 @@ private:
     std::optional<qint64> m_clockOffsetSeconds;
     int m_utcOffsetMinutes = 0;
     std::optional<VehicleSummary> m_vehicle;
-    std::optional<wire::Settings> m_settings;
+    std::optional<wire::ClusterSettings> m_settings;
+    std::optional<wire::WifiStatus> m_wifi;
+    QList<wire::FaultEntry> m_faults;
 };
 
 } // namespace phonelink

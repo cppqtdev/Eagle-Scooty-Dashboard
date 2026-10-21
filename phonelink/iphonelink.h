@@ -1,5 +1,6 @@
 #pragma once
 
+#include "phonelinkcodec.h"
 #include "phonetypes.h"
 
 #include <QByteArray>
@@ -47,8 +48,13 @@ public slots:
     virtual void previousTrack() = 0;
     virtual void callContact(int slot);
     virtual void publishVehicle(const phonelink::VehicleSummary &summary);
-    // The cluster's settings as (key, value) pairs (wire::setting), for the app to show.
-    virtual void publishSettings(const QList<std::pair<int, int>> &values);
+    // What the cluster tells the app beyond vehicle status (protocol 1.2): its settings, its
+    // Wi-Fi, the networks a scan found, its trouble codes and a firmware update's progress.
+    virtual void publishClusterSettings(const phonelink::wire::ClusterSettings &settings);
+    virtual void publishWifiStatus(const phonelink::wire::WifiStatus &status);
+    virtual void publishWifiNetworks(const QList<phonelink::wire::WifiNetwork> &networks);
+    virtual void publishFaults(const QList<phonelink::wire::FaultEntry> &faults);
+    virtual void publishFirmwareStatus(const phonelink::wire::FirmwareStatus &status);
 
 signals:
     void connectionChanged();
@@ -59,8 +65,10 @@ signals:
     void albumArtChanged();
     void notificationChanged();
     void listsChanged();
-    // The app asks to change a setting; the cluster decides whether to.
-    void settingRequested(int key, int value);
+    // What the app asks of the cluster; the cluster decides whether to.
+    void commandReceived(int command, int value);           // wire::command
+    void wifiJoinRequested(const QString &ssid, const QString &password);
+    void firmwareOffered(quint32 size, const QString &version);
 };
 
 } // namespace phonelink

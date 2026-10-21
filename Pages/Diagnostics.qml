@@ -26,11 +26,23 @@ EaglePage {
         bottomPadding: 18
         leftPadding: 12
         rightPadding: 12
+        // The soft fill of every row, washed from the left: accent, or amber on a warning.
         background: Rectangle {
+            id: readingBackground
+            readonly property color tone: reading.warn ? Style.warning : Style.accent
             radius: Style.metrics.radiusMd
-            color: Style.surface
-            border.color: reading.warn ? Style.warning : Style.border
-            border.width: reading.warn ? 2 : 1
+            color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
+            border.color: Style.alpha(tone, reading.warn ? 0.8 : 0.25)
+            border.width: reading.warn ? 1.5 : 1
+            Rectangle {
+                anchors.fill: parent
+                radius: parent.radius
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: Style.alpha(readingBackground.tone, Style.isDark ? 0.20 : 0.10) }
+                    GradientStop { position: 1.0; color: Style.alpha(readingBackground.tone, 0.0) }
+                }
+            }
         }
         contentItem: ColumnLayout {
             spacing: 4
@@ -59,10 +71,16 @@ EaglePage {
         rightPadding: 20
         scale: pressed ? 0.98 : 1
         Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
+        // A pill washed in the accent; the main action full strength.
         background: Rectangle {
             radius: height / 2
-            color: pill.primary ? Style.accent : Style.surfaceRaised
-            border.color: pill.primary ? Style.accent : Style.border
+            color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
+            border.color: Style.alpha(Style.accent, pill.primary ? 0.9 : 0.35)
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: Style.alpha(Style.accent, pill.primary ? 0.95 : (Style.isDark ? 0.24 : 0.14)) }
+                GradientStop { position: 1.0; color: Style.alpha(Style.accent, pill.primary ? 0.65 : 0.02) }
+            }
         }
         contentItem: PrefsLabel {
             font.pixelSize: Style.h5
@@ -87,7 +105,6 @@ EaglePage {
         flickableDirection: Flickable.VerticalFlick
         boundsBehavior: Flickable.StopAtBounds
         clip: true
-        ScrollBar.vertical: ScrollBar {}
 
         ColumnLayout {
             id: page

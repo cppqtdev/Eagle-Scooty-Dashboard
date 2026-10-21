@@ -14,11 +14,12 @@ namespace phonelink::wire {
 
 constexpr std::uint8_t kStartOfFrame = 0xA5;
 constexpr std::uint8_t kVersion = 1;
-constexpr std::uint8_t kMinorVersion = 2; // 1.2: settings from the app
+constexpr std::uint8_t kMinorVersion = 2; // 1.2: cluster control, Wi-Fi, fault log, firmware
 constexpr int kHeaderSize = 5;
 constexpr int kCrcSize = 2;
 constexpr int kMaxPayload = 160;
 constexpr int kMaxText = 48;
+constexpr int kMaxWifiPassword = 64; // a WPA key: WifiJoin's password may be this long
 constexpr int kListSlots = 3;
 // The app sends at most 12 KiB; a little slack for a phone that encodes a touch larger.
 constexpr int kMaxArtBytes = 16 * 1024;
@@ -34,13 +35,19 @@ enum class MessageType : std::uint8_t
     MediaArt = 0x14,
     TimeSync = 0x20,
     PhoneStatus = 0x21,
-    SettingSet = 0x23,   // 1.2
+    WifiJoin = 0x22,        // 1.1
+    ClusterCommand = 0x23,  // 1.2
+    FirmwareOffer = 0x24,   // 1.2
     Heartbeat = 0x30,
     MediaCommand = 0x40,
     CallCommand = 0x41,
     VehicleStatus = 0x60,
     ClusterInfo = 0x61,
-    Settings = 0x63,     // 1.2
+    WifiStatus = 0x62,      // 1.1
+    ClusterSettings = 0x63, // 1.2
+    FirmwareStatus = 0x64,  // 1.2
+    FaultEntry = 0x65,      // 1.2
+    WifiNetwork = 0x66,     // 1.2
 };
 
 struct Frame
@@ -258,6 +265,26 @@ struct VehicleStatus
     int gear = 0;     // 0 N, 1 D, 2 R
     int activeFaults = 0;
 
+    // 1.1 trailing details; sent whenever present.
+    struct Details
+    {
+        quint32 tripBHectometres = 0;
+        qint32 kmToService = 0;      // negative when overdue
+        int tripAWhPerKm = 0;
+        int tripAAverageKmhX10 = 0;
+        int tripAMaxKmh = 0;
+        int batteryC = 0;
+        int motorC = 0;
+        int frontTyreBarX10 = 0;     // 0: no sensor
+        int rearTyreBarX10 = 0;
+        int minutesToCharge = 0;
+        bool serviceDue = false;
+        bool temperaturesValid = false;
+
+        bool operator==(const Details &) const = default;
+    };
+    std::optional<Details> details;
+
     bool operator==(const VehicleStatus &) const = default;
 };
 
@@ -269,37 +296,140 @@ constexpr quint32 ContactsDial = 1u << 2;
 constexpr quint32 NextManeuver = 1u << 3;
 constexpr quint32 Notifications = 1u << 4;
 constexpr quint32 Reminders = 1u << 5;
-constexpr quint32 WifiJoin = 1u << 6;
-constexpr quint32 Settings = 1u << 9;
+constexpr quint32 Wifi = 1u << 6;            // joins a network the app hands it
+constexpr quint32 ClusterControl = 1u << 9;  // ClusterCommand and ClusterSettings
+constexpr quint32 FirmwareUpdate = 1u << 10; // FirmwareOffer and FirmwareStatus
+constexpr quint32 FaultLog = 1u << 11;       // FaultEntry
+constexpr quint32 WifiScan = 1u << 12;       // WifiNetwork
 } // namespace feature
 
-// The settings the app may read and change (1.2). Values are small whole numbers.
-namespace setting {
-constexpr int Theme = 1;        // 0 auto, 1 light, 2 dark
-constexpr int Brightness = 2;   // 20..100 %
-constexpr int RideMode = 3;     // 0 eco, 1 city, 2 sport; taken only at a standstill
-constexpr int ChargeLimit = 4;  // 80, 90 or 100 %
-constexpr int Volume = 5;       // 0..100 %
-constexpr int Language = 6;     // index into the cluster's language list
-constexpr int ArrowStyle = 7;   // 0 solid, 1 ribbon, 2 chevrons, 3 outline, 4 sign
-} // namespace setting
+// ClusterCommand codes (1.2). 15 and up are Eagle's, proposed for the app as 1.3; an
+// app that does not know them never sends them.
+namespace command {
+constexpr int DisplayMode = 1;   // 0 auto, 1 dark, 2 light
+constexpr int Units = 2;         // 0 metric, 1 imperial
+constexpr int Brightness = 3;    // percent
+constexpr int Clock24 = 4;       // 0 or 1
+constexpr int Key = 5;           // value: 0 up, 1 down, 2 left, 3 right, 4 OK, 5 mode, 6 back
+constexpr int LongKey = 6;
+constexpr int ResetTrip = 7;     // 0 A, 1 B
+constexpr int ResetService = 8;
+constexpr int ShowPage = 9;      // 0 drive, 1 ride mode, 2 status, 3 trip, 4 navigation, 5 media, 6 phone, 7 settings
+constexpr int ListFaults = 10;
+constexpr int ClearFaults = 11;
+constexpr int ScanWifi = 12;
+constexpr int ForgetWifi = 13;
+constexpr int ForgetPhones = 14;
+constexpr int RideMode = 15;     // Eagle (1.3): 0 eco, 1 city, 2 sport; at a standstill
+constexpr int ChargeLimit = 16;  // Eagle (1.3): 80, 90 or 100
+constexpr int Volume = 17;       // Eagle (1.3): percent
+constexpr int ArrowStyle = 18;   // Eagle (1.3): 0 solid, 1 ribbon, 2 chevrons, 3 outline, 4 sign
+constexpr int Language = 19;     // Eagle (1.3): 0 English, 1 Hindi
+} // namespace command
 
-// Phone to cluster: change one setting.
-struct SettingSet
+struct ClusterCommand
 {
-    int key = 0;
+    int command = 0;
     int value = 0;
 
-    bool operator==(const SettingSet &) const = default;
+    bool operator==(const ClusterCommand &) const = default;
 };
 
-// Cluster to phone: every setting and its value, after ClusterInfo and on any change.
-struct Settings
+// The cluster's choices, after ClusterInfo and on any change. The fields after `dark` are
+// Eagle's (1.3); an app that does not know them stops reading before them.
+struct ClusterSettings
 {
-    QList<std::pair<int, int>> values;
+    int displayMode = 0;     // 0 auto, 1 dark, 2 light
+    int units = 0;           // 0 metric, 1 imperial
+    int brightness = 76;     // percent
+    bool clock24 = true;
+    bool locked = false;     // moving: settings and resets are refused
+    int page = 0;            // as ShowPage
+    bool dark = false;       // the theme on screen now
+    int rideMode = 0;
+    int chargeLimit = 90;
+    int volume = 60;
+    int arrowStyle = 4;
+    int language = 0;
 
-    bool operator==(const Settings &) const = default;
+    bool operator==(const ClusterSettings &) const = default;
 };
+
+struct WifiJoin
+{
+    QString ssid;
+    QString password;   // up to 64 bytes (a WPA key), longer than ordinary text
+
+    bool operator==(const WifiJoin &) const = default;
+};
+
+enum class WifiState : std::uint8_t { Off, NoNetwork, Joining, Joined, Failed };
+enum class WifiFailure : std::uint8_t { None, WrongPassword, NotFound, TimedOut, Refused };
+
+struct WifiStatus
+{
+    WifiState state = WifiState::Off;
+    QString ssid;
+    QString address;
+    int rssi = 0;            // dBm, 0 when not joined
+    WifiFailure failure = WifiFailure::None;
+    bool scanning = false;
+
+    bool operator==(const WifiStatus &) const = default;
+};
+
+// One network a scan found; total 0 (and nothing else) means none.
+struct WifiNetwork
+{
+    int index = 0;
+    int total = 0;
+    int rssi = 0;
+    bool secured = false;
+    bool current = false;
+    QString ssid;
+
+    bool operator==(const WifiNetwork &) const = default;
+};
+
+// One trouble code; total 0 means none. The code's high byte is the system, the low the fault.
+struct FaultEntry
+{
+    int index = 0;
+    int total = 0;
+    int code = 0;
+    bool active = false;
+    bool critical = false;
+    int count = 0;
+    QString title;
+    QString detail;
+    QString firstSeen;
+    QString lastSeen;
+
+    bool operator==(const FaultEntry &) const = default;
+};
+
+struct FirmwareOffer
+{
+    quint32 size = 0;
+    QString version;
+
+    bool operator==(const FirmwareOffer &) const = default;
+};
+
+enum class FirmwareState : std::uint8_t { Idle, Ready, Receiving, Verifying, Rebooting, Failed };
+
+struct FirmwareStatus
+{
+    FirmwareState state = FirmwareState::Idle;
+    int percent = 0;
+    int port = 0;
+    QString address;
+    QString token;
+    QString message;
+
+    bool operator==(const FirmwareStatus &) const = default;
+};
+
 
 struct ClusterInfo
 {
@@ -321,7 +451,9 @@ struct ClusterInfo
 [[nodiscard]] std::optional<MediaArt> decodeMediaArt(const QByteArray &payload);
 [[nodiscard]] std::optional<TimeSync> decodeTimeSync(const QByteArray &payload);
 [[nodiscard]] std::optional<PhoneStatus> decodePhoneStatus(const QByteArray &payload);
-[[nodiscard]] std::optional<SettingSet> decodeSettingSet(const QByteArray &payload);
+[[nodiscard]] std::optional<ClusterCommand> decodeClusterCommand(const QByteArray &payload);
+[[nodiscard]] std::optional<WifiJoin> decodeWifiJoin(const QByteArray &payload);
+[[nodiscard]] std::optional<FirmwareOffer> decodeFirmwareOffer(const QByteArray &payload);
 
 [[nodiscard]] QByteArray encode(const NavUpdate &message);
 [[nodiscard]] QByteArray encode(const CallState &message);
@@ -332,7 +464,9 @@ struct ClusterInfo
 [[nodiscard]] QByteArray encode(const TimeSync &message);
 [[nodiscard]] QByteArray encode(const PhoneStatus &message);
 [[nodiscard]] QByteArray encodeNavStop();
-[[nodiscard]] QByteArray encode(const SettingSet &message);
+[[nodiscard]] QByteArray encode(const ClusterCommand &message);
+[[nodiscard]] QByteArray encode(const WifiJoin &message);
+[[nodiscard]] QByteArray encode(const FirmwareOffer &message);
 
 // Cluster to phone.
 [[nodiscard]] QByteArray encodeHeartbeat();
@@ -342,8 +476,16 @@ struct ClusterInfo
 [[nodiscard]] QByteArray encode(const ClusterInfo &message);
 [[nodiscard]] std::optional<VehicleStatus> decodeVehicleStatus(const QByteArray &payload);
 [[nodiscard]] std::optional<ClusterInfo> decodeClusterInfo(const QByteArray &payload);
-[[nodiscard]] QByteArray encode(const Settings &message);
-[[nodiscard]] std::optional<Settings> decodeSettings(const QByteArray &payload);
+[[nodiscard]] QByteArray encode(const ClusterSettings &message);
+[[nodiscard]] QByteArray encode(const WifiStatus &message);
+[[nodiscard]] QByteArray encode(const WifiNetwork &message);
+[[nodiscard]] QByteArray encode(const FaultEntry &message);
+[[nodiscard]] QByteArray encode(const FirmwareStatus &message);
+[[nodiscard]] std::optional<ClusterSettings> decodeClusterSettings(const QByteArray &payload);
+[[nodiscard]] std::optional<WifiStatus> decodeWifiStatus(const QByteArray &payload);
+[[nodiscard]] std::optional<WifiNetwork> decodeWifiNetwork(const QByteArray &payload);
+[[nodiscard]] std::optional<FaultEntry> decodeFaultEntry(const QByteArray &payload);
+[[nodiscard]] std::optional<FirmwareStatus> decodeFirmwareStatus(const QByteArray &payload);
 
 // Puts a cover back together from its MediaArt chunks. Only the picture of the track now
 // playing is kept: chunks for any other id are ignored.

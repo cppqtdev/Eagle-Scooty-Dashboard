@@ -166,6 +166,9 @@ int main(int argc, char *argv[])
         phoneBridge = std::make_unique<PhoneLinkBridge>(phoneLink.get(), &dashboardData, &simulator,
                                                         &themeController, &phone);
         phoneBridge->setLanguage(&language);
+        phoneBridge->setClock(&systemClock);
+        phoneBridge->setWifi(&wifi);
+        phoneBridge->setAlerts(&alertCenter);
         phoneLink->start();
     }
 
@@ -189,6 +192,8 @@ int main(int argc, char *argv[])
     QQmlContext *context = engine.rootContext();
     language.setEngine(&engine);
     context->setContextProperty(QStringLiteral("language"), &language);
+    // The app's keys and pages reach the UI through it; null with the built-in phone.
+    context->setContextProperty(QStringLiteral("phoneLinkBridge"), phoneBridge.get());
     if (phoneLink)
         engine.addImageProvider(QStringLiteral("phoneart"), new PhoneArtProvider(phoneLink.get()));
     context->setContextProperty(QStringLiteral("themeController"), &themeController);

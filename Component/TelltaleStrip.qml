@@ -50,14 +50,12 @@ RowLayout {
     Telltale {
         lampCheck: strip.lampCheck
         active: dashboardData.absFault
-        iconSize: 50
         offSource: "qrc:/Icons/topIcons/icn_abs.png"
         onSource: "qrc:/Icons/topIcons/icn_abs_glow.png"
     }
     Telltale {
         lampCheck: strip.lampCheck
         active: dashboardData.checkEngine
-        iconSize: 50
         offSource: "qrc:/Icons/topIcons/icn_malfunction.png"
         onSource: "qrc:/Icons/topIcons/icn_malfunction_glow.png"
     }

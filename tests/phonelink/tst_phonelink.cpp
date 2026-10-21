@@ -110,7 +110,8 @@ private slots:
     void contactsAndRemindersFillTheirSlots();
     void vehicleStatusGoesOutWhenPublishedAndOnSubscribe();
     void framesSplitAcrossWritesStillArrive();
-    void settingsGoOutAndRequestsComeIn();
+    void appProtocolOneTwo();
+    void vehicleDetailsTrailTheStatus();
 };
 
 void PhoneLinkTest::crcIsCcittFalse()
@@ -680,32 +681,83 @@ void PhoneLinkTest::framesSplitAcrossWritesStillArrive()
     QVERIFY(rig.link->guidance().active);
 }
 
-void PhoneLinkTest::settingsGoOutAndRequestsComeIn()
+void PhoneLinkTest::appProtocolOneTwo()
 {
     LinkRig rig;
-    QVERIFY(ProtocolPhoneLink::features() & wire::feature::Settings);
+    using namespace wire::feature;
+    QVERIFY(ProtocolPhoneLink::features() & ClusterControl);
+    QVERIFY(ProtocolPhoneLink::features() & FaultLog);
+    QVERIFY(ProtocolPhoneLink::features() & WifiScan);
+    QVERIFY(!(ProtocolPhoneLink::features() & FirmwareUpdate));   // not until the receiver exists
 
-    // Published settings go out once, again only when they change, and to the next phone after ClusterInfo.
+    // ClusterCommand as the app builds it (SetBrightness 60: code 3, value 60) arrives as a signal.
+    QSignalSpy commands(rig.link.get(), &IPhoneLink::commandReceived);
+    rig.phoneSends(wire::encodeFrame(wire::MessageType::ClusterCommand, QByteArray::fromHex("03 3c")));
+    QCOMPARE(commands.count(), 1);
+    QCOMPARE(commands.at(0).at(0).toInt(), wire::command::Brightness);
+    QCOMPARE(commands.at(0).at(1).toInt(), 60);
+
+    // WifiJoin carries a 64-byte WPA key whole.
+    QSignalSpy joins(rig.link.get(), &IPhoneLink::wifiJoinRequested);
+    const QString key(64, QLatin1Char('k'));
+    rig.phoneSends(wire::encode(wire::WifiJoin{QStringLiteral("Home-5G"), key}));
+    QCOMPARE(joins.count(), 1);
+    QCOMPARE(joins.at(0).at(1).toString(), key);
+
+    // ClusterSettings: the app reads the first seven bytes; Eagle's five follow and are ignored by it.
     rig.transport->clearSent();
-    const QList<std::pair<int, int>> values{{wire::setting::Theme, 2}, {wire::setting::Brightness, 80}};
-    rig.link->publishSettings(values);
-    rig.link->publishSettings(values);
+    wire::ClusterSettings settings;
+    settings.displayMode = 1;
+    settings.brightness = 80;
+    settings.clock24 = true;
+    settings.locked = true;
+    settings.page = 4;
+    settings.dark = true;
+    rig.link->publishClusterSettings(settings);
+    rig.link->publishClusterSettings(settings);   // unchanged: not sent again
     QCOMPARE(rig.transport->sent().size(), 1);
-    QCOMPARE(wire::decodeSettings(payloadOf(rig.transport->sent().constFirst()))->values, values);
+    const QByteArray payload = payloadOf(rig.transport->sent().constFirst());
+    QCOMPARE(payload.left(7), QByteArray::fromHex("01 00 50 01 01 04 01"));
+    QCOMPARE(payload.size(), 12);
+    QCOMPARE(*wire::decodeClusterSettings(payload), settings);
+
+    // The next phone gets the settings straight after ClusterInfo.
     rig.transport->disconnectPhone();
     rig.transport->clearSent();
     rig.transport->connectPhone();
-    QCOMPARE(wire::decodeSettings(payloadOf(rig.transport->sent().at(1)))->values, values);
+    QVERIFY(rig.transport->sent().contains(wire::encode(settings)));
 
-    // A request from the app arrives as a signal; the cluster decides.
-    QSignalSpy requested(rig.link.get(), &IPhoneLink::settingRequested);
-    rig.phoneSends(wire::encode(wire::SettingSet{wire::setting::Volume, 40}));
-    QCOMPARE(requested.count(), 1);
-    QCOMPARE(requested.at(0).at(0).toInt(), wire::setting::Volume);
-    QCOMPARE(requested.at(0).at(1).toInt(), 40);
+    // Fault log and Wi-Fi scan: one frame per entry, a lone total-0 frame for none.
+    rig.transport->clearSent();
+    rig.link->publishFaults({});
+    QCOMPARE(wire::decodeFaultEntry(payloadOf(rig.transport->sent().constLast()))->total, 0);
+    const wire::FaultEntry fault{0, 1, 0x0301, true, true, 2, QStringLiteral("Motor fault"),
+                                 QStringLiteral("Stop safely"), QStringLiteral("21 Oct 15:00"), QStringLiteral("21 Oct 15:10")};
+    rig.link->publishFaults({fault});
+    QCOMPARE(*wire::decodeFaultEntry(payloadOf(rig.transport->sent().constLast())), fault);
+    const wire::WifiNetwork network{0, 1, -60, true, false, QStringLiteral("Home-5G")};
+    rig.link->publishWifiNetworks({network});
+    QCOMPARE(*wire::decodeWifiNetwork(payloadOf(rig.transport->sent().constLast())), network);
+}
 
-    // The bytes, for the app's codec to test against: Volume (5) to 40.
-    QCOMPARE(payloadOf(wire::encode(wire::SettingSet{5, 40})), QByteArray::fromHex("05 28 00"));
+void PhoneLinkTest::vehicleDetailsTrailTheStatus()
+{
+    wire::VehicleStatus status;
+    status.stateOfChargePercent = 72;
+    wire::VehicleStatus::Details details;
+    details.kmToService = -12;
+    details.tripAMaxKmh = 61;
+    details.batteryC = -3;
+    details.frontTyreBarX10 = 22;
+    details.serviceDue = true;
+    status.details = details;
+    const QByteArray payload = payloadOf(wire::encode(status));
+    QCOMPARE(payload.size(), 16 + 21);   // 1.0 fields, then the 1.1 details
+    QCOMPARE(*wire::decodeVehicleStatus(payload), status);
+
+    // Without details it is the 1.0 message, byte for byte.
+    status.details.reset();
+    QCOMPARE(payloadOf(wire::encode(status)).size(), 16);
 }
 
 QTEST_GUILESS_MAIN(PhoneLinkTest)

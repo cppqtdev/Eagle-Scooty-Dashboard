@@ -3,7 +3,10 @@
 #include <QString>
 #include <QTime>
 
+#include "phonelinkcodec.h"
+
 #include <cstdint>
+#include <optional>
 
 namespace phonelink {
 
@@ -111,6 +114,8 @@ struct VehicleSummary
     int rideMode = 0; // 0 eco, 1 city, 2 sport, 3 track
     int gear = 0;     // 0 N, 1 D, 2 R
     int activeFaults = 0;
+    // Trip B, service, efficiency, speeds, temperatures, tyres: the 1.1 trailing fields.
+    std::optional<wire::VehicleStatus::Details> details;
 
     bool operator==(const VehicleSummary &) const = default;
 };

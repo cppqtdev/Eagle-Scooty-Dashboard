@@ -87,6 +87,8 @@ QtObject {
     readonly property string arrowStyle: ["solid", "ribbon", "chevrons", "outline", "sign"][themeController.arrowStyle] || "sign"
 
     function alpha(c, a) {
+        if (!c)
+            return "transparent"
         const color = Qt.lighter(c, 1.0)
         return Qt.rgba(color.r, color.g, color.b, a)
     }

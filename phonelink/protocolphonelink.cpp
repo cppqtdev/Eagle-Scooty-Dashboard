@@ -76,6 +76,8 @@ wire::VehicleStatus toWire(const VehicleSummary &summary)
     status.rideMode = static_cast<int>(summary.rideMode);
     status.gear = static_cast<int>(summary.gear);
     status.activeFaults = summary.activeFaults;
+    if (summary.details)
+        status.details = *summary.details;
     return status;
 }
 
@@ -125,7 +127,9 @@ ProtocolPhoneLink::~ProtocolPhoneLink()
 quint32 ProtocolPhoneLink::features()
 {
     using namespace wire::feature;
-    return AlbumArt | VehicleStatus | ContactsDial | NextManeuver | Notifications | Reminders | Settings;
+    // Not FirmwareUpdate yet: the receiver for a Linux image is still to come.
+    return AlbumArt | VehicleStatus | ContactsDial | NextManeuver | Notifications | Reminders | Wifi | ClusterControl
+           | FaultLog | WifiScan;
 }
 
 bool ProtocolPhoneLink::isConnected() const
@@ -288,13 +292,46 @@ void ProtocolPhoneLink::publishVehicle(const VehicleSummary &summary)
     send(wire::encode(toWire(summary)));
 }
 
-void ProtocolPhoneLink::publishSettings(const QList<std::pair<int, int>> &values)
+void ProtocolPhoneLink::publishClusterSettings(const wire::ClusterSettings &settings)
 {
-    wire::Settings settings{values};
     if (m_settings && *m_settings == settings)
         return;
     m_settings = settings;
     send(wire::encode(settings));
+}
+
+void ProtocolPhoneLink::publishWifiStatus(const wire::WifiStatus &status)
+{
+    if (m_wifi && *m_wifi == status)
+        return;
+    m_wifi = status;
+    send(wire::encode(status));
+}
+
+void ProtocolPhoneLink::publishWifiNetworks(const QList<wire::WifiNetwork> &networks)
+{
+    if (networks.isEmpty()) {
+        send(wire::encode(wire::WifiNetwork{}));   // total 0: none found
+        return;
+    }
+    for (const wire::WifiNetwork &network : networks)
+        send(wire::encode(network));
+}
+
+void ProtocolPhoneLink::publishFaults(const QList<wire::FaultEntry> &faults)
+{
+    m_faults = faults;
+    if (faults.isEmpty()) {
+        send(wire::encode(wire::FaultEntry{}));   // total 0: no codes
+        return;
+    }
+    for (const wire::FaultEntry &fault : faults)
+        send(wire::encode(fault));
+}
+
+void ProtocolPhoneLink::publishFirmwareStatus(const wire::FirmwareStatus &status)
+{
+    send(wire::encode(status));
 }
 
 void ProtocolPhoneLink::onPeerConnected()
@@ -306,6 +343,8 @@ void ProtocolPhoneLink::onPeerConnected()
         send(wire::encode(toWire(*m_vehicle)));
     if (m_settings)
         send(wire::encode(*m_settings));
+    if (m_wifi)
+        send(wire::encode(*m_wifi));
     m_heartbeat.start();
     m_silence.start();
 }
@@ -387,11 +426,19 @@ void ProtocolPhoneLink::handle(const wire::Frame &frame)
     case MessageType::PhoneStatus:
         applyDecoded(wire::decodePhoneStatus(frame.payload));
         break;
-    case MessageType::SettingSet:
-        if (const auto message = wire::decodeSettingSet(frame.payload)) {
-            qCInfo(lcPhoneLink) << "App sets" << message->key << "to" << message->value;
-            emit settingRequested(message->key, message->value);
+    case MessageType::ClusterCommand:
+        if (const auto message = wire::decodeClusterCommand(frame.payload)) {
+            qCInfo(lcPhoneLink) << "App command" << message->command << message->value;
+            emit commandReceived(message->command, message->value);
         }
+        break;
+    case MessageType::WifiJoin:
+        if (const auto message = wire::decodeWifiJoin(frame.payload))
+            emit wifiJoinRequested(message->ssid, message->password);
+        break;
+    case MessageType::FirmwareOffer:
+        if (const auto message = wire::decodeFirmwareOffer(frame.payload))
+            emit firmwareOffered(message->size, message->version);
         break;
     default:
         // Heartbeat, or a message from a newer app this cluster does not know.

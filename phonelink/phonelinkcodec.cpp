@@ -37,9 +37,21 @@ public:
         return *this;
     }
 
-    Writer &text(const QString &value)
+    Writer &s8(int value)
     {
-        const QByteArray utf8 = clipUtf8(value.toUtf8());
+        m_bytes.append(static_cast<char>(static_cast<qint8>(std::clamp(value, -0x80, 0x7F))));
+        return *this;
+    }
+
+    Writer &s32(qint32 value)
+    {
+        append(qToLittleEndian(value));
+        return *this;
+    }
+
+    Writer &text(const QString &value, int maxBytes = kMaxText)
+    {
+        const QByteArray utf8 = clipUtf8(value.toUtf8(), maxBytes);
         u8(static_cast<int>(utf8.size()));
         m_bytes.append(utf8);
         return *this;
@@ -110,12 +122,26 @@ public:
         return qFromLittleEndian<quint32>(m_bytes.constData() + m_position - 4);
     }
 
-    QString text()
+    int s8()
+    {
+        if (!take(1))
+            return 0;
+        return static_cast<qint8>(m_bytes.at(m_position - 1));
+    }
+
+    qint32 s32()
+    {
+        if (!take(4))
+            return 0;
+        return qFromLittleEndian<qint32>(m_bytes.constData() + m_position - 4);
+    }
+
+    QString text(int maxBytes = kMaxText)
     {
         const int length = u8();
         if (!take(length))
             return {};
-        return QString::fromUtf8(clipUtf8(m_bytes.mid(m_position - length, length)));
+        return QString::fromUtf8(clipUtf8(m_bytes.mid(m_position - length, length), maxBytes));
     }
 
     QByteArray rest()
@@ -365,15 +391,6 @@ std::optional<PhoneStatus> decodePhoneStatus(const QByteArray &payload)
     return valid(in, message);
 }
 
-std::optional<SettingSet> decodeSettingSet(const QByteArray &payload)
-{
-    Reader in(payload);
-    SettingSet message;
-    message.key = in.u8();
-    message.value = in.u16();
-    return valid(in, message);
-}
-
 QByteArray encode(const NavUpdate &message)
 {
     Writer out;
@@ -454,11 +471,6 @@ QByteArray encode(const PhoneStatus &message)
     return out.frame(MessageType::PhoneStatus);
 }
 
-QByteArray encode(const SettingSet &message)
-{
-    return Writer().u8(message.key).u16(message.value).frame(MessageType::SettingSet);
-}
-
 QByteArray encodeNavStop()
 {
     return encodeFrame(MessageType::NavStop);
@@ -485,16 +497,29 @@ QByteArray encodeCallCommand(CallCommand command, int contactSlot)
 
 QByteArray encode(const VehicleStatus &message)
 {
-    return Writer()
-        .u8(message.stateOfChargePercent)
+    Writer out;
+    out.u8(message.stateOfChargePercent)
         .u16(message.rangeKm)
         .u32(message.odometerHectometres)
         .u32(message.tripAHectometres)
         .u8(static_cast<int>(message.charging))
         .u8(message.rideMode)
         .u8(message.gear)
-        .u16(message.activeFaults)
-        .frame(MessageType::VehicleStatus);
+        .u16(message.activeFaults);
+    if (const auto &d = message.details) {
+        out.u32(d->tripBHectometres)
+            .s32(d->kmToService)
+            .u16(d->tripAWhPerKm)
+            .u16(d->tripAAverageKmhX10)
+            .u16(d->tripAMaxKmh)
+            .s8(d->batteryC)
+            .s8(d->motorC)
+            .u8(d->frontTyreBarX10)
+            .u8(d->rearTyreBarX10)
+            .u16(d->minutesToCharge)
+            .u8((d->serviceDue ? 1 : 0) | (d->temperaturesValid ? 2 : 0));
+    }
+    return out.frame(MessageType::VehicleStatus);
 }
 
 QByteArray encode(const ClusterInfo &message)
@@ -519,6 +544,23 @@ std::optional<VehicleStatus> decodeVehicleStatus(const QByteArray &payload)
     message.rideMode = in.u8();
     message.gear = in.u8();
     message.activeFaults = in.u16();
+    if (in.ok() && in.remaining() >= 21) {
+        VehicleStatus::Details d;
+        d.tripBHectometres = in.u32();
+        d.kmToService = in.s32();
+        d.tripAWhPerKm = in.u16();
+        d.tripAAverageKmhX10 = in.u16();
+        d.tripAMaxKmh = in.u16();
+        d.batteryC = in.s8();
+        d.motorC = in.s8();
+        d.frontTyreBarX10 = in.u8();
+        d.rearTyreBarX10 = in.u8();
+        d.minutesToCharge = in.u16();
+        const int flags = in.u8();
+        d.serviceDue = flags & 1;
+        d.temperaturesValid = flags & 2;
+        message.details = d;
+    }
     return valid(in, message);
 }
 
@@ -533,24 +575,194 @@ std::optional<ClusterInfo> decodeClusterInfo(const QByteArray &payload)
     return valid(in, message);
 }
 
-QByteArray encode(const Settings &message)
-{
-    Writer out;
-    out.u8(int(message.values.size()));
-    for (const auto &[key, value] : message.values)
-        out.u8(key).u16(value);
-    return out.frame(MessageType::Settings);
-}
-
-std::optional<Settings> decodeSettings(const QByteArray &payload)
+std::optional<ClusterCommand> decodeClusterCommand(const QByteArray &payload)
 {
     Reader in(payload);
-    Settings message;
-    const int count = in.u8();
-    for (int i = 0; i < count; ++i) {
-        const int key = in.u8();
-        message.values.append({key, in.u16()});
+    ClusterCommand message;
+    message.command = in.u8();
+    message.value = in.u8();
+    return valid(in, message);
+}
+
+QByteArray encode(const ClusterCommand &message)
+{
+    return Writer().u8(message.command).u8(message.value).frame(MessageType::ClusterCommand);
+}
+
+std::optional<WifiJoin> decodeWifiJoin(const QByteArray &payload)
+{
+    Reader in(payload);
+    WifiJoin message;
+    message.ssid = in.text();
+    message.password = in.text(kMaxWifiPassword);
+    return valid(in, message);
+}
+
+QByteArray encode(const WifiJoin &message)
+{
+    return Writer().text(message.ssid).text(message.password, kMaxWifiPassword).frame(MessageType::WifiJoin);
+}
+
+std::optional<FirmwareOffer> decodeFirmwareOffer(const QByteArray &payload)
+{
+    Reader in(payload);
+    FirmwareOffer message;
+    message.size = in.u32();
+    message.version = in.text();
+    return valid(in, message);
+}
+
+QByteArray encode(const FirmwareOffer &message)
+{
+    return Writer().u32(message.size).text(message.version).frame(MessageType::FirmwareOffer);
+}
+
+QByteArray encode(const ClusterSettings &message)
+{
+    return Writer()
+        .u8(message.displayMode)
+        .u8(message.units)
+        .u8(message.brightness)
+        .u8(message.clock24 ? 1 : 0)
+        .u8(message.locked ? 1 : 0)
+        .u8(message.page)
+        .u8(message.dark ? 1 : 0)
+        .u8(message.rideMode)
+        .u8(message.chargeLimit)
+        .u8(message.volume)
+        .u8(message.arrowStyle)
+        .u8(message.language)
+        .frame(MessageType::ClusterSettings);
+}
+
+std::optional<ClusterSettings> decodeClusterSettings(const QByteArray &payload)
+{
+    Reader in(payload);
+    ClusterSettings message;
+    message.displayMode = in.u8();
+    message.units = in.u8();
+    message.brightness = in.u8();
+    message.clock24 = in.u8() != 0;
+    message.locked = in.u8() != 0;
+    message.page = in.u8();
+    message.dark = in.u8() != 0;
+    if (in.ok() && in.remaining() >= 5) {
+        message.rideMode = in.u8();
+        message.chargeLimit = in.u8();
+        message.volume = in.u8();
+        message.arrowStyle = in.u8();
+        message.language = in.u8();
     }
+    return valid(in, message);
+}
+
+QByteArray encode(const WifiStatus &message)
+{
+    return Writer()
+        .u8(static_cast<int>(message.state))
+        .text(message.ssid)
+        .text(message.address)
+        .s8(message.rssi)
+        .u8(static_cast<int>(message.failure))
+        .u8(message.scanning ? 1 : 0)
+        .frame(MessageType::WifiStatus);
+}
+
+std::optional<WifiStatus> decodeWifiStatus(const QByteArray &payload)
+{
+    Reader in(payload);
+    WifiStatus message;
+    message.state = static_cast<WifiState>(std::min(in.u8(), static_cast<int>(WifiState::Failed)));
+    message.ssid = in.text();
+    message.address = in.text();
+    if (in.ok() && in.remaining() >= 3) {
+        message.rssi = in.s8();
+        message.failure = static_cast<WifiFailure>(std::min(in.u8(), static_cast<int>(WifiFailure::Refused)));
+        message.scanning = in.u8() != 0;
+    }
+    return valid(in, message);
+}
+
+QByteArray encode(const WifiNetwork &message)
+{
+    return Writer()
+        .u8(message.index)
+        .u8(message.total)
+        .s8(message.rssi)
+        .u8((message.secured ? 1 : 0) | (message.current ? 2 : 0))
+        .text(message.ssid)
+        .frame(MessageType::WifiNetwork);
+}
+
+std::optional<WifiNetwork> decodeWifiNetwork(const QByteArray &payload)
+{
+    Reader in(payload);
+    WifiNetwork message;
+    message.index = in.u8();
+    message.total = in.u8();
+    message.rssi = in.s8();
+    const int flags = in.u8();
+    message.secured = flags & 1;
+    message.current = flags & 2;
+    message.ssid = in.text();
+    return valid(in, message);
+}
+
+QByteArray encode(const FaultEntry &message)
+{
+    return Writer()
+        .u8(message.index)
+        .u8(message.total)
+        .u16(message.code)
+        .u8((message.active ? 1 : 0) | (message.critical ? 2 : 0))
+        .u16(message.count)
+        .text(message.title)
+        .text(message.detail)
+        .text(message.firstSeen)
+        .text(message.lastSeen)
+        .frame(MessageType::FaultEntry);
+}
+
+std::optional<FaultEntry> decodeFaultEntry(const QByteArray &payload)
+{
+    Reader in(payload);
+    FaultEntry message;
+    message.index = in.u8();
+    message.total = in.u8();
+    message.code = in.u16();
+    const int flags = in.u8();
+    message.active = flags & 1;
+    message.critical = flags & 2;
+    message.count = in.u16();
+    message.title = in.text();
+    message.detail = in.text();
+    message.firstSeen = in.text();
+    message.lastSeen = in.text();
+    return valid(in, message);
+}
+
+QByteArray encode(const FirmwareStatus &message)
+{
+    return Writer()
+        .u8(static_cast<int>(message.state))
+        .u8(message.percent)
+        .u16(message.port)
+        .text(message.address)
+        .text(message.token)
+        .text(message.message)
+        .frame(MessageType::FirmwareStatus);
+}
+
+std::optional<FirmwareStatus> decodeFirmwareStatus(const QByteArray &payload)
+{
+    Reader in(payload);
+    FirmwareStatus message;
+    message.state = static_cast<FirmwareState>(std::min(in.u8(), static_cast<int>(FirmwareState::Failed)));
+    message.percent = std::min(in.u8(), 100);
+    message.port = in.u16();
+    message.address = in.text();
+    message.token = in.text();
+    message.message = in.text();
     return valid(in, message);
 }
 

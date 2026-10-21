@@ -198,6 +198,29 @@ ApplicationWindow {
             onNavigate: page => root.navigate(page)
         }
 
+        // The Ride app can press the keys and open pages too, and is told which page is open.
+        Connections {
+            target: phoneLinkBridge
+            ignoreUnknownSignals: true
+            function onKeyRequested(key) {
+                switch (key) {
+                case "up": handlebar.step(false); break
+                case "down": handlebar.step(true); break
+                case "left": handlebar.screen(false); break
+                case "right": handlebar.screen(true); break
+                case "ok": handlebar.ok(); break
+                case "back": handlebar.back(); break
+                }
+            }
+            function onPageRequested(page) { root.navigate(page) }
+        }
+        Binding {
+            when: phoneLinkBridge !== null
+            target: phoneLinkBridge
+            property: "currentPage"
+            value: root.currentPage
+        }
+
         // Handlebar buttons that arrive over CAN go the same way as keys.
         Connections {
             target: canSource

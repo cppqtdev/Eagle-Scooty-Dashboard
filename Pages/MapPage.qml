@@ -93,10 +93,10 @@ EaglePage {
                 anchors.margins: 32
                 spacing: 6
                 Caption { accent: true; text: root.instruction(dashboardData.maneuver) }
-                // A long road name takes a second line, then elides.
+                // Sized to stay clear of the speed; a long name takes a second line, then elides.
                 PrefsLabel {
                     Layout.fillWidth: true
-                    font.pixelSize: Style.typography.display + 6
+                    font.pixelSize: Style.h2
                     isBold: true
                     wrapMode: Text.WordWrap
                     maximumLineCount: 2

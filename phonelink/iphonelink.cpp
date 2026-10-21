@@ -44,9 +44,10 @@ void IPhoneLink::publishVehicle(const VehicleSummary &summary)
     Q_UNUSED(summary)
 }
 
-void IPhoneLink::publishSettings(const QList<std::pair<int, int>> &values)
-{
-    Q_UNUSED(values)
-}
+void IPhoneLink::publishClusterSettings(const wire::ClusterSettings &) {}
+void IPhoneLink::publishWifiStatus(const wire::WifiStatus &) {}
+void IPhoneLink::publishWifiNetworks(const QList<wire::WifiNetwork> &) {}
+void IPhoneLink::publishFaults(const QList<wire::FaultEntry> &) {}
+void IPhoneLink::publishFirmwareStatus(const wire::FirmwareStatus &) {}
 
 } // namespace phonelink
