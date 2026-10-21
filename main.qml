@@ -15,8 +15,8 @@ ApplicationWindow {
     readonly property int designWidth: 1920
     readonly property int designHeight: 1080
 
-    width: 1440
-    height: 810
+    width: snapshotDir.length > 0 ? designWidth : 1440
+    height: snapshotDir.length > 0 ? designHeight : 810
     minimumWidth: 640
     minimumHeight: 360
     visible: true
@@ -56,6 +56,11 @@ ApplicationWindow {
         function openSetting(index) {
             navigate("settings")
             stack.currentItem.current = index
+        }
+
+        function openKeypad() {
+            navigate("phone")
+            stack.currentItem.gEagleStack.push(Qt.createComponent("qrc:/Pages/Keypad.qml"))
         }
 
         function navigate(page) {

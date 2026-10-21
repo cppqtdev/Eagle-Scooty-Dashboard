@@ -20,6 +20,7 @@ QtObject {
         ["06-incoming-call", 1.4, () => { simulator.trigger("clear"); phone.simulateIncomingCall() }],
         ["07-active-call", 3.2, () => { phone.answer(); canvas.navigate("phone") }],
         ["08-phone", 1.2, () => phone.hangUp()],
+        ["08b-keypad", 1.2, () => canvas.openKeypad()],
         ["09-music", 1.2, () => canvas.navigate("music")],
         ["10-charging", 6.0, () => { simulator.toggleCharging(); canvas.navigate("charging") }],
         ["11-documents", 1.2, () => { simulator.toggleCharging(); canvas.navigate("documents") }],

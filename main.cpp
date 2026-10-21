@@ -9,6 +9,7 @@
 
 #include "alertcenter.h"
 #include "bluetoothmanager.h"
+#include "canvehiclesource.h"
 #include "dashboarddata.h"
 #include "phoneservice.h"
 #include "systemclock.h"
@@ -21,6 +22,15 @@ namespace {
 
 // Board mode: full screen on the scooter's HMI panel. Asked for with --board or
 // EAGLE_BOARD=1 (set by the systemd service on the Rockchip board).
+bool argumentGiven(int argc, char *argv[], const char *name)
+{
+    for (int i = 1; i < argc; ++i) {
+        if (qstrcmp(argv[i], name) == 0)
+            return true;
+    }
+    return false;
+}
+
 bool boardModeRequested(int argc, char *argv[])
 {
     for (int i = 1; i < argc; ++i) {
@@ -55,8 +65,14 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("TechCoderHub"));
 
     const bool boardMode = boardModeRequested(argc, argv);
+    // Snapshots render off screen, so a covered or background window cannot stall them.
+    const bool snapshotRun = argumentGiven(argc, argv, "--snapshot");
+    if (snapshotRun) {
+        qputenv("QT_QPA_PLATFORM", QByteArray("offscreen"));
+        QQuickWindow::setGraphicsApi(QSGRendererInterface::Software);
+    }
     qputenv("QT_QUICK_CONTROLS_STYLE", QByteArray("Basic"));
-    if (boardMode && qEnvironmentVariableIsEmpty("QT_QUICK_BACKEND")) {
+    if (boardMode && !snapshotRun && qEnvironmentVariableIsEmpty("QT_QUICK_BACKEND")) {
         // The RK3328's Mali/EGL stack is unreliable with Qt Quick; the software
         // scene graph is steady at this panel size.
         QQuickWindow::setGraphicsApi(QSGRendererInterface::Software);
@@ -71,6 +87,8 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.addOption({QStringLiteral("board"), QStringLiteral("Run full screen on the HMI panel.")});
     parser.addOption({QStringLiteral("no-simulator"), QStringLiteral("Wait for live vehicle data instead of simulating a ride.")});
+    parser.addOption({QStringLiteral("can"), QStringLiteral("Read live vehicle data from the SocketCAN <interface> instead of simulating."),
+                      QStringLiteral("interface")});
     parser.addOption({QStringLiteral("snapshot"), QStringLiteral("Save every page and alert state as PNG files in <dir>, then quit."),
                       QStringLiteral("dir")});
     parser.process(app);
@@ -82,6 +100,7 @@ int main(int argc, char *argv[])
     AlertCenter alertCenter(&dashboardData);
     PhoneService phone;
     VehicleDocuments documents;
+    CanVehicleSource can(&dashboardData);
     BluetoothManager bluetooth(&phone);
     WifiManager wifi;
 
@@ -110,6 +129,7 @@ int main(int argc, char *argv[])
     context->setContextProperty(QStringLiteral("phone"), &phone);
     context->setContextProperty(QStringLiteral("vehicleDocuments"), &documents);
     context->setContextProperty(QStringLiteral("bluetooth"), &bluetooth);
+    context->setContextProperty(QStringLiteral("canSource"), &can);
     context->setContextProperty(QStringLiteral("wifi"), &wifi);
     context->setContextProperty(QStringLiteral("boardMode"), boardMode);
     context->setContextProperty(QStringLiteral("snapshotDir"), parser.value(QStringLiteral("snapshot")));
@@ -122,7 +142,12 @@ int main(int argc, char *argv[])
                      [] { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
     engine.load(url);
 
-    if (!parser.isSet(QStringLiteral("no-simulator")))
+    // Live data when a CAN interface is given and opens; otherwise the simulated ride.
+    const QString canInterface = parser.value(QStringLiteral("can"));
+    const bool live = !canInterface.isEmpty() && can.open(canInterface);
+    if (!canInterface.isEmpty())
+        qInfo().noquote() << can.status();
+    if (!live && !parser.isSet(QStringLiteral("no-simulator")))
         simulator.keyOn();
 
     return app.exec();
