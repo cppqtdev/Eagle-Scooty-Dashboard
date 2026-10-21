@@ -22,6 +22,31 @@ EaglePage {
         return doc.daysLeft < 0 ? qsTr("Valid") : qsTr("Valid until %1").arg(doc.validUntil)
     }
 
+    // A status pill: its width follows the text, up to what the row allows.
+    component StatusTag: Control {
+        id: tag
+        property string text
+        property color tone
+        leftPadding: 16
+        rightPadding: 16
+        topPadding: 8
+        bottomPadding: 8
+        background: Rectangle {
+            radius: height / 2
+            color: Style.alpha(tag.tone, 0.14)
+            border.color: Style.alpha(tag.tone, 0.5)
+        }
+        contentItem: PrefsLabel {
+            font.pixelSize: Style.h6
+            isBold: true
+            color: tag.tone
+            elide: Text.ElideRight
+            wrapMode: Text.NoWrap
+            horizontalAlignment: Text.AlignHCenter
+            text: tag.text
+        }
+    }
+
     Flickable {
         anchors.fill: parent
         anchors.leftMargin: 40
@@ -29,6 +54,8 @@ EaglePage {
         anchors.topMargin: 24
         anchors.bottomMargin: 16
         contentHeight: column.implicitHeight + 40
+        flickableDirection: Flickable.VerticalFlick
+        boundsBehavior: Flickable.StopAtBounds
         clip: true
 
         ColumnLayout {
@@ -37,108 +64,118 @@ EaglePage {
             spacing: 22
 
             RowLayout {
+                Layout.fillWidth: true
+                spacing: 16
                 PrefsLabel {
+                    Layout.fillWidth: true
                     font.pixelSize: Style.h1
                     isBold: true
+                    elide: Text.ElideRight
+                    wrapMode: Text.NoWrap
                     text: qsTr("Documents")
                 }
-                Item { Layout.fillWidth: true }
-                Rectangle {
+                StatusTag {
                     visible: vehicleDocuments.attentionCount > 0
-                    implicitWidth: attention.implicitWidth + 32
-                    implicitHeight: 44
-                    radius: 22
-                    color: Style.alpha(Style.warning, 0.15)
-                    border.color: Style.warning
-                    PrefsLabel {
-                        id: attention
-                        anchors.centerIn: parent
-                        font.pixelSize: Style.h5
-                        isBold: true
-                        color: Style.warning
-                        text: qsTr("%n need attention", "", vehicleDocuments.attentionCount)
-                    }
+                    Layout.maximumWidth: column.width / 2
+                    tone: Style.warning
+                    text: qsTr("%n need attention", "", vehicleDocuments.attentionCount)
                 }
             }
 
             PrefsLabel { font.pixelSize: Style.h4; color: Style.textMuted; text: qsTr("Rider") }
-            RowLayout {
+
+            // The cards scroll sideways when the page is narrower than all of them.
+            ListView {
+                id: cards
+                Layout.fillWidth: true
+                Layout.preferredHeight: 330
+                orientation: ListView.Horizontal
                 spacing: 24
-                Repeater {
-                    model: vehicleDocuments.documents.filter(d => d.group === "rider")
-                    Rectangle {
-                        required property var modelData
-                        implicitWidth: 380
-                        implicitHeight: 330
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                snapMode: ListView.SnapToItem
+                model: vehicleDocuments.documents.filter(d => d.group === "rider")
+
+                delegate: AbstractButton {
+                    id: card
+                    required property var modelData
+                    width: 360
+                    height: ListView.view.height
+                    padding: 18
+                    scale: pressed ? 0.97 : 1
+                    Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
+                    onClicked: root.shown = modelData
+
+                    background: Rectangle {
                         radius: Style.metrics.radiusLg
                         color: Style.surface
                         border.color: Style.border
-                        scale: cardTap.pressed ? 0.97 : 1
-                        Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 18
-                            spacing: 8
-                            Image {
-                                Layout.alignment: Qt.AlignHCenter
-                                Layout.preferredWidth: 340
-                                Layout.preferredHeight: 200
-                                fillMode: Image.PreserveAspectFit
-                                source: modelData.image
-                            }
-                            PrefsLabel { font.pixelSize: Style.h4; isBold: true; text: modelData.title }
-                            PrefsLabel { font.pixelSize: Style.h6; color: Style.textMuted; text: modelData.number }
-                            PrefsLabel {
-                                font.pixelSize: Style.h6
-                                color: root.statusColor(modelData.status)
-                                text: root.statusText(modelData)
-                            }
+                    }
+                    contentItem: ColumnLayout {
+                        spacing: 8
+                        Image {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            fillMode: Image.PreserveAspectFit
+                            source: card.modelData.image
                         }
-                        TapHandler { id: cardTap; onTapped: root.shown = modelData }
+                        PrefsLabel { Layout.fillWidth: true; font.pixelSize: Style.h4; isBold: true; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: card.modelData.title }
+                        PrefsLabel { Layout.fillWidth: true; font.pixelSize: Style.h6; color: Style.textMuted; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: card.modelData.number }
+                        PrefsLabel {
+                            Layout.fillWidth: true
+                            font.pixelSize: Style.h6
+                            color: root.statusColor(card.modelData.status)
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
+                            text: root.statusText(card.modelData)
+                        }
                     }
                 }
+
+                ScrollBar.horizontal: ScrollBar { policy: cards.contentWidth > cards.width ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff }
             }
 
             PrefsLabel { Layout.topMargin: 10; font.pixelSize: Style.h4; color: Style.textMuted; text: qsTr("Vehicle") }
             Repeater {
                 model: vehicleDocuments.documents.filter(d => d.group === "vehicle")
-                Rectangle {
+                Control {
+                    id: paper
                     required property var modelData
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 100
-                    radius: Style.metrics.radiusMd
-                    color: Style.surface
-                    border.color: Style.border
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 24
-                        anchors.rightMargin: 24
+                    leftPadding: 24
+                    rightPadding: 24
+                    topPadding: 18
+                    bottomPadding: 18
+
+                    background: Rectangle {
+                        radius: Style.metrics.radiusMd
+                        color: Style.surface
+                        border.color: Style.border
+                    }
+                    contentItem: RowLayout {
                         spacing: 20
                         Rectangle {
-                            Layout.preferredWidth: 12
-                            Layout.preferredHeight: 60
-                            radius: 6
-                            color: root.statusColor(modelData.status)
+                            Layout.preferredWidth: 10
+                            Layout.fillHeight: true
+                            radius: 5
+                            color: root.statusColor(paper.modelData.status)
                         }
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 2
-                            PrefsLabel { font.pixelSize: Style.h4; isBold: true; text: modelData.title }
-                            PrefsLabel { font.pixelSize: Style.h6; color: Style.textMuted; text: qsTr("%1 · %2").arg(modelData.number).arg(modelData.issuer) }
+                            PrefsLabel { Layout.fillWidth: true; font.pixelSize: Style.h4; isBold: true; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: paper.modelData.title }
+                            PrefsLabel { Layout.fillWidth: true; font.pixelSize: Style.h6; color: Style.textMuted; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: qsTr("%1 · %2").arg(paper.modelData.number).arg(paper.modelData.issuer) }
                         }
-                        Rectangle {
-                            implicitWidth: statusLabel.implicitWidth + 32
-                            implicitHeight: 44
-                            radius: 22
-                            color: Style.alpha(root.statusColor(modelData.status), 0.14)
-                            PrefsLabel {
-                                id: statusLabel
-                                anchors.centerIn: parent
-                                font.pixelSize: Style.h6
-                                isBold: true
-                                color: root.statusColor(modelData.status)
-                                text: root.statusText(modelData)
+                        // A fixed column on the right, so every tag ends on the same edge.
+                        Item {
+                            Layout.preferredWidth: Math.min(330, paper.availableWidth * 0.42)
+                            Layout.fillHeight: true
+                            StatusTag {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: Math.min(implicitWidth, parent.width)
+                                tone: root.statusColor(paper.modelData.status)
+                                text: root.statusText(paper.modelData)
                             }
                         }
                     }

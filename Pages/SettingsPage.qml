@@ -18,7 +18,7 @@ EaglePage {
         { title: qsTr("Wi-Fi"), value: wifi.enabled ? (wifi.connectedSsid || qsTr("On")) : qsTr("Off"), page: wifiPage },
         { title: qsTr("Sound"), value: qsTr("Volume %1%").arg(phone.volume), page: soundPage },
         { title: qsTr("Documents"), value: vehicleDocuments.attentionCount > 0 ? qsTr("%1 due").arg(vehicleDocuments.attentionCount) : qsTr("All valid"), page: documentsPage },
-        { title: qsTr("Diagnostics"), value: alertCenter.count > 0 ? qsTr("%1 alerts").arg(alertCenter.count) : qsTr("All OK"), page: diagnosticsPage },
+        { title: qsTr("Diagnostics"), value: alertCenter.count === 0 ? qsTr("All OK") : alertCenter.count === 1 ? qsTr("1 alert") : qsTr("%1 alerts").arg(alertCenter.count), page: diagnosticsPage },
         { title: qsTr("My Trips"), value: qsTr("%1 km").arg(dashboardData.tripKm), page: mytripPage },
         { title: qsTr("Notifications"), value: qsTr("On"), page: systemNotificationPage },
         { title: qsTr("System Update"), value: qsTr("v%1").arg(Qt.application.version), page: systemUpdatePage },

@@ -13,8 +13,10 @@ Row {
     property bool isBold: false
     property bool isStyle: false
     property color color: isStyle ? Style.accentStrong : Style.textPrimary
-    // Align the figure's right edge (counters) or centre (big readouts) in a fixed box.
-    property int digitAlign: Text.AlignHCenter
+    // How a digit sits in its cell. By default it leans towards the rest of its
+    // number: right at the start, left at the end, centred in the middle, so a
+    // narrow "1" closes up to its neighbours instead of leaving a gap: "11", "1.1".
+    property int digitAlign: -1
 
     readonly property bool largeFigure: pixelSize >= 48
     readonly property string family: !isBold ? Style.regularFontFamily
@@ -44,7 +46,14 @@ Row {
             readonly property string glyph: root.text.charAt(index)
             readonly property bool digit: glyph >= "0" && glyph <= "9"
             width: digit ? root.digitWidth : implicitWidth
-            horizontalAlignment: root.digitAlign
+            horizontalAlignment: {
+                if (root.digitAlign !== -1)
+                    return root.digitAlign
+                function numeric(c) { return (c >= "0" && c <= "9") || c === "." || c === ":" || c === "," }
+                const before = index > 0 && numeric(root.text.charAt(index - 1))
+                const after = numeric(root.text.charAt(index + 1))
+                return before === after ? Text.AlignHCenter : after ? Text.AlignRight : Text.AlignLeft
+            }
             text: glyph
             color: root.color
             font.family: root.family

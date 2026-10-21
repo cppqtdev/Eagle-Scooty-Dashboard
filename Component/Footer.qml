@@ -63,8 +63,8 @@ Image {
 
         ColumnLayout {
             spacing: 2
-            DigitText {
-                pixelSize: Style.h1
+            PrefsLabel {
+                font.pixelSize: Style.h1
                 isBold: true
                 isStyle: true
                 color: dashboardData.batteryPercent <= 15 && !dashboardData.charging ? Style.warning : Style.accentStrong
@@ -85,9 +85,9 @@ Image {
         }
         ColumnLayout {
             spacing: 2
-            DigitText {
+            PrefsLabel {
                 Layout.alignment: Qt.AlignRight
-                pixelSize: Style.h1
+                font.pixelSize: Style.h1
                 isBold: true
                 isStyle: true
                 text: qsTr("%1 km").arg(dashboardData.rangeKm)

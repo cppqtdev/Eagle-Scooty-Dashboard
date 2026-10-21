@@ -41,10 +41,21 @@ EaglePage {
                     scale: phone.playing ? 1 : 0.95
                     Behavior on scale { NumberAnimation { duration: Style.motion.theme; easing.type: Easing.OutBack } }
                     PrefsLabel {
+                        visible: cover.status !== Image.Ready
                         anchors.centerIn: parent
                         font.pixelSize: 170
                         color: "#FFFFFF"
                         text: "♫"
+                    }
+                    // The cover the phone sends with the track, when it sends one.
+                    Image {
+                        id: cover
+                        anchors.fill: parent
+                        source: phone.artworkUrl
+                        sourceSize: Qt.size(400, 400)
+                        fillMode: Image.PreserveAspectCrop
+                        cache: false
+                        visible: status === Image.Ready
                     }
                 }
 
@@ -53,10 +64,17 @@ EaglePage {
                     Layout.alignment: Qt.AlignVCenter
                     spacing: 14
 
-                    Caption { accent: true; text: phone.connected ? qsTr("Bluetooth · %1").arg(phone.deviceName) : qsTr("No phone connected") }
+                    Caption {
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                        accent: true
+                        text: !phone.connected ? qsTr("No phone connected")
+                              : phone.trackSource.length > 0 ? qsTr("%1 · %2").arg(phone.deviceName).arg(phone.trackSource)
+                              : qsTr("Bluetooth · %1").arg(phone.deviceName)
+                    }
                     PrefsLabel { Layout.fillWidth: true; font.pixelSize: 60; isBold: true; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: phone.trackTitle }
-                    PrefsLabel { font.pixelSize: Style.typography.display; color: Style.textSecondary; text: phone.trackArtist }
-                    PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: phone.trackAlbum }
+                    PrefsLabel { Layout.fillWidth: true; font.pixelSize: Style.typography.display; color: Style.textSecondary; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: phone.trackArtist }
+                    PrefsLabel { Layout.fillWidth: true; visible: text.length > 0; font.pixelSize: Style.h5; color: Style.textMuted; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: phone.trackAlbum }
 
                     Rectangle {
                         Layout.fillWidth: true

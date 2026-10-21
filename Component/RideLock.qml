@@ -32,13 +32,12 @@ Rectangle {
     // Swallows touches while it is shown.
     MouseArea { anchors.fill: parent }
 
+    // Sized by its content and padding: the bench hint can be longer than the road one.
     Panel {
         anchors.centerIn: parent
-        width: 720
-        height: 300
+        padding: 48
 
         ColumnLayout {
-            anchors.centerIn: parent
             spacing: 18
 
             Rectangle {

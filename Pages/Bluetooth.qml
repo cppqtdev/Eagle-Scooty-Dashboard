@@ -25,7 +25,7 @@ EaglePage {
             title: qsTr("Bluetooth")
             subtitle: bluetooth.status + (bluetooth.real ? "" : qsTr(" · simulated on this computer"))
             checked: bluetooth.powered
-            onToggled: checked => bluetooth.powered = checked
+            onToggled: bluetooth.powered = checked
         }
 
         Caption { Layout.topMargin: 10; text: qsTr("Paired devices") }

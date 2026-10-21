@@ -17,7 +17,7 @@ EaglePage {
         property string value
         spacing: 4
         Caption { text: parent.label }
-        DigitText { pixelSize: Style.typography.display + 8; isBold: true; text: parent.value }
+        PrefsLabel { font.pixelSize: Style.typography.display + 8; isBold: true; text: parent.value }
     }
 
     ColumnLayout {

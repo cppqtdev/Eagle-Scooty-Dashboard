@@ -26,50 +26,75 @@ Page {
     padding: 0
     background: Rectangle { color: Style.background }
 
-    // Ride mode and readiness.
+    // Ride mode and readiness: the three modes spaced out like a caption, the
+    // current one lit in its colour with a bar under it that slides across when
+    // the mode changes; then a status lamp. Tap a mode to select it.
     RowLayout {
         id: modeRow
         anchors.horizontalCenter: wings.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 24
-        spacing: 18
+        anchors.topMargin: 28
+        spacing: 36
 
-        Rectangle {
-            implicitWidth: modeLabel.implicitWidth + 44
-            implicitHeight: 44
-            radius: 22
-            color: Style.alpha(page.modeColor, 0.14)
-            border.color: page.modeColor
-            border.width: 2
-            Behavior on color { ColorAnimation { duration: Style.motion.normal } }
+        Item {
+            implicitWidth: modes.implicitWidth
+            implicitHeight: modes.implicitHeight + 14
 
-            RowLayout {
-                anchors.centerIn: parent
-                spacing: 10
-                Rectangle {
-                    implicitWidth: 12
-                    implicitHeight: 12
-                    radius: 6
-                    color: page.modeColor
-                }
-                PrefsLabel {
-                    id: modeLabel
-                    font.pixelSize: Style.h2
-                    isBold: true
-                    color: page.modeColor
-                    text: dashboardData.rideModeName.toUpperCase()
+            Row {
+                id: modes
+                spacing: 34
+                Repeater {
+                    id: modeRepeater
+                    model: [qsTr("ECO"), qsTr("CITY"), qsTr("SPORT")]
+                    PrefsLabel {
+                        required property string modelData
+                        required property int index
+                        readonly property bool current: dashboardData.rideMode === index
+                        font.pixelSize: Style.h4
+                        font.letterSpacing: 4
+                        isBold: current
+                        color: current ? Style.modeColor(index) : Style.textMuted
+                        opacity: current ? 1 : 0.7
+                        text: modelData
+                        TapHandler { onTapped: dashboardData.rideMode = index }
+                    }
                 }
             }
 
-            TapHandler { onTapped: dashboardData.cycleRideMode() }
+            Rectangle {
+                readonly property Item target: modeRepeater.itemAt(dashboardData.rideMode)
+                anchors.bottom: parent.bottom
+                x: target ? target.x : 0
+                width: target ? target.width - 4 : 0
+                height: 3
+                radius: 1.5
+                color: page.modeColor
+                Behavior on x { NumberAnimation { duration: Style.motion.normal; easing.type: Easing.OutCubic } }
+                Behavior on width { NumberAnimation { duration: Style.motion.normal; easing.type: Easing.OutCubic } }
+            }
         }
 
-        PrefsLabel {
-            font.pixelSize: Style.h4
-            isBold: true
-            color: dashboardData.ready ? Style.success : Style.textMuted
-            text: dashboardData.charging ? qsTr("CHARGING")
-                                         : dashboardData.ready ? qsTr("READY") : qsTr("SELF CHECK")
+        Rectangle {
+            Layout.preferredWidth: 1
+            Layout.preferredHeight: 28
+            color: Style.border
+        }
+
+        RowLayout {
+            spacing: 10
+            readonly property color tone: dashboardData.charging ? Style.accent
+                                          : dashboardData.ready ? Style.success : Style.warning
+            Rectangle {
+                implicitWidth: 10
+                implicitHeight: 10
+                radius: 5
+                color: parent.tone
+            }
+            Caption {
+                color: parent.tone
+                text: dashboardData.charging ? qsTr("Charging")
+                                             : dashboardData.ready ? qsTr("Ready") : qsTr("Self check")
+            }
         }
     }
 
@@ -124,50 +149,6 @@ Page {
         }
     }
 
-    // Power and regen: regen fills to the left of centre, drive to the right.
-    Item {
-        id: powerMeter
-        anchors.horizontalCenter: wings.horizontalCenter
-        anchors.top: gears.bottom
-        anchors.topMargin: 16
-        width: 360
-        height: 30
-
-        Rectangle {
-            anchors.verticalCenter: parent.verticalCenter
-            width: parent.width
-            height: 8
-            radius: 4
-            color: Style.surfaceSunken
-        }
-        Rectangle {
-            readonly property real share: Math.max(-1, Math.min(1, power.value / 6.0))
-            anchors.verticalCenter: parent.verticalCenter
-            x: share >= 0 ? parent.width / 2 : parent.width / 2 + share * parent.width / 2
-            width: Math.abs(share) * parent.width / 2
-            height: 8
-            radius: 4
-            color: share >= 0 ? page.modeColor : Style.success
-            Behavior on x { NumberAnimation { duration: Style.motion.normal } }
-            Behavior on width { NumberAnimation { duration: Style.motion.normal } }
-        }
-        Rectangle {
-            anchors.centerIn: parent
-            width: 2
-            height: 20
-            color: Style.textMuted
-        }
-        DigitText {
-            anchors.left: parent.right
-            anchors.leftMargin: 12
-            anchors.verticalCenter: parent.verticalCenter
-            pixelSize: Style.h6
-            color: Style.textMuted
-            text: power.value < -0.05 ? qsTr("Regen %1 kW").arg((-power.value).toFixed(1))
-                                      : qsTr("%1 kW").arg(Math.max(0, power.value).toFixed(1))
-        }
-    }
-
     // Now playing from the phone.
     ColumnLayout {
         anchors.horizontalCenter: wings.horizontalCenter
@@ -181,14 +162,20 @@ Page {
             spacing: 2
             PrefsLabel {
                 Layout.alignment: Qt.AlignHCenter
+                Layout.maximumWidth: 520
                 font.pixelSize: Style.h4
                 isBold: true
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
                 text: phone.trackTitle
             }
             PrefsLabel {
                 Layout.alignment: Qt.AlignHCenter
+                Layout.maximumWidth: 520
                 font.pixelSize: Style.h6
                 color: Style.textMuted
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
                 text: phone.trackArtist
             }
         }
@@ -244,9 +231,10 @@ Page {
                 isStyle: true
                 text: parent.title
             }
-            DigitText {
-                pixelSize: Style.h5
+            PrefsLabel {
+                font.pixelSize: Style.h5
                 color: parent.valueColor
+                wrapMode: Text.NoWrap
                 text: parent.value
             }
         }
@@ -255,6 +243,49 @@ Page {
             source: "qrc:/Icons/seprator.png"
         }
 
+        // Power and regen, off the wings so they stay clear: regen fills left of
+        // the centre mark, drive to the right.
+        ColumnLayout {
+            spacing: 6
+            PrefsLabel {
+                isStyle: true
+                text: power.value < -0.05 ? qsTr("Regen") : qsTr("Power")
+            }
+            DigitText {
+                pixelSize: Style.h5
+                color: Style.textMuted
+                text: qsTr("%1 kW").arg(Math.abs(power.value).toFixed(1))
+            }
+            Item {
+                implicitWidth: 220
+                implicitHeight: 14
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width
+                    height: 6
+                    radius: 3
+                    color: Style.surfaceSunken
+                }
+                Rectangle {
+                    readonly property real share: Math.max(-1, Math.min(1, power.value / 6.0))
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: share >= 0 ? parent.width / 2 : parent.width / 2 + share * parent.width / 2
+                    width: Math.abs(share) * parent.width / 2
+                    height: 6
+                    radius: 3
+                    color: share >= 0 ? page.modeColor : Style.success
+                    Behavior on x { NumberAnimation { duration: Style.motion.normal } }
+                    Behavior on width { NumberAnimation { duration: Style.motion.normal } }
+                }
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 2
+                    height: 14
+                    color: Style.textMuted
+                }
+            }
+        }
+        Separator {}
         Stat {
             title: qsTr("Trip A")
             value: qsTr("%1 km").arg(dashboardData.tripKm)
@@ -290,59 +321,48 @@ Page {
         opacity: dashboardData.navigating ? 1 : 0.4
     }
 
-    Rectangle {
+    // The next turn: arrow, distance, street and what is left, no card behind it.
+    RowLayout {
         visible: dashboardData.navigating
         anchors.left: parent.left
-        anchors.leftMargin: 40
+        anchors.leftMargin: 48
         anchors.top: parent.top
-        anchors.topMargin: 24
-        width: 360
-        height: 150
-        radius: Style.metrics.radiusLg
-        color: Style.surface
-        border.color: Style.border
-        opacity: 0.96
+        anchors.topMargin: 28
+        width: 380
+        spacing: 18
 
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 16
-            spacing: 16
-
-            Rectangle {
-                Layout.preferredWidth: 96
-                Layout.preferredHeight: 96
-                radius: Style.metrics.radiusMd
-                color: page.modeColor
-                ManeuverIcon {
-                    anchors.centerIn: parent
-                    width: 72
-                    height: 72
-                    maneuver: dashboardData.maneuver
-                    color: Style.textOnAccent
-                }
+        ManeuverIcon {
+            Layout.preferredWidth: 72
+            Layout.preferredHeight: 72
+            Layout.alignment: Qt.AlignTop
+            maneuver: dashboardData.maneuver
+            color: page.modeColor
+        }
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 2
+            DigitText {
+                pixelSize: Style.h1
+                isBold: true
+                text: page.distanceText(turnDistance.value)
             }
-            ColumnLayout {
+            PrefsLabel {
                 Layout.fillWidth: true
-                spacing: 4
-                DigitText {
-                    pixelSize: Style.h1
-                    isBold: true
-                    text: page.distanceText(turnDistance.value)
-                }
-                PrefsLabel {
-                    Layout.fillWidth: true
-                    font.pixelSize: Style.h5
-                    color: Style.textSecondary
-                    elide: Text.ElideRight
-                    wrapMode: Text.NoWrap
-                    text: dashboardData.street
-                }
-                DigitText {
-                    pixelSize: Style.h6
-                    color: Style.textMuted
-                    text: qsTr("%1 min · %2 km left").arg(dashboardData.arrivalMinutes)
-                                                       .arg(dashboardData.distanceKm.toFixed(1))
-                }
+                font.pixelSize: Style.h5
+                color: Style.textSecondary
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
+                maximumLineCount: 1
+                text: dashboardData.street
+            }
+            PrefsLabel {
+                Layout.fillWidth: true
+                font.pixelSize: Style.h6
+                color: Style.textMuted
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
+                text: qsTr("%1 min · %2 km").arg(dashboardData.arrivalMinutes)
+                                            .arg(dashboardData.distanceKm.toFixed(1))
             }
         }
     }

@@ -27,7 +27,7 @@ EaglePage {
             title: qsTr("Wi-Fi")
             subtitle: wifi.status + (wifi.real ? "" : qsTr(" · simulated on this computer"))
             checked: wifi.enabled
-            onToggled: checked => wifi.enabled = checked
+            onToggled: wifi.enabled = checked
         }
 
         RowLayout {

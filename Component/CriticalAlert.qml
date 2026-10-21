@@ -50,9 +50,12 @@ Rectangle {
                 severity: 2
             }
             PrefsLabel {
-                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 54
                 isBold: true
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
                 color: Style.danger
                 text: (root.shownAlert.title || "").toUpperCase()
             }
@@ -61,6 +64,9 @@ Rectangle {
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: Style.h1
                 color: Style.textPrimary
+                wrapMode: Text.WordWrap
+                maximumLineCount: 3
+                elide: Text.ElideRight
                 text: root.shownAlert.message || ""
             }
             Rectangle {

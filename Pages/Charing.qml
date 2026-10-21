@@ -131,7 +131,7 @@ EaglePage {
                 InfoRow {
                     required property var modelData
                     Layout.fillWidth: true
-                    icon: "qrc:/Icons/MapIcons/charing.svg"
+                    iconSource: "qrc:/Icons/MapIcons/charing.svg"
                     title: modelData.name
                     subtitle: modelData.detail
                     value: modelData.value

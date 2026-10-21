@@ -72,7 +72,7 @@ EaglePage {
                         tone: root.kindTone(modelData.kind)
                         value: qsTr("%1 %2").arg(root.kindText(modelData.kind)).arg(modelData.time)
                         selected: index === 0
-                        onClicked: phone.dial(modelData.number)
+                        onClicked: phone.dial(modelData.number || modelData.name)
                     }
                 }
                 Caption {
@@ -118,7 +118,7 @@ EaglePage {
                     showEdge: false
                     value: qsTr("Call")
                     valueColor: Style.success
-                    onClicked: phone.dial(modelData.number)
+                    onClicked: phone.dial(modelData.number || modelData.name)
                 }
             }
             Item { Layout.fillHeight: true }
@@ -157,13 +157,17 @@ EaglePage {
                     font.pixelSize: 72
                     isBold: true
                     color: Style.success
-                    text: (phone.callerName || "?").charAt(0)
+                    text: (phone.callerName || "?").charAt(0).toUpperCase()
                 }
             }
             PrefsLabel {
                 Layout.alignment: Qt.AlignHCenter
+                Layout.maximumWidth: 640
+                horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 54
                 isBold: true
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
                 text: phone.callerName
             }
             DigitText {

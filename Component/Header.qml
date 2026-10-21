@@ -118,7 +118,7 @@ Image {
             }
         }
 
-        DigitText {
+        PrefsLabel {
             text: systemClock.timeText
         }
     }

@@ -1,86 +1,159 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Style 1.0
 
-// Warnings and information slide down under the telltales; the rider dismisses
-// them, information also times out. Critical alerts use CriticalAlert instead.
+// Warnings and information drop in under the telltales as a dark capsule, the
+// same in both themes so it always stands apart from the page beneath: a badge
+// in the alert's colour, the title and one line of detail, and a close button.
+// Information also times out. Critical alerts use CriticalAlert instead.
 Item {
     id: root
 
     readonly property var alert: alertCenter.banner
     readonly property bool shown: alert.id !== undefined
-    readonly property color tone: alert.severity === 1 ? Style.warning : Style.accent
+    readonly property color tone: shownAlert.severity === 1 ? Style.warning
+                                  : shownAlert.icon === "charge" ? Style.success : Style.accentStrong
+    readonly property bool telltale: ["tyre", "sideStand", "batteryTemp"].indexOf(shownAlert.icon) >= 0
 
-    width: 980
-    height: 104
+    width: 900
+    height: 100
 
     // Keep the last alert's text while sliding out.
     property var shownAlert: ({})
     onAlertChanged: if (alert.id !== undefined) shownAlert = alert
 
-    Rectangle {
-        id: card
+    Control {
+        id: capsule
         width: parent.width
         height: parent.height
         y: root.shown ? 0 : -height - 40
         opacity: root.shown ? 1 : 0
-        radius: Style.metrics.radiusLg
-        color: Style.surface
-        border.color: root.tone
-        border.width: 2
+        scale: root.shown ? 1 : 0.96
+        leftPadding: 16
+        rightPadding: 20
+        topPadding: 16
+        bottomPadding: 16
 
-        Behavior on y { NumberAnimation { duration: Style.motion.theme; easing.type: Easing.OutBack } }
+        Behavior on y { NumberAnimation { duration: Style.motion.theme; easing.type: Easing.OutCubic } }
         Behavior on opacity { NumberAnimation { duration: Style.motion.normal } }
+        Behavior on scale { NumberAnimation { duration: Style.motion.theme; easing.type: Easing.OutCubic } }
 
-        Rectangle {
-            width: 10
-            height: parent.height - 24
-            anchors.left: parent.left
-            anchors.leftMargin: 12
-            anchors.verticalCenter: parent.verticalCenter
-            radius: 5
-            color: root.tone
+        background: Item {
+            // A soft shadow from two offset layers (no effects module on the board's Qt).
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -6
+                anchors.topMargin: 2
+                radius: height / 2
+                color: "#000000"
+                opacity: 0.10
+            }
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: -2
+                anchors.topMargin: 4
+                radius: height / 2
+                color: "#000000"
+                opacity: 0.14
+            }
+            Rectangle {
+                anchors.fill: parent
+                radius: height / 2
+                color: "#121A1D"
+                border.color: Style.alpha(root.tone, 0.45)
+                border.width: 1
+                // A faint wash of the alert colour from the badge side.
+                Rectangle {
+                    anchors.fill: parent
+                    radius: parent.radius
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0.0; color: Style.alpha(root.tone, 0.16) }
+                        GradientStop { position: 0.45; color: "transparent" }
+                    }
+                }
+            }
         }
 
-        RowLayout {
-            anchors.fill: parent
-            anchors.leftMargin: 40
-            anchors.rightMargin: 24
-            spacing: 20
+        contentItem: RowLayout {
+            spacing: 22
 
-            AlertIcon {
-                key: root.shownAlert.icon || ""
-                severity: root.shownAlert.severity || 0
+            // Badge.
+            Rectangle {
+                Layout.preferredWidth: 68
+                Layout.preferredHeight: 68
+                radius: 34
+                color: Style.alpha(root.tone, 0.18)
+                border.color: root.tone
+                border.width: 2
+
+                AlertIcon {
+                    visible: root.telltale
+                    anchors.centerIn: parent
+                    sourceSize: Qt.size(40, 40)
+                    key: root.shownAlert.icon || ""
+                    severity: root.shownAlert.severity || 0
+                }
+                PrefsLabel {
+                    visible: !root.telltale
+                    anchors.centerIn: parent
+                    font.pixelSize: 34
+                    isBold: true
+                    color: root.tone
+                    text: root.shownAlert.icon === "charge" ? "✓"
+                          : root.shownAlert.severity === 1 ? "!" : "i"
+                }
             }
+
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 4
+                spacing: 2
                 PrefsLabel {
-                    font.pixelSize: Style.h2
+                    Layout.fillWidth: true
+                    font.pixelSize: Style.h3
                     isBold: true
+                    color: "#F4FAFA"
+                    elide: Text.ElideRight
+                    wrapMode: Text.NoWrap
                     text: root.shownAlert.title || ""
                 }
                 PrefsLabel {
                     Layout.fillWidth: true
-                    font.pixelSize: Style.h5
-                    color: Style.textSecondary
+                    font.pixelSize: Style.h6
+                    color: "#A9BABB"
+                    elide: Text.ElideRight
+                    wrapMode: Text.NoWrap
                     text: root.shownAlert.message || ""
                 }
             }
-            Rectangle {
-                Layout.preferredWidth: 150
-                Layout.preferredHeight: 56
-                radius: 28
-                color: Style.alpha(root.tone, 0.14)
-                border.color: root.tone
-                PrefsLabel {
-                    anchors.centerIn: parent
-                    font.pixelSize: Style.h5
-                    isBold: true
-                    color: root.tone
-                    text: qsTr("Dismiss")
+
+            // Close.
+            AbstractButton {
+                implicitWidth: 60
+                implicitHeight: 60
+                onClicked: alertCenter.acknowledge(root.shownAlert.id)
+                background: Rectangle {
+                    radius: width / 2
+                    color: parent.pressed ? Style.alpha("#FFFFFF", 0.18) : Style.alpha("#FFFFFF", 0.08)
+                    border.color: Style.alpha("#FFFFFF", 0.16)
+                    Behavior on color { ColorAnimation { duration: Style.motion.instant } }
                 }
-                TapHandler { onTapped: alertCenter.acknowledge(root.shownAlert.id) }
+                // An X from two bars, crisp at any scale.
+                contentItem: Item {
+                    Repeater {
+                        model: [45, -45]
+                        Rectangle {
+                            required property int modelData
+                            anchors.centerIn: parent
+                            width: 22
+                            height: 3
+                            radius: 1.5
+                            rotation: modelData
+                            color: "#DCE6E6"
+                        }
+                    }
+                }
             }
         }
     }

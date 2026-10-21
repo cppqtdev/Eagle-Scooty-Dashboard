@@ -1,35 +1,51 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Style 1.0
 
-// A setting that is on or off: title and explanation, with the switch on the right.
-Rectangle {
+// A setting that is on or off: title and explanation, with the switch on the
+// right. A checkable button, so a tap anywhere on the row flips it and the row
+// grows with a longer explanation (which wraps to two lines at most).
+AbstractButton {
     id: row
 
     property string title
     property string subtitle
-    property bool checked: false
-    signal toggled(bool checked)
 
-    implicitHeight: subtitle.length > 0 ? 92 : 72
-    radius: Style.metrics.radiusMd
-    color: Style.surface
-    border.color: Style.border
+    checkable: true
+    leftPadding: 24
+    rightPadding: 24
+    topPadding: 16
+    bottomPadding: 16
+    implicitWidth: implicitContentWidth + leftPadding + rightPadding
+    implicitHeight: Math.max(72, implicitContentHeight + topPadding + bottomPadding)
 
-    RowLayout {
-        anchors.fill: parent
-        anchors.leftMargin: 24
-        anchors.rightMargin: 24
+    background: Rectangle {
+        radius: Style.metrics.radiusMd
+        color: row.pressed ? Style.surfaceSunken : Style.surface
+        border.color: Style.border
+    }
+
+    contentItem: RowLayout {
         spacing: 18
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 4
-            PrefsLabel { Layout.fillWidth: true; font.pixelSize: Style.h4; text: row.title }
+            PrefsLabel {
+                Layout.fillWidth: true
+                font.pixelSize: Style.h4
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
+                text: row.title
+            }
             PrefsLabel {
                 Layout.fillWidth: true
                 visible: row.subtitle.length > 0
                 font.pixelSize: Style.typography.caption
                 color: Style.textMuted
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
                 text: row.subtitle
             }
         }
@@ -51,5 +67,4 @@ Rectangle {
             }
         }
     }
-    TapHandler { onTapped: { row.checked = !row.checked; row.toggled(row.checked) } }
 }

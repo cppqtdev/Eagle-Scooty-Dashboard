@@ -30,6 +30,8 @@ QtObject {
         ["13c-settings-wifi", 1.2, () => canvas.openSetting(2)],
         ["13d-settings-trips", 1.2, () => canvas.openSetting(6)],
         ["13e-settings-about", 1.2, () => canvas.openSetting(10)],
+        ["13f-settings-documents", 1.2, () => { Style.setMode(Style.darkMode); canvas.openSetting(4) }],
+        ["13g-settings-diagnostics", 1.2, () => { canvas.openSetting(5); Style.setMode(Style.lightMode) }],
         ["14-map", 1.2, () => canvas.navigate("map")],
         ["14b-ride-lock", 1.2, () => { canvas.rideLock = true; canvas.openSetting(0) }],
         ["15-home-sport-dark", 3.0, () => { canvas.navigate("home"); Style.setMode(Style.darkMode); dashboardData.rideMode = 2 }],
