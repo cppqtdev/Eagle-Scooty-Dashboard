@@ -4,26 +4,36 @@ QT += quick quickcontrols2
 
 CONFIG += c++17
 
+# The real Bluetooth radio (BlueZ) on the Linux board; a simulated one elsewhere.
+linux:qtHaveModule(bluetooth) {
+    QT += bluetooth
+    DEFINES += EAGLE_HAS_BLUETOOTH
+}
+
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 SOURCES += \
         alertcenter.cpp \
+        bluetoothmanager.cpp \
         dashboarddata.cpp \
         main.cpp \
         phoneservice.cpp \
         systemclock.cpp \
         themecontroller.cpp \
         vehicledocuments.cpp \
-        vehiclesimulator.cpp
+        vehiclesimulator.cpp \
+        wifimanager.cpp
 
 HEADERS += \
         alertcenter.h \
+        bluetoothmanager.h \
         dashboarddata.h \
         phoneservice.h \
         systemclock.h \
         themecontroller.h \
         vehicledocuments.h \
-        vehiclesimulator.h
+        vehiclesimulator.h \
+        wifimanager.h
 
 RESOURCES += qml.qrc
 

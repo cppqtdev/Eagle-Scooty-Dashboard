@@ -4,91 +4,81 @@ import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// Theme and brightness. Auto follows the time of day.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding:100
-    contentData: ColumnLayout{
-        width: root.width
-        spacing: 20
-        RowLayout{
-            spacing: 5
-            PrefsButton{
-                setIcon: "qrc:/Icons/brightness 2.svg"
-                backgroundColor:"#00000000"
-            }
-            PrefsLabel{
-                font.pixelSize: Style.h2
-                text: qsTr("Display brightness")
-            }
-        }
+    id: root
 
-        Item{
-            Layout.preferredHeight: 15
-        }
-        Item{
-            Layout.fillWidth: true
-        }
+    background: null
 
-        PrefsSlider{
-            value: themeController.brightness
-            width:  parent.width * 0.7
-            onMoved: themeController.brightness = Math.round(value)
-        }
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 16
 
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
-        }
-
-        ColumnLayout{
-            spacing: 15
-            PrefsLabel{
-                font.pixelSize: Style.h2
-                text: qsTr("Themes")
-            }
-
-            RowLayout{
-                spacing: 30
-                PrefsButton{
-                    implicitWidth: 160
-                    backgroundColor: Style.themeMode === Style.autoMode ? Style.accent : Style.surfaceRaised
-                    textColor: Style.themeMode === Style.autoMode ? Style.textOnAccent : Style.textPrimary
-                    borderWidth: Style.themeMode === Style.autoMode ? 0 : 1
-                    borderColor: Style.border
-                    text: qsTr("Auto")
-                    onClicked: Style.setMode(Style.autoMode)
-                }
-                PrefsButton{
-                    implicitWidth: 160
-                    backgroundColor: Style.themeMode === Style.lightMode ? Style.accent : Style.surfaceRaised
-                    textColor: Style.themeMode === Style.lightMode ? Style.textOnAccent : Style.textPrimary
-                    borderWidth: Style.themeMode === Style.lightMode ? 0 : 1
-                    borderColor: Style.border
-                    text: qsTr("Light")
-                    onClicked: Style.setMode(Style.lightMode)
-                }
-                PrefsButton{
-                    implicitWidth: 160
-                    backgroundColor: Style.themeMode === Style.darkMode ? Style.accent : Style.surfaceRaised
-                    textColor: Style.themeMode === Style.darkMode ? Style.textOnAccent : Style.textPrimary
-                    borderWidth: Style.themeMode === Style.darkMode ? 0 : 1
-                    borderColor: Style.border
-                    text: qsTr("Dark")
-                    onClicked: Style.setMode(Style.darkMode)
+        Caption { text: qsTr("Theme") }
+        RowLayout {
+            spacing: 14
+            Repeater {
+                model: [qsTr("Auto"), qsTr("Light"), qsTr("Dark")]
+                OutlineButton {
+                    required property int index
+                    required property string modelData
+                    Layout.preferredWidth: 220
+                    text: modelData
+                    highlighted: Style.themeMode === index
+                    onClicked: Style.setMode(index)
                 }
             }
         }
-
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
+        PrefsLabel {
+            font.pixelSize: Style.typography.caption
+            color: Style.textMuted
+            text: qsTr("Auto uses the light theme by day and the dark theme from 6 pm to 6 am.")
         }
 
-        PrefsSwitch{
-            text: qsTr("Night Sight Headlight")
+        Caption { Layout.topMargin: 24; text: qsTr("Brightness") }
+        RowLayout {
+            spacing: 18
+            OutlineButton { implicitWidth: 90; text: "−"; onClicked: themeController.brightness = Math.max(20, themeController.brightness - 10) }
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 18
+                radius: 9
+                color: Style.surfaceSunken
+                Rectangle {
+                    width: parent.width * themeController.brightness / 100
+                    height: parent.height
+                    radius: 9
+                    color: Style.accent
+                    Behavior on width { NumberAnimation { duration: Style.motion.fast } }
+                }
+            }
+            OutlineButton { implicitWidth: 90; text: "+"; onClicked: themeController.brightness = Math.min(100, themeController.brightness + 10) }
+            PrefsLabel { Layout.preferredWidth: 90; font.pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(themeController.brightness) }
         }
+
+        Caption { Layout.topMargin: 24; text: qsTr("Preview") }
+        RowLayout {
+            spacing: 18
+            Repeater {
+                model: [{ dark: false, label: qsTr("Day") }, { dark: true, label: qsTr("Night") }]
+                Rectangle {
+                    required property var modelData
+                    implicitWidth: 300
+                    implicitHeight: 170
+                    radius: Style.metrics.radiusLg
+                    color: modelData.dark ? "#101619" : "#F3F7F7"
+                    border.color: Style.isDark === modelData.dark ? Style.accent : Style.border
+                    border.width: Style.isDark === modelData.dark ? 3 : 1
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 2
+                        PrefsLabel { Layout.alignment: Qt.AlignHCenter; font.pixelSize: 64; isBold: true; color: modelData.dark ? "#F4FAFA" : "#102526"; text: dashboardData.speed }
+                        PrefsLabel { Layout.alignment: Qt.AlignHCenter; font.pixelSize: Style.typography.caption; color: modelData.dark ? "#829799" : "#6F8586"; text: modelData.label }
+                    }
+                }
+            }
+        }
+        Item { Layout.fillHeight: true }
     }
 }

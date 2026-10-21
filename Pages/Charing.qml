@@ -4,218 +4,151 @@ import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
-// Charging: the live charge on the right, nearby charging stations on the left.
+// Charging, in the SR Motard style: the charge as a large number, the power, time
+// left and range beneath, the charge limit, and nearby stations alongside.
 EaglePage {
     id: root
 
-    readonly property color modeColor: Style.modeColor(dashboardData.rideMode)
+    readonly property color tone: dashboardData.batteryPercent < 15 ? Style.danger
+                                 : dashboardData.charging ? Style.success
+                                 : Style.modeColor(dashboardData.rideMode)
     readonly property var stations: [
-        { name: qsTr("EV Point, Koramangala"), detail: qsTr("1.2 km · 2 of 4 free · ₹18/kWh") },
-        { name: qsTr("Charge Hub, HSR Layout"), detail: qsTr("2.8 km · 4 of 6 free · ₹16/kWh") },
-        { name: qsTr("Swap Station, Silk Board"), detail: qsTr("3.5 km · battery swap · 3 min") },
+        { name: qsTr("EV Point, Koramangala"), detail: qsTr("1.2 km · 2 of 4 free · ₹18/kWh"), value: qsTr("4 min") },
+        { name: qsTr("Charge Hub, HSR Layout"), detail: qsTr("2.8 km · 4 of 6 free · ₹16/kWh"), value: qsTr("9 min") },
+        { name: qsTr("Swap Station, Silk Board"), detail: qsTr("3.5 km · battery swap in 3 min"), value: qsTr("11 min") },
     ]
 
     leftPadding: Style.metrics.pageMargin
     rightPadding: Style.metrics.pageMargin
-    topPadding: 30
-    bottomPadding: 30
+    topPadding: 24
+    bottomPadding: 24
+
+    component Fact: ColumnLayout {
+        property string label
+        property string value
+        spacing: 6
+        // Filling, so the column can grow to its share of the row.
+        Caption { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; text: parent.label }
+        PrefsLabel { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; font.pixelSize: Style.typography.display + 4; isBold: true; text: parent.value }
+    }
 
     contentItem: RowLayout {
-        spacing: 30
+        spacing: 28
 
-        // Stations.
-        Rectangle {
-            Layout.preferredWidth: root.availableWidth * 0.36
+        Panel {
+            Layout.fillWidth: true
             Layout.fillHeight: true
-            radius: Style.metrics.radiusLg
-            color: Style.surface
-            border.color: Style.border
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 28
-                spacing: 20
+                anchors.margins: 32
+                spacing: 10
 
-                PrefsLabel {
-                    font.pixelSize: Style.h1
-                    isBold: true
-                    text: qsTr("Charging stations")
-                }
-                PrefsLabel {
-                    font.pixelSize: Style.h5
-                    color: Style.textMuted
-                    text: qsTr("Within your %1 km of range").arg(dashboardData.rangeKm)
-                }
-                Repeater {
-                    model: root.stations
-                    Rectangle {
-                        required property var modelData
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 110
-                        radius: Style.metrics.radiusMd
-                        color: Style.surfaceSunken
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 18
-                            spacing: 16
-                            Image {
-                                sourceSize: Qt.size(40, 40)
-                                source: "qrc:/Icons/MapIcons/charing.svg"
-                            }
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 4
-                                PrefsLabel { isBold: true; font.pixelSize: Style.h4; text: modelData.name }
-                                PrefsLabel { font.pixelSize: Style.h6; color: Style.textMuted; text: modelData.detail }
-                            }
-                            Rectangle {
-                                Layout.preferredWidth: 120
-                                Layout.preferredHeight: 50
-                                radius: 25
-                                color: root.modeColor
-                                PrefsLabel {
-                                    anchors.centerIn: parent
-                                    font.pixelSize: Style.h5
-                                    isBold: true
-                                    color: Style.textOnAccent
-                                    text: qsTr("Go")
-                                }
-                            }
-                        }
+                RowLayout {
+                    spacing: 16
+                    Image { sourceSize: Qt.size(36, 36); source: "qrc:/Icons/MapIcons/charing.svg" }
+                    PrefsLabel {
+                        font.pixelSize: Style.h1
+                        isBold: true
+                        font.letterSpacing: 2
+                        text: dashboardData.charging ? qsTr("CHARGING") : qsTr("BATTERY")
+                    }
+                    Item { Layout.fillWidth: true }
+                    Caption {
+                        accent: dashboardData.charging
+                        text: !dashboardData.charging ? qsTr("Not plugged in")
+                              : dashboardData.chargePowerKw > 0 ? qsTr("Charging") : qsTr("Charge complete")
                     }
                 }
+
+                PrefsLabel {
+                    Layout.alignment: Qt.AlignHCenter
+                    font.pixelSize: 230
+                    isBold: true
+                    color: root.tone
+                    text: dashboardData.batteryPercent
+                    Behavior on color { ColorAnimation { duration: Style.motion.normal } }
+                }
+
+                ProgressRunning {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 60
+                    Layout.rightMargin: 60
+                    implicitHeight: 22
+                    value: dashboardData.batteryPercent
+                    charging: dashboardData.charging
+                    fillColor: root.tone
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 24
+                    Fact { Layout.fillWidth: true; label: qsTr("Power"); value: dashboardData.charging ? qsTr("%1 kW").arg(dashboardData.chargePowerKw.toFixed(1)) : "—" }
+                    Fact {
+                        Layout.fillWidth: true
+                        label: qsTr("Full in")
+                        value: dashboardData.minutesToFull > 0
+                               ? qsTr("%1:%2").arg(Math.floor(dashboardData.minutesToFull / 60)).arg(String(dashboardData.minutesToFull % 60).padStart(2, "0"))
+                               : "—"
+                    }
+                    Fact { Layout.fillWidth: true; label: qsTr("Range"); value: qsTr("%1 km").arg(dashboardData.rangeKm) }
+                }
+
                 Item { Layout.fillHeight: true }
+                Caption {
+                    Layout.alignment: Qt.AlignHCenter
+                    visible: dashboardData.charging
+                    text: qsTr("Vehicle locked while charging")
+                }
             }
         }
 
-        // Live charge.
-        Rectangle {
-            Layout.fillWidth: true
+        ColumnLayout {
+            Layout.preferredWidth: 640
+            Layout.fillWidth: false   // a child filling would otherwise make the column grab the row
             Layout.fillHeight: true
-            radius: Style.metrics.radiusLg
-            color: Style.surface
-            border.color: Style.border
+            spacing: 16
 
+            Caption { text: qsTr("Charge limit") }
             RowLayout {
-                anchors.centerIn: parent
-                spacing: 80
-
-                // Charge ring.
-                Item {
-                    Layout.preferredWidth: 380
-                    Layout.preferredHeight: 380
-
-                    Canvas {
-                        id: ring
-                        anchors.fill: parent
-                        property real value: dashboardData.batteryPercent
-                        property color tone: dashboardData.batteryPercent < 15 ? Style.danger : root.modeColor
-                        Behavior on value { NumberAnimation { duration: 600; easing.type: Easing.OutCubic } }
-                        onValueChanged: requestPaint()
-                        onToneChanged: requestPaint()
-                        onPaint: {
-                            const ctx = getContext("2d")
-                            const r = width / 2 - 18
-                            ctx.reset()
-                            ctx.lineWidth = 26
-                            ctx.lineCap = "round"
-                            ctx.strokeStyle = Style.surfaceSunken
-                            ctx.beginPath()
-                            ctx.arc(width / 2, height / 2, r, 0, Math.PI * 2)
-                            ctx.stroke()
-                            ctx.strokeStyle = tone
-                            ctx.beginPath()
-                            ctx.arc(width / 2, height / 2, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * value / 100)
-                            ctx.stroke()
-                        }
-                    }
-                    ColumnLayout {
-                        anchors.centerIn: parent
-                        spacing: 4
-                        PrefsLabel {
-                            Layout.alignment: Qt.AlignHCenter
-                            font.pixelSize: 96
-                            isBold: true
-                            text: qsTr("%1%").arg(dashboardData.batteryPercent)
-                        }
-                        PrefsLabel {
-                            Layout.alignment: Qt.AlignHCenter
-                            font.pixelSize: Style.h3
-                            color: dashboardData.charging ? Style.success : Style.textMuted
-                            text: !dashboardData.charging ? qsTr("Not plugged in")
-                                  : dashboardData.chargePowerKw > 0 ? qsTr("⚡ Charging") : qsTr("Charge complete")
-                        }
+                spacing: 14
+                Repeater {
+                    model: [80, 90, 100]
+                    OutlineButton {
+                        required property int modelData
+                        Layout.fillWidth: true
+                        text: qsTr("%1%").arg(modelData)
+                        highlighted: dashboardData.chargeLimitPercent === modelData
+                        tone: Style.modeColor(dashboardData.rideMode)
+                        onClicked: dashboardData.chargeLimitPercent = modelData
                     }
                 }
+            }
 
-                ColumnLayout {
-                    spacing: 26
-
-                    component Fact: ColumnLayout {
-                        property string label
-                        property string value
-                        spacing: 2
-                        PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: parent.label }
-                        PrefsLabel { font.pixelSize: Style.typography.display + 6; isBold: true; text: parent.value }
-                    }
-
-                    Fact {
-                        label: qsTr("Range")
-                        value: qsTr("%1 km").arg(dashboardData.rangeKm)
-                    }
-                    Fact {
-                        label: qsTr("Charging power")
-                        value: dashboardData.charging ? qsTr("%1 kW").arg(dashboardData.chargePowerKw.toFixed(1)) : "—"
-                    }
-                    Fact {
-                        label: qsTr("Full in")
-                        value: dashboardData.minutesToFull > 0
-                               ? qsTr("%1 h %2 min").arg(Math.floor(dashboardData.minutesToFull / 60)).arg(dashboardData.minutesToFull % 60)
-                               : "—"
-                    }
-
-                    PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: qsTr("Charge limit") }
-                    RowLayout {
-                        spacing: 12
-                        Repeater {
-                            model: [80, 90, 100]
-                            Rectangle {
-                                required property int modelData
-                                readonly property bool current: dashboardData.chargeLimitPercent === modelData
-                                implicitWidth: 110
-                                implicitHeight: 56
-                                radius: 28
-                                color: current ? root.modeColor : Style.surfaceSunken
-                                Behavior on color { ColorAnimation { duration: Style.motion.fast } }
-                                PrefsLabel {
-                                    anchors.centerIn: parent
-                                    isBold: true
-                                    font.pixelSize: Style.h4
-                                    color: parent.current ? Style.textOnAccent : Style.textPrimary
-                                    text: qsTr("%1%").arg(modelData)
-                                }
-                                TapHandler { onTapped: dashboardData.chargeLimitPercent = modelData }
-                            }
-                        }
-                    }
-
-                    // The simulator stands in for plugging in the charger on the desk.
-                    Rectangle {
-                        visible: simulator.running
-                        Layout.topMargin: 10
-                        implicitWidth: 300
-                        implicitHeight: 64
-                        radius: 32
-                        color: dashboardData.charging ? Style.danger : Style.success
-                        PrefsLabel {
-                            anchors.centerIn: parent
-                            isBold: true
-                            color: "#FFFFFF"
-                            text: dashboardData.charging ? qsTr("Unplug charger") : qsTr("Plug in charger")
-                        }
-                        TapHandler { onTapped: simulator.toggleCharging() }
-                    }
+            Caption { Layout.topMargin: 14; text: qsTr("Nearby stations") }
+            Repeater {
+                model: root.stations
+                InfoRow {
+                    required property var modelData
+                    Layout.fillWidth: true
+                    icon: "qrc:/Icons/MapIcons/charing.svg"
+                    title: modelData.name
+                    subtitle: modelData.detail
+                    value: modelData.value
+                    tone: Style.modeColor(dashboardData.rideMode)
                 }
+            }
+
+            Item { Layout.fillHeight: true }
+
+            // The simulator stands in for plugging in the charger on the desk.
+            OutlineButton {
+                visible: simulator.running
+                Layout.fillWidth: true
+                highlighted: true
+                tone: dashboardData.charging ? Style.danger : Style.success
+                text: dashboardData.charging ? qsTr("Unplug charger") : qsTr("Plug in charger")
+                onClicked: simulator.toggleCharging()
             }
         }
     }

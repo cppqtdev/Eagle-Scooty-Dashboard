@@ -119,10 +119,6 @@
         <file>Icons/entypo_arrow-left.svg</file>
         <file>Icons/time.svg</file>
         <file>Icons/gps-signal.gif</file>
-        <file>fonts/HelveticaNeueLTCom-Bd.ttf</file>
-        <file>fonts/HelveticaNeueLTCom-Lt.ttf</file>
-        <file>fonts/HelveticaNeueLTCom-Md.ttf</file>
-        <file>fonts/HelveticaNeueLTCom-Roman.ttf</file>
         <file>Component/PrefsLabel.qml</file>
         <file>Icons/topIcons/icn_batterytemp_glow.svg</file>
         <file>Icons/topIcons/icn_highbeam_glow.svg</file>
@@ -167,5 +163,18 @@
         <file>Component/BootScreen.qml</file>
         <file>Pages/Documents.qml</file>
         <file>Pages/Diagnostics.qml</file>
+        <file>Component/SnapshotDriver.qml</file>
+        <file>Component/RouteMap.qml</file>
+        <file>fonts/Orbitron-Regular.ttf</file>
+        <file>fonts/Orbitron-Medium.ttf</file>
+        <file>fonts/Orbitron-Bold.ttf</file>
+        <file>Component/Caption.qml</file>
+        <file>Component/Panel.qml</file>
+        <file>Component/InfoRow.qml</file>
+        <file>Component/OutlineButton.qml</file>
+        <file>Component/TurnView.qml</file>
+        <file>fonts/Orbitron-OFL.txt</file>
+        <file>Component/ToggleRow.qml</file>
+        <file>Pages/Wifi.qml</file>
     </qresource>
 </RCC>

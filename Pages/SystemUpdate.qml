@@ -4,102 +4,56 @@ import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// Software version and updates, which download over Wi-Fi.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding: 100
-    header:RowLayout{
-        width: parent.width
-        spacing: 5
-        PrefsLabel{
-            Layout.alignment: Qt.AlignLeft
-            Layout.leftMargin: 100
-            font.pixelSize: Style.h2
-            isStyle: true
-            isBold: true
-            text: qsTr("Update")
-        }
+    id: root
 
-        PrefsButton{
-            Layout.alignment: Qt.AlignRight
-            Layout.rightMargin: 230
-            implicitWidth: 300
-            text: qsTr("Check For Update")
-            borderWidth: 1
-            borderColor: Style.styleColor
-            textColor : borderColor
-            backgroundColor: "transparent"
-            onClicked: gEagleStack.pop()
-        }
+    property bool checking: false
+    property bool checked: false
+
+    background: null
+
+    Timer {
+        id: check
+        interval: 2200
+        onTriggered: { root.checking = false; root.checked = true }
     }
-    contentData: ColumnLayout{
-        width: root.width
-        spacing: 20
-        Item{
-            Layout.fillWidth: true
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 16
+
+        Caption { text: qsTr("Installed") }
+        PrefsLabel { font.pixelSize: 64; isBold: true; text: qsTr("v%1").arg(Qt.application.version) }
+        PrefsLabel {
+            font.pixelSize: Style.h5
+            color: root.checked ? Style.success : Style.textMuted
+            text: root.checking ? qsTr("Checking for updates…")
+                  : root.checked ? qsTr("Eagle Dashboard is up to date")
+                  : qsTr("Updates download over Wi-Fi and install when the scooter is switched off")
+        }
+        RowLayout {
+            spacing: 14
+            OutlineButton {
+                text: root.checking ? qsTr("Checking…") : qsTr("Check now")
+                highlighted: true
+                enabled: !root.checking && wifi.connectedSsid.length > 0
+                opacity: enabled ? 1 : 0.5
+                onClicked: { root.checking = true; root.checked = false; check.start() }
+            }
+            PrefsLabel {
+                visible: wifi.connectedSsid.length === 0
+                font.pixelSize: Style.typography.caption
+                color: Style.warning
+                text: qsTr("Connect to Wi-Fi first")
+            }
         }
 
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
-        }
-
-        Rectangle{
-            width: parent.width * 0.78
-            height: 100
-            radius: 10
-            color : Style.isDark ? palette.dark : palette.light
-            Rectangle{
-                anchors.left: parent.left
-                anchors.verticalCenter: parent.verticalCenter
-                height: parent.height
-                width: 10
-                radius: 10
-                color: Style.styleColor
-            }
-
-            PrefsLabel{
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 20
-                font.pixelSize: Style.h2
-                isStyle: true
-                isBold: true
-                text: qsTr("Software")
-            }
-
-            ColumnLayout{
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                PrefsLabel{
-                    Layout.alignment: Qt.AlignHCenter
-                    font.pixelSize: Style.h5
-                    isStyle: true
-                    isBold: true
-                    text: qsTr("Update Available 5.15.11")
-                }
-                PrefsLabel{
-                    Layout.alignment: Qt.AlignHCenter
-                    font.pixelSize: Style.paragraph
-                    isStyle: true
-                    isBold: true
-                    text: qsTr("<a href='https://www.example.com'>Release Notes</a>")
-                }
-            }
-
-            PrefsButton{
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                anchors.rightMargin: 20
-                implicitWidth: 150
-                text: qsTr("Update")
-                borderWidth: 1
-                borderColor: Style.styleColor
-                textColor : borderColor
-                backgroundColor: "transparent"
-                onClicked: gEagleStack.pop()
-            }
-        }
+        Caption { Layout.topMargin: 20; text: qsTr("Details") }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Channel"); value: qsTr("Stable"); valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Wi-Fi"); value: wifi.connectedSsid || qsTr("Not connected"); valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Install"); value: qsTr("At switch-off"); valueColor: Style.textMuted }
+        Item { Layout.fillHeight: true }
     }
 }

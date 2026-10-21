@@ -6,7 +6,6 @@ import "../Component"
 
 EaglePage {
     id:root
-    width: parent.width
     leftPadding: 100
     contentData: ColumnLayout{
         width: root.width

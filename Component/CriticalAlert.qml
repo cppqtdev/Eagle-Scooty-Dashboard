@@ -11,7 +11,7 @@ Rectangle {
     readonly property var alert: alertCenter.critical
     readonly property bool shown: alert.id !== undefined
     property var shownAlert: ({})
-    onAlertChanged: if (shown) shownAlert = alert
+    onAlertChanged: if (alert.id !== undefined) shownAlert = alert
 
     color: Qt.rgba(0, 0, 0, 0.72)
     opacity: shown ? 1 : 0

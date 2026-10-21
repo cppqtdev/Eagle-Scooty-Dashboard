@@ -4,192 +4,161 @@ import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// Navigation, after the ApexCluster design: the next manoeuvre drawn onto the
+// road with its distance large, what to do and where above it, the remaining
+// distance and arrival time below; the route and saved places on the right.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding :100
-    rightPadding:100
-    contentItem: RowLayout{
-        width: parent.width
-        spacing: 20
-        Pane{
-            padding: 0
-            Layout.preferredWidth: root.width * 0.3
-            Layout.preferredHeight: root.height * 0.5
-            background: Rectangle{
-                color: palette.base
+    id: root
+
+    readonly property color modeColor: Style.modeColor(dashboardData.rideMode)
+    property string destination: qsTr("Office")
+    readonly property var places: [
+        { name: qsTr("Home"), detail: qsTr("8.4 km · about 15 min") },
+        { name: qsTr("Office"), detail: qsTr("6.4 km · about 12 min") },
+        { name: qsTr("Charger · Koramangala"), detail: qsTr("2.1 km · about 4 min") },
+    ]
+
+    function instruction(maneuver) {
+        switch (maneuver) {
+        case 1: return qsTr("Turn left onto")
+        case 2: return qsTr("Turn right onto")
+        case 3: return qsTr("Make a U-turn at")
+        case 4: return qsTr("Arriving at")
+        }
+        return qsTr("Continue on")
+    }
+
+    leftPadding: Style.metrics.pageMargin
+    rightPadding: Style.metrics.pageMargin
+    topPadding: 24
+    bottomPadding: 24
+
+    contentItem: RowLayout {
+        spacing: 28
+
+        Panel {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            clip: true
+
+            TurnView {
                 anchors.fill: parent
-                radius: 15
+                anchors.topMargin: 150
+                anchors.bottomMargin: 70
+                maneuver: dashboardData.maneuver
+                arrowColor: root.modeColor
             }
 
-            RoundRectangle{
-                id:topLabel
-                width: parent.width
-                height: 80
-                radius: 15
-                radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop
-                anchors.horizontalCenter: parent.horizontalCenter
+            // What to do and where.
+            ColumnLayout {
+                anchors.left: parent.left
                 anchors.top: parent.top
-                color: palette.dark
-
-                RowLayout{
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    IconButton{
-                        setIcon: "qrc:/Icons/MapIcons/Search.svg"
-                    }
-                    PrefsLabel{
-                        color: palette.light
-                        text: qsTr("Search Here")
-                    }
+                anchors.margins: 32
+                spacing: 6
+                Caption { accent: true; text: root.instruction(dashboardData.maneuver) }
+                PrefsLabel {
+                    font.pixelSize: Style.typography.display + 6
+                    isBold: true
+                    text: dashboardData.street
                 }
             }
 
-            RowLayout{
-                anchors.top: topLabel.bottom
-                anchors.topMargin: 20
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width * 0.9
-                Image{
-                    source: "qrc:/Icons/MapIcons/searchIcon.svg"
+            // Distance to the manoeuvre.
+            Row {
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: 28
+                spacing: 8
+                PrefsLabel {
+                    id: distanceValue
+                    font.pixelSize: 96
+                    isBold: true
+                    text: dashboardData.maneuverDistanceM >= 1000
+                          ? (dashboardData.maneuverDistanceM / 1000).toFixed(1)
+                          : dashboardData.maneuverDistanceM
                 }
-                Item{
-                    Layout.preferredWidth: 5
-                }
-
-                ColumnLayout{
-                    width: parent.width
-                    Layout.alignment: Qt.AlignHCenter
-                    TextFieldInput{
-                        placeholderText: qsTr("Choose Starting Point")
-                        placeholderTextColor: palette.dark
-                        implicitWidth: parent.width * 0.95
-                        implicitHeight: 55
-                        font.pixelSize: Style.paragraph
-                        selectedTextColor: "#FFFFFF"
-                        backgroundColor : Style.grayColor
-                        selectionColor: Style.grayColor
-                        radius: 8
-                        borderColor : Style.grayColor
-                        color: palette.windowText
-                    }
-                    Item{
-                        Layout.fillHeight: true
-                    }
-
-                    TextFieldInput{
-                        placeholderText: qsTr("Choose Destination")
-                        placeholderTextColor: palette.dark
-                        implicitWidth: parent.width * 0.95
-                        implicitHeight: 55
-                        font.pixelSize: Style.paragraph
-                        backgroundColor : Style.grayColor
-                        selectedTextColor: "#FFFFFF"
-                        selectionColor: Style.grayColor
-                        radius: 8
-                        borderColor : Style.grayColor
-                        color: palette.windowText
-                    }
-                }
-
-                IconButton{
-                    setIcon: "qrc:/Icons/MapIcons/switch.svg"
+                PrefsLabel {
+                    anchors.baseline: distanceValue.baseline
+                    font.pixelSize: Style.h1
+                    color: Style.textMuted
+                    text: dashboardData.maneuverDistanceM >= 1000 ? qsTr("km") : qsTr("m")
                 }
             }
 
-            RowLayout{
-                anchors.horizontalCenter: parent.horizontalCenter
+            // Remaining and arrival.
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: 10
-                IconButton{
-                    roundIcon: true
-                    iconWidth: 28
-                    iconHeight: 28
-                    setIcon: "qrc:/Icons/MapIcons/Add.svg"
-                }
-                PrefsLabel{
-                    color: palette.dark
-                    font.pixelSize: Style.h5
-                    text: qsTr("Add destination")
+                height: 70
+                color: Style.surfaceSunken
+                radius: Style.metrics.radiusLg
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 32
+                    anchors.rightMargin: 32
+                    PrefsLabel {
+                        font.pixelSize: Style.h4
+                        text: qsTr("%1 km remaining").arg(dashboardData.distanceKm.toFixed(1))
+                    }
+                    Item { Layout.fillWidth: true }
+                    PrefsLabel {
+                        font.pixelSize: Style.h4
+                        isBold: true
+                        text: qsTr("ETA %1").arg(Qt.formatTime(new Date(Date.now() + dashboardData.arrivalMinutes * 60000), "hh:mm"))
+                    }
                 }
             }
         }
-        Pane{
-            padding: 0
-            Layout.fillWidth: true
-            Layout.preferredHeight: root.height * 0.9
-            background: Rectangle{
-                color: palette.base
-                anchors.fill: parent
-                radius: 15
-            }
-            RoundRectangle{
-                z:3
-                width: parent.width
-                height: 80
-                radius: 15
-                radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                color: palette.dark
 
-                RowLayout{
+        ColumnLayout {
+            Layout.preferredWidth: 600
+            Layout.fillWidth: false   // a child filling would otherwise make the column grab the row
+            Layout.fillHeight: true
+            spacing: 18
+
+            Panel {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 330
+                clip: true
+                RouteMap {
+                    anchors.fill: parent
+                    anchors.margins: 2
+                    progress: 1 - Math.min(1, dashboardData.distanceKm / 8.4)
+                    routeColor: root.modeColor
+                }
+                Rectangle {
                     anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    RowLayout{
-                        IconButton{
-                            roundIcon: true
-                            iconWidth: 32
-                            iconHeight: 32
-                            setIcon: "qrc:/Icons/time.svg"
-                        }
-                        PrefsLabel{
-                            Layout.alignment: Qt.AlignLeft
-                            color: Style.grayColor
-                            text: qsTr("%1 min").arg(dashboardData.arrivalMinutes)
-                        }
-                    }
-                    RowLayout{
-                        IconButton{
-                            roundIcon: true
-                            iconWidth: 32
-                            iconHeight: 32
-                            setIcon: "qrc:/Icons/entypo_arrow-left.svg"
-                        }
-                        PrefsLabel{
-                            Layout.alignment: Qt.AlignLeft
-                            color: Style.grayColor
-                            text: qsTr("%1 km").arg(dashboardData.distanceKm.toFixed(1))
-                        }
-                    }
-                }
-
-                RowLayout{
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.verticalCenter: parent.verticalCenter
-                    IconButton{
-                        roundIcon: true
-                        iconWidth: 32
-                        iconHeight: 32
-                        checkable: true
-                        setIcon:"qrc:/Icons/bottomIcons/settings.svg"
+                    anchors.top: parent.top
+                    anchors.margins: 14
+                    width: routeLabel.implicitWidth + 28
+                    height: 40
+                    radius: 20
+                    color: Style.surface
+                    Caption {
+                        id: routeLabel
+                        anchors.centerIn: parent
+                        text: qsTr("To %1").arg(root.destination)
                     }
                 }
             }
 
-            Item {
-                anchors.fill: parent
-
-                PrefsLabel {
-                    anchors.centerIn: parent
-                    color: palette.mid
-                    text: qsTr("Map support is unavailable")
+            Caption { text: qsTr("Where to?") }
+            Repeater {
+                model: root.places
+                InfoRow {
+                    required property var modelData
+                    Layout.fillWidth: true
+                    title: modelData.name
+                    subtitle: modelData.detail
+                    selected: root.destination === modelData.name
+                    tone: root.modeColor
+                    value: selected ? qsTr("Active") : qsTr("Go")
+                    valueColor: selected ? root.modeColor : Style.textMuted
+                    onClicked: root.destination = modelData.name
                 }
             }
+            Item { Layout.fillHeight: true }
         }
     }
 }

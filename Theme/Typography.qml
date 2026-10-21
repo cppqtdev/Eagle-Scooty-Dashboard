@@ -4,16 +4,16 @@ QtObject {
     id: root
 
     readonly property FontLoader lightLoader: FontLoader {
-        source: "qrc:/fonts/HelveticaNeueLTCom-Lt.ttf"
+        source: "qrc:/fonts/Orbitron-Regular.ttf"
     }
     readonly property FontLoader regularLoader: FontLoader {
-        source: "qrc:/fonts/HelveticaNeueLTCom-Roman.ttf"
+        source: "qrc:/fonts/Orbitron-Regular.ttf"
     }
     readonly property FontLoader mediumLoader: FontLoader {
-        source: "qrc:/fonts/HelveticaNeueLTCom-Md.ttf"
+        source: "qrc:/fonts/Orbitron-Medium.ttf"
     }
     readonly property FontLoader boldLoader: FontLoader {
-        source: "qrc:/fonts/HelveticaNeueLTCom-Bd.ttf"
+        source: "qrc:/fonts/Orbitron-Bold.ttf"
     }
 
     readonly property string fallbackFamily: "Arial"

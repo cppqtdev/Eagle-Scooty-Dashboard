@@ -16,7 +16,7 @@ Item {
 
     // Keep the last alert's text while sliding out.
     property var shownAlert: ({})
-    onAlertChanged: if (shown) shownAlert = alert
+    onAlertChanged: if (alert.id !== undefined) shownAlert = alert
 
     Rectangle {
         id: card

@@ -43,12 +43,20 @@ ApplicationWindow {
 
     Item {
         id: root
+        objectName: "canvas"
 
         property string currentPage: "home"
         readonly property var pages: ({
             home: homePage, map: mapPage, phone: callingPage,
-            music: musicPage, charging: chargingPage, settings: settingsPage
+            music: musicPage, charging: chargingPage, settings: settingsPage,
+            documents: documentsPage, diagnostics: diagnosticsPage
         })
+
+        // Settings opened at one of its entries (by index), for the bench and snapshots.
+        function openSetting(index) {
+            navigate("settings")
+            stack.currentItem.current = index
+        }
 
         function navigate(page) {
             if (page === currentPage || !pages[page])
@@ -80,7 +88,7 @@ ApplicationWindow {
         StackView {
             id: stack
             anchors.top: header.bottom
-            anchors.bottom: footer.visible ? footer.top : parent.bottom
+            anchors.bottom: footer.top
             anchors.left: parent.left
             anchors.right: parent.right
             clip: true
@@ -119,7 +127,6 @@ ApplicationWindow {
             id: footer
             anchors.bottom: parent.bottom
             width: parent.width
-            visible: root.currentPage !== "settings"
             currentPage: root.currentPage
             onNavigate: page => root.navigate(page)
         }
@@ -129,9 +136,11 @@ ApplicationWindow {
         Component { id: callingPage; Callling {} }
         Component { id: musicPage; MusicPage {} }
         Component { id: chargingPage; Charing {} }
+        Component { id: documentsPage; Documents {} }
+        Component { id: diagnosticsPage; Diagnostics {} }
         Component {
             id: settingsPage
-            SettingsPage { onBackToHome: root.navigate("home") }
+            SettingsPage {}
         }
 
         AlertBanner {
@@ -155,6 +164,12 @@ ApplicationWindow {
         BootScreen {
             anchors.fill: parent
             z: 50
+        }
+
+        Loader {
+            active: snapshotDir.length > 0
+            source: "qrc:/Component/SnapshotDriver.qml"
+            onLoaded: item.canvas = root
         }
 
         // Desktop preview of the panel backlight; the board drives the real one.

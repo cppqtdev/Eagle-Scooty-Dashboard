@@ -8,12 +8,14 @@
 #include <QQuickWindow>
 
 #include "alertcenter.h"
+#include "bluetoothmanager.h"
 #include "dashboarddata.h"
 #include "phoneservice.h"
 #include "systemclock.h"
 #include "themecontroller.h"
 #include "vehicledocuments.h"
 #include "vehiclesimulator.h"
+#include "wifimanager.h"
 
 namespace {
 
@@ -30,10 +32,10 @@ bool boardModeRequested(int argc, char *argv[])
 
 void loadFonts(QGuiApplication &app)
 {
-    const int regularFontId = QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/HelveticaNeueLTCom-Roman.ttf"));
-    QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/HelveticaNeueLTCom-Lt.ttf"));
-    QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/HelveticaNeueLTCom-Md.ttf"));
-    QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/HelveticaNeueLTCom-Bd.ttf"));
+    // Orbitron (SIL Open Font License, fonts/Orbitron-OFL.txt), as on the SR Motard cluster.
+    const int regularFontId = QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Orbitron-Regular.ttf"));
+    QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Orbitron-Medium.ttf"));
+    QFontDatabase::addApplicationFont(QStringLiteral(":/fonts/Orbitron-Bold.ttf"));
     if (regularFontId < 0)
         return;
     const QStringList families = QFontDatabase::applicationFontFamilies(regularFontId);
@@ -69,6 +71,8 @@ int main(int argc, char *argv[])
     parser.addVersionOption();
     parser.addOption({QStringLiteral("board"), QStringLiteral("Run full screen on the HMI panel.")});
     parser.addOption({QStringLiteral("no-simulator"), QStringLiteral("Wait for live vehicle data instead of simulating a ride.")});
+    parser.addOption({QStringLiteral("snapshot"), QStringLiteral("Save every page and alert state as PNG files in <dir>, then quit."),
+                      QStringLiteral("dir")});
     parser.process(app);
 
     ThemeController themeController;
@@ -78,6 +82,8 @@ int main(int argc, char *argv[])
     AlertCenter alertCenter(&dashboardData);
     PhoneService phone;
     VehicleDocuments documents;
+    BluetoothManager bluetooth(&phone);
+    WifiManager wifi;
 
     QObject::connect(&phone, &PhoneService::messageReceived, &alertCenter,
                      [&alertCenter](const QString &from, const QString &text) {
@@ -103,7 +109,10 @@ int main(int argc, char *argv[])
     context->setContextProperty(QStringLiteral("alertCenter"), &alertCenter);
     context->setContextProperty(QStringLiteral("phone"), &phone);
     context->setContextProperty(QStringLiteral("vehicleDocuments"), &documents);
+    context->setContextProperty(QStringLiteral("bluetooth"), &bluetooth);
+    context->setContextProperty(QStringLiteral("wifi"), &wifi);
     context->setContextProperty(QStringLiteral("boardMode"), boardMode);
+    context->setContextProperty(QStringLiteral("snapshotDir"), parser.value(QStringLiteral("snapshot")));
     // Shader effects (shadows, glows) need the GPU scene graph.
     context->setContextProperty(QStringLiteral("effectsEnabled"),
                                 QQuickWindow::graphicsApi() != QSGRendererInterface::Software);

@@ -4,160 +4,64 @@ import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// Trip A, the odometer and the last rides; trip A resets after a confirmation.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding: 100
+    id: root
 
-    Component{
-        id:tripDetails
-        TripDetails{
+    property bool confirmReset: false
 
-        }
+    background: null
+
+    component Figure: ColumnLayout {
+        property string label
+        property string value
+        spacing: 4
+        Caption { text: parent.label }
+        PrefsLabel { font.pixelSize: Style.typography.display + 8; isBold: true; text: parent.value }
     }
 
-    contentData: ColumnLayout{
-        width: root.width
-        spacing: 20
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 16
 
-        RowLayout{
-            spacing: 10
-            PrefsLabel{
-                isStyle:true
-                isBold: true
-                font.pixelSize: Style.h2
-                text: qsTr("Today")
-            }
-            PrefsButton{
-                iconFactor: 0.5
-                implicitWidth: 28
-                implicitHeight: 28
-                setIcon: "qrc:/Icons/Down.svg"
-                backgroundColor:"#00000000"
-            }
-        }
-
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
-        }
-
-        RowLayout{
-            spacing: 30
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            RowLayout{
-                spacing: 10
-                PrefsButton{
-                    iconFactor: 0.6
-                    implicitWidth: 36
-                    implicitHeight: 36
-                    setIcon: "qrc:/Icons/scooty.svg"
-                    backgroundColor:"#00000000"
-                }
-
-                PrefsLabel{
-                    isBold: true
-                    isStyle: true
-                    font.pixelSize: Style.h5
-                    text: qsTr("13 km 30 min")
-                }
-            }
-
-            RowLayout{
-                spacing: 10
-                PrefsButton{
-                    iconFactor: 0.5
-                    implicitWidth: 36
-                    implicitHeight: 36
-                    setIcon: "qrc:/Icons/location.svg"
-                    backgroundColor:"#00000000"
-                }
-
-                PrefsLabel{
-                    font.pixelSize: Style.h5
-                    isBold: true
-                    isStyle: true
-                    text: qsTr("2 Visit")
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 40
+            Figure { label: qsTr("Trip A"); value: qsTr("%1 km").arg(dashboardData.tripKm) }
+            Figure { label: qsTr("Odometer"); value: qsTr("%L1 km").arg(dashboardData.odometerKm) }
+            Figure { label: qsTr("Efficiency"); value: qsTr("%1 Wh/km").arg([24, 28, 35][dashboardData.rideMode]) }
+            Item { Layout.fillWidth: true }
+            OutlineButton {
+                text: root.confirmReset ? qsTr("Reset trip A?") : qsTr("Reset")
+                highlighted: root.confirmReset
+                tone: Style.danger
+                onClicked: {
+                    if (root.confirmReset)
+                        dashboardData.resetTrip()
+                    root.confirmReset = !root.confirmReset
                 }
             }
         }
 
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
-        }
-        ListView{
-            id:tripView
-            width: parent.width
-            height: contentHeight
-            model: 2
-            spacing : 20
-            clip: true
-            delegate:RoundRectangle {
-                clip: true
-                width: tripView.width * 0.8;
-                height: 220
-                radius: 10
-                radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop | Qt.AlignBottom
-                color: Style.isDark ? palette.dark : palette.light
-                Rectangle{
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    height: parent.height
-                    width: 10
-                    radius: 10
-                    color: Style.styleColor
-                }
-
-                ColumnLayout{
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 20
-                    spacing: 20
-
-                    PrefsLabel{
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 20
-                        Layout.alignment: Qt.AlignLeft
-                        font.pixelSize: Style.h5
-                        text: qsTr("Sunday , June 18 ,08:22 AM")
-                    }
-
-                    PrefsTimeLine{
-                        id:time_line
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignLeft
-                        mode: Style.left
-                        model:ListModel{
-                            ListElement{
-                                lable:"2017-07-01"
-                                text:"HOME (26th Outlet, Near Showroom)"
-                            }
-                            ListElement{
-                                lable:"2017-09-01"
-                                text:"HOME (26th Outlet, Near Showroom)"
-                            }
-                        }
-                    }
-                }
-
-                Image{
-                    source: "qrc:/Icons/rightArrow.svg"
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.rightMargin: 30
-                }
-
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        gEagleStack.push(tripDetails)
-                    }
-                }
+        Caption { Layout.topMargin: 16; text: qsTr("Recent rides") }
+        Repeater {
+            model: [
+                { title: qsTr("Home → Office"), detail: qsTr("Today · 8.4 km · 22 min"), value: qsTr("27 Wh/km") },
+                { title: qsTr("Office → Charger, Koramangala"), detail: qsTr("Yesterday · 2.1 km · 7 min"), value: qsTr("24 Wh/km") },
+                { title: qsTr("Weekend ride, Nandi Hills"), detail: qsTr("Sunday · 61 km · 1 h 48 min"), value: qsTr("33 Wh/km") },
+                { title: qsTr("Office → Home"), detail: qsTr("Friday · 8.6 km · 25 min"), value: qsTr("26 Wh/km") },
+            ]
+            InfoRow {
+                required property var modelData
+                Layout.fillWidth: true
+                title: modelData.title
+                subtitle: modelData.detail
+                value: modelData.value
+                valueColor: Style.textMuted
+                tone: Style.modeColor(dashboardData.rideMode)
             }
         }
+        Item { Layout.fillHeight: true }
     }
 }
