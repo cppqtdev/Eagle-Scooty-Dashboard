@@ -99,15 +99,16 @@ EaglePage {
 
                     RowLayout {
                         Layout.topMargin: 24
-                        spacing: 20
-                        OutlineButton { text: qsTr("Prev"); onClicked: phone.previous() }
-                        OutlineButton {
-                            text: phone.playing ? qsTr("Pause") : qsTr("Play")
+                        spacing: 28
+                        RoundIconButton { iconName: "previous"; onClicked: phone.previous() }
+                        RoundIconButton {
+                            diameter: 96
+                            iconName: phone.playing ? "pause" : "play"
                             highlighted: true
                             tone: root.modeColor
                             onClicked: phone.playPause()
                         }
-                        OutlineButton { text: qsTr("Next"); onClicked: phone.next() }
+                        RoundIconButton { iconName: "next"; onClicked: phone.next() }
                     }
                 }
             }

@@ -16,19 +16,10 @@ EaglePage {
         spacing: 16
 
         Caption { text: qsTr("Theme") }
-        RowLayout {
-            spacing: 14
-            Repeater {
-                model: [qsTr("Auto"), qsTr("Light"), qsTr("Dark")]
-                OutlineButton {
-                    required property int index
-                    required property string modelData
-                    Layout.preferredWidth: 220
-                    text: modelData
-                    highlighted: Style.themeMode === index
-                    onClicked: Style.setMode(index)
-                }
-            }
+        SegmentedControl {
+            model: [{ icon: "auto", title: qsTr("Auto") }, { icon: "sun", title: qsTr("Light") }, { icon: "moon", title: qsTr("Dark") }]
+            currentIndex: Style.themeMode
+            onActivated: index => Style.setMode(index)
         }
         PrefsLabel {
             font.pixelSize: Style.typography.caption

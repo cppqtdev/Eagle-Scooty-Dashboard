@@ -30,7 +30,7 @@ EaglePage {
         spacing: 6
         // Filling, so the column can grow to its share of the row.
         Caption { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; text: parent.label }
-        DigitText { Layout.alignment: Qt.AlignHCenter; pixelSize: Style.typography.display + 4; isBold: true; text: parent.value }
+        PrefsLabel { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; font.pixelSize: Style.typography.display + 4; isBold: true; elide: Text.ElideRight; wrapMode: Text.NoWrap; text: parent.value }
     }
 
     contentItem: RowLayout {
@@ -110,19 +110,12 @@ EaglePage {
             spacing: 16
 
             Caption { text: qsTr("Charge limit") }
-            RowLayout {
-                spacing: 14
-                Repeater {
-                    model: [80, 90, 100]
-                    OutlineButton {
-                        required property int modelData
-                        Layout.fillWidth: true
-                        text: qsTr("%1%").arg(modelData)
-                        highlighted: dashboardData.chargeLimitPercent === modelData
-                        tone: Style.modeColor(dashboardData.rideMode)
-                        onClicked: dashboardData.chargeLimitPercent = modelData
-                    }
-                }
+            SegmentedControl {
+                readonly property var limits: [80, 90, 100]
+                Layout.fillWidth: true
+                model: limits.map(l => qsTr("%1%").arg(l))
+                currentIndex: limits.indexOf(dashboardData.chargeLimitPercent)
+                onActivated: index => dashboardData.chargeLimitPercent = limits[index]
             }
 
             Caption { Layout.topMargin: 14; text: qsTr("Nearby stations") }

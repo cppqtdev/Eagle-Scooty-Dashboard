@@ -180,5 +180,8 @@
         <file>Component/Sampled.qml</file>
         <file>Component/RideLock.qml</file>
         <file>Component/LineIcon.qml</file>
+        <file>Component/TabRail.qml</file>
+        <file>Component/SegmentedControl.qml</file>
+        <file>Component/RoundIconButton.qml</file>
     </qresource>
 </RCC>

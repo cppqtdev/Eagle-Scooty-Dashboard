@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import Style 1.0
 
 // Battery and range above the navigation bar. The bar's tabs show which page is
-// open: the active one gets the accent dot, and only one can be active at a time.
+// open: the active one is lit from below with a bar under it.
 Image {
     id: root
 
@@ -23,6 +23,20 @@ Image {
         Layout.preferredWidth: 90
         Layout.preferredHeight: 80
 
+        // The open page is lit from below, like the tabs elsewhere.
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            width: 88
+            height: 74
+            radius: 2
+            opacity: tab.current ? 1 : 0
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: Style.alpha(Style.modeColor(dashboardData.rideMode), Style.isDark ? 0.34 : 0.22) }
+            }
+            Behavior on opacity { NumberAnimation { duration: Style.motion.normal } }
+        }
         IconButton {
             anchors.centerIn: parent
             roundIcon: true
