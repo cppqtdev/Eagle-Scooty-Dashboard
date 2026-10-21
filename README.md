@@ -1,5 +1,38 @@
-# Eagle-Scooty-Dashboard-
-Eagle Scooty  Light and Dark Theme Dashboard written in QT QML With Figma Designs
+# Eagle Scooty Dashboard
+
+Eagle Scooty light and dark theme dashboard written in Qt 6/QML from Figma designs.
+
+## Requirements
+
+- Qt 6.5 or newer with Qt Quick, Qt Quick Controls, and Qt Quick Effects
+- A C++17 compiler
+
+Qt Location and Qt Positioning are not required. The navigation, trip-details,
+and charging pages remain available, but their live map areas intentionally show
+an unavailable state.
+
+## UI architecture
+
+- `StyleTheme.qml` is the public design-system facade used by screens.
+- `Theme/ColorPalette.qml` defines semantic light and dark color roles.
+- `Theme/Typography.qml` owns the bundled Helvetica Neue font families and type scale.
+- `Theme/Metrics.qml` and `Theme/Motion.qml` centralize spacing, radii, touch sizes,
+  and animation timing.
+- `ThemeController` persists Auto/Light/Dark appearance and brightness with `QSettings`.
+- `SystemClock` provides a live, low-frequency date/time source for the header.
+- `DashboardData` owns bounded vehicle, battery, trip, environment, and navigation
+  values so screens no longer embed operational data as string literals.
+
+New UI code should use semantic roles such as `Style.surface`, `Style.textPrimary`,
+`Style.textMuted`, and `Style.accent` instead of system-palette values or literal colors.
+
+## Build
+
+```sh
+mkdir build && cd build
+qmake ../EagleTheme.pro
+make -j4
+```
 
 ![Home](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/Home.png)
 ![Home-2](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/home2.png)
@@ -22,5 +55,3 @@ Eagle Scooty  Light and Dark Theme Dashboard written in QT QML With Figma Design
 ![Keypad](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/keypad.png)
 ![Calling Dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/clling-dark.png)
 ![Charging](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/charing.png)
-
-

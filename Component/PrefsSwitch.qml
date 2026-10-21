@@ -1,38 +1,42 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
 import Style 1.0
+
 Switch {
-    id:control
-    property color backgroundColor: myPalette.highlight
-    SystemPalette { id: myPalette; colorGroup: SystemPalette.Active }
-    spacing : 10
-    indicator: Rectangle{
+    id: control
+
+    property color backgroundColor: Style.accent
+
+    spacing: Style.metrics.spacingMd
+    hoverEnabled: true
+
+    indicator: Rectangle {
         implicitHeight: 32
         implicitWidth: 56
-        x:control.leftPadding
-        y:parent.height /2 - height/2
-        radius: width/2
-        color: control.checked ? control.backgroundColor : "#074041"
-        border.width: control.checked ? 2 : 1
-        border.color: control.checked ? control.backgroundColor : "transparent"
+        x: control.leftPadding
+        y: parent.height / 2 - height / 2
+        radius: width / 2
+        color: control.checked ? control.backgroundColor : Style.surfaceSunken
+        border.width: control.activeFocus ? 2 : 1
+        border.color: control.activeFocus ? Style.accentStrong : Style.borderStrong
 
+        Behavior on color { ColorAnimation { duration: Style.motion.fast } }
 
-        Rectangle{
-            x:control.checked ? (parent.width-width) - 2: 2
-            NumberAnimation on x{
-                duration: 5000
-            }
-
+        Rectangle {
+            x: control.checked ? parent.width - width - 2 : 2
             width: 28
             height: 28
-            radius: height/2
-            color: control.checked ? "#FFFFFF" : "#B3B3B3"
+            radius: height / 2
+            color: control.checked ? Style.textOnAccent : Style.textMuted
             anchors.verticalCenter: parent.verticalCenter
+
+            Behavior on x {
+                NumberAnimation { duration: Style.motion.fast; easing.type: Style.motion.easeInOut }
+            }
         }
     }
 
-    contentItem: PrefsLabel{
+    contentItem: PrefsLabel {
         font.pixelSize: Style.h2
         text: control.text
         verticalAlignment: Text.AlignVCenter

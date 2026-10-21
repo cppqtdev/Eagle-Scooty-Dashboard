@@ -2,6 +2,10 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>StyleTheme.qml</file>
+        <file>Theme/ColorPalette.qml</file>
+        <file>Theme/Typography.qml</file>
+        <file>Theme/Metrics.qml</file>
+        <file>Theme/Motion.qml</file>
         <file>app.ico</file>
         <file>Icons/topbar.svg</file>
         <file>Icons/footerbar.svg</file>
@@ -140,7 +144,6 @@
         <file>Icons/MapIcons/Add.svg</file>
         <file>Icons/MapIcons/Search.svg</file>
         <file>Icons/MapIcons/switch.svg</file>
-        <file>Component/MapDetails.qml</file>
         <file>Icons/MapIcons/charing.svg</file>
         <file>Icons/MapIcons/Plus.svg</file>
         <file>Icons/MapIcons/save.svg</file>

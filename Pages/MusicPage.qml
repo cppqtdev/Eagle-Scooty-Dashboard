@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
@@ -79,7 +79,7 @@ EaglePage {
             Layout.alignment: Qt.AlignHCenter
             value: 76
             checkedColor: Style.styleColor
-            handlerColor:"#FFFFFF"
+            handlerColor: Style.surfaceRaised
             width:  parent.width * 0.5
         }
 

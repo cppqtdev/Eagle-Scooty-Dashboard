@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
@@ -40,7 +40,7 @@ EaglePage {
             width: 600
             height: 460
             radius: 12
-            color: "#CDEAEA"
+            color: Style.accentSoft
             TextFieldInput{
                 id:inputField
                 anchors.top: parent.top
@@ -53,7 +53,7 @@ EaglePage {
                 selectedTextColor: "#FFFFFF"
                 selectionColor: "green"
                 radius: 8
-                borderColor : "#3B71CA"
+                borderColor : Style.accent
             }
             ColumnLayout{
                 anchors.top: inputField.bottom

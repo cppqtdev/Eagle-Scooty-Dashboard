@@ -1,6 +1,6 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 
 Image{
@@ -10,7 +10,7 @@ Image{
         anchors.verticalCenter: parent.verticalCenter
         width: parent.width * 0.85
         PrefsLabel{
-            text: new Date().toLocaleDateString()
+            text: systemClock.dateText
         }
         Item{
             Layout.fillWidth: true //2BD150
@@ -132,7 +132,7 @@ Image{
             }
         }
         PrefsLabel{
-            text: new Date().toLocaleTimeString(Qt.locale(), "hh:mm AP")
+            text: systemClock.timeText
         }
     }
 

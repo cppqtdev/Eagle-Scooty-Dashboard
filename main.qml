@@ -1,7 +1,7 @@
-import QtQuick 2.15
-import QtQuick.Window 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Window
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 
 import "./Component"
@@ -14,8 +14,28 @@ ApplicationWindow {
     color: Style.background
     title: qsTr("Eagle Theme")
 
+    palette.window: Style.background
+    palette.windowText: Style.textPrimary
+    palette.base: Style.surface
+    palette.alternateBase: Style.surfaceSunken
+    palette.text: Style.textPrimary
+    palette.button: Style.surfaceRaised
+    palette.buttonText: Style.textPrimary
+    palette.highlight: Style.accent
+    palette.highlightedText: Style.textOnAccent
+    palette.placeholderText: Style.textMuted
+    palette.light: Style.surfaceRaised
+    palette.midlight: Style.border
+    palette.mid: Style.textMuted
+    palette.dark: Style.textPrimary
+    palette.shadow: Style.shadow
+
     background: Item{
         anchors.fill: parent
+        Rectangle {
+            anchors.fill: parent
+            color: Style.background
+        }
         Image{
             anchors.fill: parent
             visible: Style.isDark
@@ -103,5 +123,20 @@ ApplicationWindow {
 
     function footerlayout(){
         return footerLayout
+    }
+
+    Rectangle {
+        z: 10000
+        anchors.fill: parent
+        color: "black"
+        // Desktop preview of a panel backlight. The production target can
+        // connect the same persisted value to its display driver instead.
+        opacity: Math.max(0, (76 - themeController.brightness) / 160)
+        visible: opacity > 0
+        enabled: false
+
+        Behavior on opacity {
+            NumberAnimation { duration: Style.motion.normal }
+        }
     }
 }

@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
@@ -34,7 +34,7 @@ EaglePage {
                     spacing : 20
                     background:Rectangle{
                         anchors.fill: parent
-                        color: "#00B1B2"
+                        color: Style.accent
                         radius: 7.9
                     }
 

@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
@@ -149,7 +149,7 @@ EaglePage {
                         PrefsLabel{
                             Layout.alignment: Qt.AlignLeft
                             color: Style.grayColor
-                            text: qsTr("23m Time")
+                            text: qsTr("%1 min").arg(dashboardData.arrivalMinutes)
                         }
                     }
                     RowLayout{
@@ -162,7 +162,7 @@ EaglePage {
                         PrefsLabel{
                             Layout.alignment: Qt.AlignLeft
                             color: Style.grayColor
-                            text: qsTr("1.2km Distance")
+                            text: qsTr("%1 km").arg(dashboardData.distanceKm.toFixed(1))
                         }
                     }
                 }
@@ -181,10 +181,14 @@ EaglePage {
                 }
             }
 
-            MapDetails{
-                z:1
+            Item {
                 anchors.fill: parent
-                id:mapview
+
+                PrefsLabel {
+                    anchors.centerIn: parent
+                    color: palette.mid
+                    text: qsTr("Map support is unavailable")
+                }
             }
         }
     }

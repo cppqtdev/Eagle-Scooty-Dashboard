@@ -1,4 +1,4 @@
-import QtQuick 2.15
+import QtQuick
 
 Rectangle {
     id: gasolineIndicator
@@ -51,4 +51,3 @@ Rectangle {
          "
     }
 }
-

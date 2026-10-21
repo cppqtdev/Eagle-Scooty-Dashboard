@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
@@ -114,7 +114,7 @@ EaglePage {
             Rectangle{
                 width: 150
                 height: 100
-                color: "#FF0000"
+                color: Style.danger
                 radius: 12
                 ColumnLayout{
                     anchors.centerIn: parent
@@ -126,7 +126,7 @@ EaglePage {
                     PrefsLabel{
                         Layout.alignment: Qt.AlignHCenter
                         font.pixelSize: Style.paragraph
-                        color: "#FFFFFF"
+                        color: Style.textOnAccent
                         text: qsTr("End")
                     }
                 }
@@ -134,4 +134,3 @@ EaglePage {
         }
     }
 }
-

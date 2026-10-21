@@ -1,6 +1,6 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 Image{
     id:root
@@ -29,7 +29,7 @@ Image{
         ColumnLayout{
             PrefsLabel{
                 isStyle: true
-                text: qsTr("72%")
+                text: qsTr("%1%").arg(dashboardData.batteryPercent)
             }
             PrefsLabel{
                 isStyle: true
@@ -43,7 +43,7 @@ Image{
         ColumnLayout{
             PrefsLabel{
                 isStyle: true
-                text: qsTr("136KM")
+                text: qsTr("%1 KM").arg(dashboardData.rangeKm)
             }
             PrefsLabel{
                 isStyle: true
@@ -121,4 +121,3 @@ Image{
     }
 
 }
-

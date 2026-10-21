@@ -1,14 +1,13 @@
-import QtQuick 2.15
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Controls 2.0
-import QtGraphicalEffects 1.0
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Effects
 import Style 1.0
 Slider {
     id: control
     property bool labelVisible: true
     property real setHandleHeight: height + 5
-    property color checkedColor: "#69FFF6"
-    property color handlerColor: "#212325"
+    property color checkedColor: Style.accent
+    property color handlerColor: Style.surfaceRaised
     property bool tooltipVisible: true
     width: 680
     height: 20
@@ -23,7 +22,9 @@ Slider {
         width: control.availableWidth
         height: implicitHeight
         radius: height / 2
-        color: "gray"
+        color: Style.surfaceSunken
+        border.width: 1
+        border.color: Style.border
 
         Rectangle {
             width: control.visualPosition == 0 ? 0 : control.handle.x + control.handle.width
@@ -31,10 +32,10 @@ Slider {
             color: control.checkedColor
             radius: height / 2
             layer.enabled: control.pressed
-            layer.effect: DropShadow {
-                transparentBorder: true
-                color: control.checkedColor
-                samples: 8
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: control.checkedColor
+                shadowBlur: 0.25
             }
         }
     }
@@ -51,10 +52,10 @@ Slider {
         border.color: handlerColor
 
         layer.enabled: control.pressed
-        layer.effect: DropShadow {
-            transparentBorder: true
-            color: control.checkedColor
-            samples: 10
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowColor: control.checkedColor
+            shadowBlur: 0.3
         }
 
         Image{
@@ -69,7 +70,7 @@ Slider {
                 anchors.topMargin: 3
                 text:  control.value.toFixed(0) + "%";
                 font.pixelSize: Style.h4
-                color: "#FFFFFF"
+                color: Style.textOnAccent
             }
         }
     }

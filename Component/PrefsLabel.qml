@@ -1,16 +1,21 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
+import QtQuick
+import QtQuick.Controls
 import Style 1.0
 
 Label {
+    id: control
+
     property bool isBold: false
     property bool isStyle: false
-    clip: true
-    color: isStyle ? Style.styleColor : Style.baseColor
+
+    color: isStyle ? Style.accentStrong : Style.textPrimary
     font.pixelSize: Style.h3
-    font.capitalization: Font.Capitalize
-    font.bold: isBold ? Font.Bold : Font.Normal
-    font.weight: isBold ? Font.Bold : Font.Normal
-    font.family: isBold ? Style.helveticaNeureBold.name : Style.helveticaNeureMedium.name
+    font.family: isBold ? Style.boldFontFamily : Style.mediumFontFamily
+    font.weight: isBold ? Font.Bold : Font.Medium
     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+    renderType: Text.NativeRendering
+
+    Behavior on color {
+        ColorAnimation { duration: Style.motion.normal }
+    }
 }

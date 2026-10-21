@@ -1,6 +1,6 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
@@ -31,8 +31,9 @@ EaglePage {
         }
 
         PrefsSlider{
-            value: 76
+            value: themeController.brightness
             width:  parent.width * 0.7
+            onMoved: themeController.brightness = Math.round(value)
         }
 
         Image{
@@ -52,16 +53,30 @@ EaglePage {
                 spacing: 30
                 PrefsButton{
                     implicitWidth: 160
-                    backgroundColor: "#FFFFFF"
-                    textColor: "#000000"
-                    text: qsTr("Light")
-                    onClicked: Style.isDark = false
+                    backgroundColor: Style.themeMode === Style.autoMode ? Style.accent : Style.surfaceRaised
+                    textColor: Style.themeMode === Style.autoMode ? Style.textOnAccent : Style.textPrimary
+                    borderWidth: Style.themeMode === Style.autoMode ? 0 : 1
+                    borderColor: Style.border
+                    text: qsTr("Auto")
+                    onClicked: Style.setMode(Style.autoMode)
                 }
                 PrefsButton{
                     implicitWidth: 160
-                    backgroundColor:"#000000"
+                    backgroundColor: Style.themeMode === Style.lightMode ? Style.accent : Style.surfaceRaised
+                    textColor: Style.themeMode === Style.lightMode ? Style.textOnAccent : Style.textPrimary
+                    borderWidth: Style.themeMode === Style.lightMode ? 0 : 1
+                    borderColor: Style.border
+                    text: qsTr("Light")
+                    onClicked: Style.setMode(Style.lightMode)
+                }
+                PrefsButton{
+                    implicitWidth: 160
+                    backgroundColor: Style.themeMode === Style.darkMode ? Style.accent : Style.surfaceRaised
+                    textColor: Style.themeMode === Style.darkMode ? Style.textOnAccent : Style.textPrimary
+                    borderWidth: Style.themeMode === Style.darkMode ? 0 : 1
+                    borderColor: Style.border
                     text: qsTr("Dark")
-                    onClicked: Style.isDark = true
+                    onClicked: Style.setMode(Style.darkMode)
                 }
             }
         }

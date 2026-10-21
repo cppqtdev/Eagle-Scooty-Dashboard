@@ -1,7 +1,7 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import QtGraphicalEffects 1.15
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Effects
 import "../Component"
 import Style 1.0
 Page {
@@ -23,15 +23,15 @@ Page {
         anchors.top: parent.top
         anchors.topMargin: 30
         font.pixelSize: Style.h2
-        color: "#07d200"
+        color: Style.success
         isBold: true
         text: qsTr("🍃 Echo")
         layer.enabled: true
-        layer.effect: DropShadow {
-            verticalOffset: 2
-            color: "#80000000"
-            radius: 1
-            samples: 3
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowVerticalOffset: 2
+            shadowColor: "#80000000"
+            shadowBlur: 0.1
         }
     }
 
@@ -41,13 +41,13 @@ Page {
         anchors.verticalCenterOffset: -150
         font.pixelSize: 120
         isBold: true
-        text: qsTr("76")
+        text: dashboardData.speed
         layer.enabled: true
-        layer.effect: DropShadow {
-            verticalOffset: 2
-            color: "#FFFFFF"
-            radius: 2
-            samples: 20
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowVerticalOffset: 2
+            shadowColor: "#FFFFFF"
+            shadowBlur: 0.2
         }
     }
     PrefsLabel{
@@ -56,7 +56,7 @@ Page {
         anchors.verticalCenterOffset: -50
         font.pixelSize: Style.h1
         isBold: true
-        text: qsTr("KM/H")
+        text: dashboardData.speedUnit
     }
 
     Loader{
@@ -133,7 +133,7 @@ Page {
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.h6
                 color: Style.grayColor
-                text: qsTr("230 Km")
+                text: qsTr("%1 km").arg(dashboardData.tripKm)
             }
         }
         Image{
@@ -151,7 +151,7 @@ Page {
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.h6
                 color: Style.grayColor
-                text: qsTr("2,030 Km")
+                text: qsTr("%L1 km").arg(dashboardData.odometerKm)
             }
         }
         Image{
@@ -169,7 +169,7 @@ Page {
                 Layout.alignment: Qt.AlignLeft
                 font.pixelSize: Style.h6
                 color: Style.grayColor
-                text: qsTr("30 F")
+                text: qsTr("%1 °C").arg(dashboardData.temperatureC)
             }
         }
     }
@@ -194,7 +194,7 @@ Page {
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
                 color: Style.grayColor
-                text: qsTr("23m Time")
+                text: qsTr("%1 min").arg(dashboardData.arrivalMinutes)
             }
         }
         RowLayout{
@@ -204,7 +204,7 @@ Page {
             PrefsLabel{
                 Layout.alignment: Qt.AlignLeft
                 color: Style.grayColor
-                text: qsTr("1.2km Distance")
+                text: qsTr("%1 km").arg(dashboardData.distanceKm.toFixed(1))
             }
         }
     }
