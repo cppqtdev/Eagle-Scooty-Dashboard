@@ -3,7 +3,7 @@ import Style 1.0
 
 // The next manoeuvre as a road-sign arrow: a short bold stem, a rounded bend and
 // a crisp head, drawn in a 100 x 100 box and scaled. It pops in when the
-// manoeuvre changes, then nudges gently the way it points, so the eye finds it
+// manoeuvre changes, then drifts slowly and slightly the way it points, so the eye finds it
 // without it ever moving far. The picture is painted once per manoeuvre; only
 // the item moves.
 // maneuver: 0 straight, 1 left, 2 right, 3 U-turn, 4 arrive.
@@ -24,8 +24,8 @@ Item {
     SequentialAnimation on nudge {
         running: root.running && root.maneuver !== 4
         loops: Animation.Infinite
-        NumberAnimation { to: 1; duration: 700; easing.type: Easing.InOutSine }
-        NumberAnimation { to: 0; duration: 700; easing.type: Easing.InOutSine }
+        NumberAnimation { to: 1; duration: 1600; easing.type: Easing.InOutSine }
+        NumberAnimation { to: 0; duration: 1600; easing.type: Easing.InOutSine }
     }
 
     ParallelAnimation {
@@ -48,12 +48,12 @@ Item {
         SequentialAnimation on scale {
             running: pulse.visible
             loops: Animation.Infinite
-            NumberAnimation { from: 0.7; to: 1.35; duration: 1400; easing.type: Easing.OutCubic }
+            NumberAnimation { from: 0.8; to: 1.25; duration: 2200; easing.type: Easing.OutCubic }
         }
         SequentialAnimation on opacity {
             running: pulse.visible
             loops: Animation.Infinite
-            NumberAnimation { from: 0.7; to: 0; duration: 1400; easing.type: Easing.OutCubic }
+            NumberAnimation { from: 0.5; to: 0; duration: 2200; easing.type: Easing.OutCubic }
         }
     }
 
@@ -61,8 +61,8 @@ Item {
         id: glyph
         width: root.width
         height: root.height
-        x: root.heading[0] * root.nudge * root.width * 0.1
-        y: root.heading[1] * root.nudge * root.height * 0.1
+        x: root.heading[0] * root.nudge * root.width * 0.04
+        y: root.heading[1] * root.nudge * root.height * 0.04
 
         readonly property var key: [root.maneuver, root.color, width, height]
         onKeyChanged: requestPaint()

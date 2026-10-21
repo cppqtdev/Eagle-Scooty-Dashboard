@@ -8,6 +8,7 @@
         <file>Theme/Motion.qml</file>
         <file>app.ico</file>
         <file>Icons/topbar.svg</file>
+        <file>Icons/topbar.png</file>
         <file>Icons/footerbar.svg</file>
         <file>Icons/Eagle.png</file>
         <file>Icons/green.png</file>

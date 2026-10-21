@@ -9,7 +9,9 @@ Image {
     id: root
 
 
-    source: Style.isDark ? "qrc:/Icons/dark/top_dark.png" : "qrc:/Icons/topbar.svg"
+    // The light bar is the designer's SVG rendered once with its filters (the drop
+    // and inner shadow); Qt's SVG renderer skips filters, which left it flat.
+    source: Style.isDark ? "qrc:/Icons/dark/top_dark.png" : "qrc:/Icons/topbar.png"
 
 
     RowLayout {
