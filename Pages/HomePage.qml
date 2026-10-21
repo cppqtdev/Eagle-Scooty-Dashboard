@@ -305,15 +305,24 @@ Page {
     // Navigation: the next turn over the route map.
     Image {
         id: miniMap
+        // Below the turn, never under its text; cropped to the room that leaves.
         anchors.left: parent.left
         anchors.leftMargin: 20
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.top: turnBlock.bottom
+        anchors.topMargin: 18
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 12
+        width: 433
+        fillMode: Image.PreserveAspectCrop
+        verticalAlignment: Image.AlignBottom
+        clip: true
         source: "qrc:/Icons/dummyMap.png"
         opacity: dashboardData.navigating ? 1 : 0.4
     }
 
     // The next turn: arrow, distance, street and what is left, no card behind it.
     RowLayout {
+        id: turnBlock
         visible: dashboardData.navigating
         anchors.left: parent.left
         anchors.leftMargin: 48
