@@ -19,7 +19,7 @@ Rectangle {
 
     implicitHeight: subtitle.length > 0 ? 92 : 76
     radius: Style.metrics.radiusMd
-    color: tap.pressed ? Style.surfaceSunken : selected ? Qt.alpha(Style.accent, 0.10) : Style.surface
+    color: tap.pressed ? Style.surfaceSunken : selected ? Style.alpha(Style.accent, 0.10) : Style.surface
     border.color: selected ? Style.accent : Style.border
     border.width: selected ? 2 : 1
     Behavior on color { ColorAnimation { duration: Style.motion.instant } }

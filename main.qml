@@ -177,6 +177,13 @@ ApplicationWindow {
             onLoaded: item.canvas = root
         }
 
+        Loader {
+            anchors.fill: parent
+            z: 200
+            active: boardMode
+            source: "qrc:/Component/KeyboardPanel.qml"
+        }
+
         // Desktop preview of the panel backlight; the board drives the real one.
         Rectangle {
             anchors.fill: parent

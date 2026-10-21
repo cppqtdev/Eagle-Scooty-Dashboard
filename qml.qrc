@@ -51,7 +51,6 @@
         <file>Icons/scooty.png</file>
         <file>Component/PrefsButton.qml</file>
         <file>Icons/brightness 2.svg</file>
-        <file>Component/PrefsSlider.qml</file>
         <file>Icons/tooltip.svg</file>
         <file>Component/PrefsSwitch.qml</file>
         <file>Icons/HorizontalSeparator.png</file>
@@ -176,5 +175,6 @@
         <file>fonts/Orbitron-OFL.txt</file>
         <file>Component/ToggleRow.qml</file>
         <file>Pages/Wifi.qml</file>
+        <file>Component/KeyboardPanel.qml</file>
     </qresource>
 </RCC>

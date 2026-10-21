@@ -72,6 +72,8 @@ int main(int argc, char *argv[])
         QQuickWindow::setGraphicsApi(QSGRendererInterface::Software);
     }
     qputenv("QT_QUICK_CONTROLS_STYLE", QByteArray("Basic"));
+    if (boardMode && qEnvironmentVariableIsEmpty("QT_IM_MODULE"))
+        qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     if (boardMode && !snapshotRun && qEnvironmentVariableIsEmpty("QT_QUICK_BACKEND")) {
         // The RK3328's Mali/EGL stack is unreliable with Qt Quick; the software
         // scene graph is steady at this panel size.
@@ -138,8 +140,12 @@ int main(int argc, char *argv[])
                                 QQuickWindow::graphicsApi() != QSGRendererInterface::Software);
 
     const QUrl url(QStringLiteral("qrc:/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed, &app,
-                     [] { QCoreApplication::exit(-1); }, Qt::QueuedConnection);
+    // objectCreationFailed needs Qt 6.4; the board image has 6.2.
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app,
+                     [url](QObject *object, const QUrl &objectUrl) {
+                         if (!object && url == objectUrl)
+                             QCoreApplication::exit(-1);
+                     }, Qt::QueuedConnection);
     engine.load(url);
 
     // Live data when a CAN interface is given and opens; otherwise the simulated ride.

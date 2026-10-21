@@ -149,7 +149,7 @@ EaglePage {
                 Layout.preferredWidth: 170
                 Layout.preferredHeight: 170
                 radius: 85
-                color: Qt.alpha(Style.success, 0.14)
+                color: Style.alpha(Style.success, 0.14)
                 border.color: Style.success
                 border.width: 3
                 PrefsLabel {

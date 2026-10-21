@@ -1,57 +1,75 @@
-# Eagle Scooty Dashboard
+# Eagle Dashboard
 
-Eagle Scooty light and dark theme dashboard written in Qt 6/QML from Figma designs.
+An instrument cluster and infotainment HMI for an electric commuter scooter, in
+Qt 6, QML and C++17. It runs on the desk as a full simulation and on a Rockchip
+RK3328 board with a 7-inch touch panel, reading the scooter's CAN bus.
 
-## Requirements
+![Ride view](docs/screenshots/02-home-riding.webp)
 
-- Qt 6.5 or newer with Qt Quick, Qt Quick Controls, and Qt Quick Effects
-- A C++17 compiler
+| | |
+|---|---|
+| ![Dark theme, Sport mode](docs/screenshots/15-home-sport-dark.webp) | ![Navigation](docs/screenshots/14-map.webp) |
+| ![Critical alert](docs/screenshots/05-critical-alert.webp) | ![Incoming call](docs/screenshots/06-incoming-call.webp) |
+| ![Charging](docs/screenshots/10-charging.webp) | ![Settings](docs/screenshots/13-settings-display.webp) |
 
-Qt Location and Qt Positioning are not required. The navigation, trip-details,
-and charging pages remain available, but their live map areas intentionally show
-an unavailable state.
+## What it does
 
-## UI architecture
+- **Ride view:** speed, Eco / City / Sport modes (the whole UI takes the mode's
+  colour), gear, power and regen, battery and range, the next turn and the
+  phone's music.
+- **Telltales** driven by the vehicle: indicators blinking together at 85 a
+  minute, low and high beam, side stand, battery temperature, tyre pressure.
+- **Alerts:** warnings slide in as a banner, critical faults (motor, battery,
+  side stand while moving) take the screen. Every rule has hysteresis.
+- **Phone:** incoming calls answered from any page, the call in progress with
+  timer and mute, recent calls, favourites, a dial pad; media with
+  play/pause/skip and volume.
+- **Navigation:** the next manoeuvre drawn onto the road ahead, saved places and
+  a route overview.
+- **Charging:** live charge, power, time to full, charge limit and nearby
+  stations.
+- **Documents:** licence, Aadhaar and PAN cards, and the vehicle's papers with
+  their expiry status.
+- **Connectivity:** Bluetooth (pair, forget, scan) and Wi-Fi (scan, connect
+  with password).
+- **Diagnostics** with live readings and every active alert; key-on
+  self-check; light, dark and automatic themes; brightness.
 
-- `StyleTheme.qml` is the public design-system facade used by screens.
-- `Theme/ColorPalette.qml` defines semantic light and dark color roles.
-- `Theme/Typography.qml` owns the bundled Helvetica Neue font families and type scale.
-- `Theme/Metrics.qml` and `Theme/Motion.qml` centralize spacing, radii, touch sizes,
-  and animation timing.
-- `ThemeController` persists Auto/Light/Dark appearance and brightness with `QSettings`.
-- `SystemClock` provides a live, low-frequency date/time source for the header.
-- `DashboardData` owns bounded vehicle, battery, trip, environment, and navigation
-  values so screens no longer embed operational data as string literals.
+## Architecture
 
-New UI code should use semantic roles such as `Style.surface`, `Style.textPrimary`,
-`Style.textMuted`, and `Style.accent` instead of system-palette values or literal colors.
+| Layer | |
+|---|---|
+| `dashboarddata` | The vehicle: one bounded value per signal, grouped by change |
+| `vehiclesimulator` | A looping city ride with stops, indicators before turns and every fault |
+| `canvehiclesource` | The same values from SocketCAN on the scooter ([docs/CAN.md](docs/CAN.md)) |
+| `alertcenter` | Ranks alerts and decides what is on screen |
+| `phoneservice` | Calls, media and contacts from the rider's phone |
+| `bluetoothmanager`, `wifimanager` | BlueZ through Qt Bluetooth, NetworkManager through nmcli; simulated off the board |
+| `vehicledocuments` | Papers and their expiry |
+| QML | `StyleTheme` design tokens; `Component/` building blocks; `Pages/` screens |
 
-## Build
+The UI is laid out once on a 1920 × 1080 canvas and scaled to the panel.
+
+## Build and run
 
 ```sh
-mkdir build && cd build
-qmake ../EagleTheme.pro
-make -j4
+mkdir -p build && cd build
+qmake ../EagleTheme.pro && make -j8
+./EagleTheme.app/Contents/MacOS/EagleTheme      # macOS; ./EagleTheme on Linux
 ```
 
-![Home](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/Home.png)
-![Home-2](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/home2.png)
-![Home-dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/home-dark.png)
-![profile](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/profile.png)
-![profile dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/profile-dark.png)
-![about](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/about.png)
-![about-dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/about-dark.png)
-![Bluetooth](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/bluetooth.png)
-![Bluetooth-dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/bluetooth-dark.png)
-![Music](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/music.png)
-![Music Dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/music-dark.png)
-![Sound](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/sound.png)
-![Notification](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/notification.png)
-![trip](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/trip.png)
-![trip details](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/tripDetails.png)
-![tripdetailsmap](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/tripdetailsmap.png)
-![update](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/update.png)
-![Calling](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/calling.png)
-![Keypad](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/keypad.png)
-![Calling Dark](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/clling-dark.png)
-![Charging](https://github.com/cppqtdev/Eagle-Scooty-Dashboard-/blob/main/screenshots/charing.png)
+Options: `--board` (full screen on the panel), `--can can0` (live data),
+`--no-simulator`, `--snapshot <dir>` (saves every page and alert state as PNG).
+
+Bench keys: **M** ride mode, **C** incoming call / answer, **X** message,
+**P** charger, **T** theme, **H** high beam, **F** motor fault, **L** low tyre,
+**O** overheat, **Esc** clear, **1–6** pages.
+
+Tests: `cd tests && qmake && make && ./tst_core` (CAN decoding, alert rules,
+call flow, documents).
+
+On the RK3328 board: [docs/RK3328.md](docs/RK3328.md).
+
+## Credits
+
+Orbitron typeface, SIL Open Font License (`fonts/Orbitron-OFL.txt`).

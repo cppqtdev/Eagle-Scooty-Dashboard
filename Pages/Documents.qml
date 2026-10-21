@@ -46,7 +46,7 @@ EaglePage {
                     implicitWidth: attention.implicitWidth + 32
                     implicitHeight: 44
                     radius: 22
-                    color: Qt.alpha(Style.warning, 0.15)
+                    color: Style.alpha(Style.warning, 0.15)
                     border.color: Style.warning
                     PrefsLabel {
                         id: attention
@@ -129,7 +129,7 @@ EaglePage {
                             implicitWidth: statusLabel.implicitWidth + 32
                             implicitHeight: 44
                             radius: 22
-                            color: Qt.alpha(root.statusColor(modelData.status), 0.14)
+                            color: Style.alpha(root.statusColor(modelData.status), 0.14)
                             PrefsLabel {
                                 id: statusLabel
                                 anchors.centerIn: parent

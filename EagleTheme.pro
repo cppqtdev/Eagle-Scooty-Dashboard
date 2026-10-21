@@ -1,6 +1,7 @@
 QT += quick quickcontrols2
 
-!versionAtLeast(QT_VERSION, 6.5.0): error("EagleTheme requires Qt 6.5 or newer")
+# Qt 6.2 is what the RK3328 Yocto image ships; the desk uses 6.8.
+!versionAtLeast(QT_VERSION, 6.2.0): error("EagleTheme requires Qt 6.2 or newer")
 
 CONFIG += c++17
 

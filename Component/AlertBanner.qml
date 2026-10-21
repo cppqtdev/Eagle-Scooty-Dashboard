@@ -71,7 +71,7 @@ Item {
                 Layout.preferredWidth: 150
                 Layout.preferredHeight: 56
                 radius: 28
-                color: Qt.alpha(root.tone, 0.14)
+                color: Style.alpha(root.tone, 0.14)
                 border.color: root.tone
                 PrefsLabel {
                     anchors.centerIn: parent

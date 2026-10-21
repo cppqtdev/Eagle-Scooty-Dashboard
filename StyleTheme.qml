@@ -78,6 +78,11 @@ QtObject {
     readonly property color modeCity: isDark ? "#18B8B3" : "#087F83"
     readonly property color modeSport: isDark ? "#FF7A2F" : "#EA580C"
 
+    // A colour with a new alpha; Qt.alpha() needs Qt 6.5, the board runs 6.2.
+    function alpha(c, a) {
+        return Qt.rgba(c.r, c.g, c.b, a)
+    }
+
     function modeColor(mode) {
         return mode === 2 ? modeSport : mode === 1 ? modeCity : modeEco
     }

@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import QtQuick.Effects
 import "../Component"
 import Style 1.0
 
@@ -30,7 +29,7 @@ Page {
             implicitWidth: modeLabel.implicitWidth + 44
             implicitHeight: 44
             radius: 22
-            color: Qt.alpha(page.modeColor, 0.14)
+            color: Style.alpha(page.modeColor, 0.14)
             border.color: page.modeColor
             border.width: 2
             Behavior on color { ColorAnimation { duration: Style.motion.normal } }
@@ -83,13 +82,6 @@ Page {
         font.pixelSize: 140
         isBold: true
         text: Math.round(page.shownSpeed)
-        layer.enabled: Style.effects
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowVerticalOffset: 2
-            shadowColor: Style.isDark ? "#80000000" : "#FFFFFF"
-            shadowBlur: 0.2
-        }
     }
     PrefsLabel {
         id: unitLabel
