@@ -10,7 +10,7 @@ QtObject {
 
     property color textPrimary: "#102526"
     property color textSecondary: "#3E5556"
-    property color textMuted: "#6F8586"
+    property color textMuted: "#5A6F70"   // 4.8:1 on the ground (ISO 15008 asks for at least 3:1, WCAG 4.5:1)
     property color textOnAccent: "#FFFFFF"
 
     property color accent: "#087F83"

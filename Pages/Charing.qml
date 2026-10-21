@@ -9,6 +9,7 @@ import "../Component"
 EaglePage {
     id: root
 
+    Sampled { id: chargePower; source: dashboardData.chargePowerKw; interval: 1000; deadband: 0.05 }
     readonly property color tone: dashboardData.batteryPercent < 15 ? Style.danger
                                  : dashboardData.charging ? Style.success
                                  : Style.modeColor(dashboardData.rideMode)
@@ -29,7 +30,7 @@ EaglePage {
         spacing: 6
         // Filling, so the column can grow to its share of the row.
         Caption { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; text: parent.label }
-        PrefsLabel { Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter; font.pixelSize: Style.typography.display + 4; isBold: true; text: parent.value }
+        DigitText { Layout.alignment: Qt.AlignHCenter; pixelSize: Style.typography.display + 4; isBold: true; text: parent.value }
     }
 
     contentItem: RowLayout {
@@ -61,13 +62,12 @@ EaglePage {
                     }
                 }
 
-                PrefsLabel {
+                DigitText {
                     Layout.alignment: Qt.AlignHCenter
-                    font.pixelSize: 230
+                    pixelSize: 230
                     isBold: true
                     color: root.tone
                     text: dashboardData.batteryPercent
-                    Behavior on color { ColorAnimation { duration: Style.motion.normal } }
                 }
 
                 ProgressRunning {
@@ -83,7 +83,7 @@ EaglePage {
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.topMargin: 24
-                    Fact { Layout.fillWidth: true; label: qsTr("Power"); value: dashboardData.charging ? qsTr("%1 kW").arg(dashboardData.chargePowerKw.toFixed(1)) : "—" }
+                    Fact { Layout.fillWidth: true; label: qsTr("Power"); value: dashboardData.charging ? qsTr("%1 kW").arg(chargePower.value.toFixed(1)) : "—" }
                     Fact {
                         Layout.fillWidth: true
                         label: qsTr("Full in")

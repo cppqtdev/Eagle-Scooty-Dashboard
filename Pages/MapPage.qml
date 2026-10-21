@@ -11,6 +11,7 @@ EaglePage {
     id: root
 
     readonly property color modeColor: Style.modeColor(dashboardData.rideMode)
+    Sampled { id: turnDistance; source: dashboardData.maneuverDistanceM; interval: 500 }
     property string destination: qsTr("Office")
     readonly property var places: [
         { name: qsTr("Home"), detail: qsTr("8.4 km · about 15 min") },
@@ -69,18 +70,19 @@ EaglePage {
                 anchors.top: parent.top
                 anchors.margins: 28
                 spacing: 8
-                PrefsLabel {
+                DigitText {
                     id: distanceValue
-                    font.pixelSize: 72
-                    text: dashboardData.maneuverDistanceM >= 1000
-                          ? (dashboardData.maneuverDistanceM / 1000).toFixed(1)
-                          : dashboardData.maneuverDistanceM
+                    pixelSize: 72
+                    digitAlign: Text.AlignRight
+                    text: turnDistance.value >= 1000
+                          ? (turnDistance.value / 1000).toFixed(1)
+                          : Math.round(turnDistance.value / 10) * 10
                 }
                 PrefsLabel {
                     anchors.baseline: distanceValue.baseline
                     font.pixelSize: Style.h1
                     color: Style.textMuted
-                    text: dashboardData.maneuverDistanceM >= 1000 ? qsTr("km") : qsTr("m")
+                    text: turnDistance.value >= 1000 ? qsTr("km") : qsTr("m")
                 }
             }
 
@@ -96,13 +98,13 @@ EaglePage {
                     anchors.fill: parent
                     anchors.leftMargin: 32
                     anchors.rightMargin: 32
-                    PrefsLabel {
-                        font.pixelSize: Style.h4
+                    DigitText {
+                        pixelSize: Style.h4
                         text: qsTr("%1 km remaining").arg(dashboardData.distanceKm.toFixed(1))
                     }
                     Item { Layout.fillWidth: true }
-                    PrefsLabel {
-                        font.pixelSize: Style.h4
+                    DigitText {
+                        pixelSize: Style.h4
                         isBold: true
                         text: qsTr("ETA %1").arg(Qt.formatTime(new Date(Date.now() + dashboardData.arrivalMinutes * 60000), "hh:mm"))
                     }

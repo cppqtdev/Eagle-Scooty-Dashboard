@@ -10,9 +10,18 @@ Page {
     id: page
 
     readonly property color modeColor: Style.modeColor(dashboardData.rideMode)
-    property real shownSpeed: dashboardData.speed
 
-    Behavior on shownSpeed { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
+    // Figures are shown a few times a second, so they can be read at a glance.
+    Sampled { id: speed; source: dashboardData.speed; interval: 250 }
+    Sampled { id: power; source: dashboardData.powerKw; deadband: 0.05 }
+    Sampled { id: turnDistance; source: dashboardData.maneuverDistanceM; interval: 500 }
+
+    function distanceText(metres) {
+        if (metres >= 1000)
+            return qsTr("%1 km").arg((metres / 1000).toFixed(1))
+        // Under a kilometre, steps of 10 m: the last digit would only flicker.
+        return qsTr("%1 m").arg(Math.round(metres / 10) * 10)
+    }
 
     padding: 0
     background: Rectangle { color: Style.background }
@@ -74,14 +83,14 @@ Page {
     }
 
     // Speed.
-    PrefsLabel {
+    DigitText {
         id: speedLabel
         anchors.horizontalCenter: wings.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: -150
-        font.pixelSize: 140
+        pixelSize: 140
         isBold: true
-        text: Math.round(page.shownSpeed)
+        text: Math.round(speed.value)
     }
     PrefsLabel {
         id: unitLabel
@@ -132,7 +141,7 @@ Page {
             color: Style.surfaceSunken
         }
         Rectangle {
-            readonly property real share: Math.max(-1, Math.min(1, dashboardData.powerKw / 6.0))
+            readonly property real share: Math.max(-1, Math.min(1, power.value / 6.0))
             anchors.verticalCenter: parent.verticalCenter
             x: share >= 0 ? parent.width / 2 : parent.width / 2 + share * parent.width / 2
             width: Math.abs(share) * parent.width / 2
@@ -148,14 +157,14 @@ Page {
             height: 20
             color: Style.textMuted
         }
-        PrefsLabel {
+        DigitText {
             anchors.left: parent.right
             anchors.leftMargin: 12
             anchors.verticalCenter: parent.verticalCenter
-            font.pixelSize: Style.h6
+            pixelSize: Style.h6
             color: Style.textMuted
-            text: dashboardData.powerKw < -0.05 ? qsTr("Regen %1 kW").arg((-dashboardData.powerKw).toFixed(1))
-                                                 : qsTr("%1 kW").arg(dashboardData.powerKw.toFixed(1))
+            text: power.value < -0.05 ? qsTr("Regen %1 kW").arg((-power.value).toFixed(1))
+                                      : qsTr("%1 kW").arg(Math.max(0, power.value).toFixed(1))
         }
     }
 
@@ -235,8 +244,8 @@ Page {
                 isStyle: true
                 text: parent.title
             }
-            PrefsLabel {
-                font.pixelSize: Style.h5
+            DigitText {
+                pixelSize: Style.h5
                 color: parent.valueColor
                 text: parent.value
             }
@@ -315,12 +324,10 @@ Page {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4
-                PrefsLabel {
-                    font.pixelSize: Style.h1
+                DigitText {
+                    pixelSize: Style.h1
                     isBold: true
-                    text: dashboardData.maneuverDistanceM >= 1000
-                          ? qsTr("%1 km").arg((dashboardData.maneuverDistanceM / 1000).toFixed(1))
-                          : qsTr("%1 m").arg(dashboardData.maneuverDistanceM)
+                    text: page.distanceText(turnDistance.value)
                 }
                 PrefsLabel {
                     Layout.fillWidth: true
@@ -330,8 +337,8 @@ Page {
                     wrapMode: Text.NoWrap
                     text: dashboardData.street
                 }
-                PrefsLabel {
-                    font.pixelSize: Style.h6
+                DigitText {
+                    pixelSize: Style.h6
                     color: Style.textMuted
                     text: qsTr("%1 min · %2 km left").arg(dashboardData.arrivalMinutes)
                                                        .arg(dashboardData.distanceKm.toFixed(1))

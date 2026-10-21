@@ -63,10 +63,12 @@ Image {
 
         ColumnLayout {
             spacing: 2
-            PrefsLabel {
+            DigitText {
+                pixelSize: Style.h1
+                isBold: true
                 isStyle: true
-                text: dashboardData.charging ? qsTr("⚡ %1%").arg(dashboardData.batteryPercent)
-                                             : qsTr("%1%").arg(dashboardData.batteryPercent)
+                color: dashboardData.batteryPercent <= 15 && !dashboardData.charging ? Style.warning : Style.accentStrong
+                text: qsTr("%1%").arg(dashboardData.batteryPercent)
             }
             PrefsLabel {
                 font.pixelSize: Style.h6
@@ -83,8 +85,10 @@ Image {
         }
         ColumnLayout {
             spacing: 2
-            PrefsLabel {
+            DigitText {
                 Layout.alignment: Qt.AlignRight
+                pixelSize: Style.h1
+                isBold: true
                 isStyle: true
                 text: qsTr("%1 km").arg(dashboardData.rangeKm)
             }

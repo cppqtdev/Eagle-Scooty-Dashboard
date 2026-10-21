@@ -29,9 +29,9 @@ EaglePage {
             anchors.centerIn: parent
             spacing: 4
             PrefsLabel { Layout.alignment: Qt.AlignHCenter; font.pixelSize: Style.h6; color: Style.textMuted; text: parent.parent.label }
-            PrefsLabel {
+            DigitText {
                 Layout.alignment: Qt.AlignHCenter
-                font.pixelSize: Style.h1
+                pixelSize: Style.h1
                 isBold: true
                 color: parent.parent.warn ? Style.warning : Style.textPrimary
                 text: parent.parent.value

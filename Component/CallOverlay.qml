@@ -122,8 +122,8 @@ Item {
             anchors.centerIn: parent
             spacing: 14
             Image { source: "qrc:/Icons/call.svg" }
-            PrefsLabel {
-                font.pixelSize: Style.h4
+            DigitText {
+                pixelSize: Style.h4
                 isBold: true
                 color: "#FFFFFF"
                 text: phone.callState === 2 ? qsTr("Calling %1…").arg(phone.callerName)

@@ -166,9 +166,9 @@ EaglePage {
                 isBold: true
                 text: phone.callerName
             }
-            PrefsLabel {
+            DigitText {
                 Layout.alignment: Qt.AlignHCenter
-                font.pixelSize: 44
+                pixelSize: 44
                 isBold: true
                 color: phone.callState === 3 ? Style.success : Style.textMuted
                 text: phone.callState === 2 ? qsTr("…") : phone.formatDuration(phone.callSeconds)

@@ -46,6 +46,8 @@ ApplicationWindow {
         objectName: "canvas"
 
         property string currentPage: "home"
+        // Screens that need more than a glance are locked while moving.
+        property bool rideLock: true
         readonly property var pages: ({
             home: homePage, map: mapPage, phone: callingPage,
             music: musicPage, charging: chargingPage, settings: settingsPage,
@@ -146,6 +148,18 @@ ApplicationWindow {
         Component {
             id: settingsPage
             SettingsPage {}
+        }
+
+        RideLock {
+            anchors.fill: stack
+            z: 10
+            armed: root.rideLock
+            screenNeedsStop: {
+                if (root.currentPage === "settings" || root.currentPage === "documents")
+                    return true
+                const inner = stack.currentItem ? stack.currentItem.gEagleStack : null
+                return root.currentPage === "phone" && !!inner && inner.depth > 1
+            }
         }
 
         AlertBanner {

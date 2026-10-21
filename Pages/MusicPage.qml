@@ -74,9 +74,9 @@ EaglePage {
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: phone.formatDuration(phone.positionSeconds) }
+                        DigitText { pixelSize: Style.h5; color: Style.textMuted; text: phone.formatDuration(phone.positionSeconds) }
                         Item { Layout.fillWidth: true }
-                        PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: phone.formatDuration(phone.durationSeconds) }
+                        DigitText { pixelSize: Style.h5; color: Style.textMuted; text: phone.formatDuration(phone.durationSeconds) }
                     }
 
                     RowLayout {
@@ -106,7 +106,7 @@ EaglePage {
                 spacing: 18
 
                 Caption { Layout.alignment: Qt.AlignHCenter; text: qsTr("Volume") }
-                PrefsLabel { Layout.alignment: Qt.AlignHCenter; font.pixelSize: Style.typography.display + 8; isBold: true; text: phone.volume }
+                DigitText { Layout.alignment: Qt.AlignHCenter; pixelSize: Style.typography.display + 8; isBold: true; text: phone.volume }
                 OutlineButton { Layout.alignment: Qt.AlignHCenter; implicitWidth: 120; symbol: "plus"; onClicked: phone.volume = phone.volume + 10 }
                 Rectangle {
                     Layout.alignment: Qt.AlignHCenter

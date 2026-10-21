@@ -54,7 +54,7 @@ EaglePage {
                 }
             }
             OutlineButton { implicitWidth: 90; symbol: "plus"; onClicked: themeController.brightness = Math.min(100, themeController.brightness + 10) }
-            PrefsLabel { Layout.preferredWidth: 90; font.pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(themeController.brightness) }
+            DigitText { Layout.preferredWidth: 110; pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(themeController.brightness) }
         }
 
         Caption { Layout.topMargin: 24; text: qsTr("Preview") }

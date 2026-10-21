@@ -13,7 +13,7 @@ QtObject {
     // [file name, seconds to wait before the shot, what to do first]
     readonly property var steps: [
         ["01-boot", 0.6, () => {}],
-        ["02-home-riding", 9.0, () => {}],
+        ["02-home-riding", 9.0, () => { canvas.rideLock = false }],
         ["03-home-dark", 1.2, () => Style.setMode(Style.darkMode)],
         ["04-alert-banner", 1.2, () => { Style.setMode(Style.lightMode); simulator.trigger("lowTyre") }],
         ["05-critical-alert", 1.2, () => { simulator.trigger("clear"); simulator.trigger("motorFault") }],
@@ -31,6 +31,7 @@ QtObject {
         ["13d-settings-trips", 1.2, () => canvas.openSetting(6)],
         ["13e-settings-about", 1.2, () => canvas.openSetting(10)],
         ["14-map", 1.2, () => canvas.navigate("map")],
+        ["14b-ride-lock", 1.2, () => { canvas.rideLock = true; canvas.openSetting(0) }],
         ["15-home-sport-dark", 3.0, () => { canvas.navigate("home"); Style.setMode(Style.darkMode); dashboardData.rideMode = 2 }],
     ]
 

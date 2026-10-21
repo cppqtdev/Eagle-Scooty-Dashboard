@@ -11,9 +11,10 @@ Item {
     property bool active: false
     property bool blinking: false   // indicators: follow the shared blink phase
     property bool blinkPhase: true
+    property bool lampCheck: false  // key-on bulb check: every lamp lit for a moment
     property real iconSize: 60
 
-    readonly property bool lit: active && (!blinking || blinkPhase)
+    readonly property bool lit: lampCheck || (active && (!blinking || blinkPhase))
 
     implicitWidth: iconSize + 12
     implicitHeight: iconSize + 12

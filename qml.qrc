@@ -176,5 +176,8 @@
         <file>Component/ToggleRow.qml</file>
         <file>Pages/Wifi.qml</file>
         <file>Component/KeyboardPanel.qml</file>
+        <file>Component/DigitText.qml</file>
+        <file>Component/Sampled.qml</file>
+        <file>Component/RideLock.qml</file>
     </qresource>
 </RCC>

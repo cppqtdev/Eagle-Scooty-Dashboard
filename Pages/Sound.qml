@@ -31,7 +31,7 @@ EaglePage {
                 }
             }
             OutlineButton { implicitWidth: 90; symbol: "plus"; onClicked: phone.volume = phone.volume + 10 }
-            PrefsLabel { Layout.preferredWidth: 90; font.pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(phone.volume) }
+            DigitText { Layout.preferredWidth: 110; pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(phone.volume) }
         }
 
         Caption { Layout.topMargin: 18; text: qsTr("Dashboard sounds") }
