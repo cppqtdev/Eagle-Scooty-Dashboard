@@ -28,6 +28,7 @@ SOURCES += \
         bluetoothmanager.cpp \
         canvehiclesource.cpp \
         dashboarddata.cpp \
+        harnessinputs.cpp \
         main.cpp \
         phoneservice.cpp \
         phonelinkbridge.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
         bluetoothmanager.h \
         canvehiclesource.h \
         dashboarddata.h \
+        harnessinputs.h \
         phoneservice.h \
         phonelinkbridge.h \
         phonelink/iphonelink.h \

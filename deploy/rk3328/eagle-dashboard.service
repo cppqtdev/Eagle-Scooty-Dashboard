@@ -18,7 +18,7 @@ Environment=QT_SCALE_FACTOR_ROUNDING_POLICY=PassThrough
 Environment=XDG_RUNTIME_DIR=/run/user/0
 # Wait for the compositor's socket rather than racing it.
 ExecStartPre=/bin/sh -c 'for i in $(seq 1 50); do [ -S /run/user/0/wayland-1 ] || [ -S /run/user/0/wayland-0 ] && exit 0; sleep 0.2; done; exit 1'
-ExecStart=/opt/eagle/bin/EagleTheme --board --can can0
+ExecStart=/opt/eagle/bin/EagleTheme --board --can can0 --harness /etc/eagle/harness.json --phone ble
 Restart=on-failure
 RestartSec=2
 

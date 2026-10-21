@@ -4,6 +4,7 @@
 #include "alertcenter.h"
 #include "canvehiclesource.h"
 #include "dashboarddata.h"
+#include "harnessinputs.h"
 #include "phoneservice.h"
 #include "vehicledocuments.h"
 
@@ -73,6 +74,36 @@ private slots:
         const int before = data.speed();
         can.apply(0x100, QByteArray::fromHex("ff"));
         QCOMPARE(data.speed(), before);
+    }
+
+    void harnessConversions()
+    {
+        // 4800 pulses a km: 200 pulses in 3 s is 50 km/h.
+        QCOMPARE(qRound(harness::speedKmh(200, 3.0, 4800)), 50);
+        QCOMPARE(harness::speedKmh(10, 0.0, 4800), 0.0);
+        // 10 k NTC on a 10 k pull-up reads half the reference at 25 °C.
+        QCOMPARE(qRound(harness::ntcCelsius(900, 1800, 10000, 10000, 3950)), 25);
+        QVERIFY(harness::ntcCelsius(500, 1800, 10000, 10000, 3950) > 25); // lower voltage, hotter NTC
+        const std::vector<std::pair<double, int>> curve{{60000, 0}, {70000, 50}, {84000, 100}};
+        QCOMPARE(harness::percentFromVoltage(55000, curve), 0);
+        QCOMPARE(harness::percentFromVoltage(65000, curve), 25);
+        QCOMPARE(harness::percentFromVoltage(90000, curve), 100);
+    }
+
+    void harnessLinesDriveTheModel()
+    {
+        DashboardData data;
+        HarnessInputs inputs(&data);
+        inputs.applyLine(QStringLiteral("highBeam"), true);
+        inputs.applyLine(QStringLiteral("checkEngine"), true);
+        inputs.applyLine(QStringLiteral("neutral"), true);
+        inputs.applyLine(QStringLiteral("turnLeft"), true);
+        QVERIFY(data.highBeam());
+        QVERIFY(data.checkEngine());
+        QCOMPARE(data.gear(), QStringLiteral("N"));
+        QVERIFY(data.leftIndicator());
+        inputs.applyLine(QStringLiteral("neutral"), false);
+        QCOMPARE(data.gear(), QStringLiteral("D"));
     }
 
     void lowBatteryWarnsThenClearsWithHysteresis()

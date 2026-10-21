@@ -165,68 +165,175 @@ Item {
         }
     }
 
-    // The arrow, over the dashes.
+    // The arrow, over the dashes, in one of four styles (Style.arrowStyle):
+    //   solid     a bold line of even width with a head (the classic)
+    //   ribbon    a translucent band lying on the road, wider near the rider,
+    //             with a bright core, as AR navigation draws it
+    //   chevrons  chevron marks along the path, growing towards the rider
+    //   outline   the ribbon's shape drawn as an outline with a soft glow inside
+    // The path is the same for all; only how it is drawn differs.
     Canvas {
         id: arrow
         anchors.fill: parent
         visible: !root.reverse
         readonly property var key: [root.maneuver, Math.round(root.joinY), root.arrowColor, root.drop > 0,
-                                    Math.round(root.drop * 20), root.width, root.height]
+                                    Math.round(root.drop * 20), root.width, root.height, Style.arrowStyle, Style.isDark]
         onKeyChanged: requestPaint()
+
+        // The arrow's centre line as points, near to far, and where its head goes.
+        function route() {
+            const w = width, h = height, cx = root.cx, joinY = root.joinY
+            const startY = h * 0.96
+            const bendY = joinY + h * 0.02
+            const points = []
+            if (root.hasSideRoad) {
+                const side = root.turnSide
+                points.push([cx, startY], [cx, bendY + h * 0.08])
+                // The bend, a quadratic from straight up to across.
+                const p0 = [cx, bendY + h * 0.08], c = [cx, bendY], p2 = [cx + side * w * 0.08, bendY]
+                for (let i = 1; i <= 8; ++i) {
+                    const t = i / 8
+                    points.push([(1 - t) * (1 - t) * p0[0] + 2 * (1 - t) * t * c[0] + t * t * p2[0],
+                                 (1 - t) * (1 - t) * p0[1] + 2 * (1 - t) * t * c[1] + t * t * p2[1]])
+                }
+                points.push([cx + side * w * 0.36, bendY])
+                return { points: points, head: [cx + side * w * 0.4, bendY], angle: side < 0 ? Math.PI : 0 }
+            }
+            if (root.maneuver === 3) {
+                const r = w * 0.06, ax = cx - w * 0.01, ay = bendY + h * 0.05
+                points.push([cx + w * 0.05, startY], [cx + w * 0.05, ay])
+                for (let i = 1; i <= 10; ++i) {
+                    const t = -Math.PI * i / 10
+                    points.push([ax + r * Math.cos(t), ay + r * Math.sin(t)])
+                }
+                points.push([cx - w * 0.07, bendY + h * 0.2])
+                return { points: points, head: [cx - w * 0.07, bendY + h * 0.27], angle: Math.PI / 2 }
+            }
+            if (root.maneuver === 4) {
+                points.push([cx, startY], [cx, bendY + h * 0.06])
+                return { points: points, head: [cx, bendY - h * 0.02], angle: -1 }   // -1: a destination dot
+            }
+            points.push([cx, startY], [cx, root.horizon + h * 0.2])
+            return { points: points, head: [cx, root.horizon + h * 0.12], angle: -Math.PI / 2 }
+        }
 
         onPaint: {
             const ctx = getContext("2d")
             const w = width, h = height
-            const horizon = root.horizon, cx = root.cx
-            const joinY = root.joinY
             ctx.reset()
-
-            // The arrow.
             ctx.globalAlpha = 1 - root.drop * 0.8
-            ctx.strokeStyle = root.arrowColor
-            ctx.fillStyle = root.arrowColor
-            ctx.lineWidth = w * 0.035
             ctx.lineCap = "round"
             ctx.lineJoin = "round"
-            const startY = h * 0.96
-            const bendY = joinY + h * 0.02
-            function head(x, y, angle) {
-                const len = w * 0.05
+
+            const color = root.arrowColor
+            const soft = Qt.rgba(color.r, color.g, color.b, 0.28)
+            const faint = Qt.rgba(color.r, color.g, color.b, 0.12)
+            const { points, head, angle } = route()
+            // Nearer is wider: 0.35 at the horizon, 1 at the bottom.
+            const depth = y => 0.35 + 0.65 * Math.max(0, (y - root.horizon) / (h - root.horizon))
+
+            function polyline() {
                 ctx.beginPath()
-                ctx.moveTo(x + Math.cos(angle) * len * 0.35, y + Math.sin(angle) * len * 0.35)
-                ctx.lineTo(x - Math.cos(angle - 0.62) * len, y - Math.sin(angle - 0.62) * len)
-                ctx.lineTo(x - Math.cos(angle + 0.62) * len, y - Math.sin(angle + 0.62) * len)
-                ctx.closePath()
-                ctx.fill()
+                ctx.moveTo(points[0][0], points[0][1])
+                for (let i = 1; i < points.length; ++i)
+                    ctx.lineTo(points[i][0], points[i][1])
             }
-            ctx.beginPath()
-            if (root.hasSideRoad) {
-                const endX = cx + root.turnSide * w * 0.4
-                ctx.moveTo(cx, startY)
-                ctx.lineTo(cx, bendY + h * 0.08)
-                ctx.quadraticCurveTo(cx, bendY, cx + root.turnSide * w * 0.08, bendY)
-                ctx.lineTo(endX - root.turnSide * w * 0.04, bendY)
-                ctx.stroke()
-                head(endX, bendY, root.turnSide < 0 ? Math.PI : 0)
-            } else if (root.maneuver === 3) {
-                ctx.moveTo(cx + w * 0.05, startY)
-                ctx.lineTo(cx + w * 0.05, bendY + h * 0.05)
-                ctx.arc(cx - w * 0.01, bendY + h * 0.05, w * 0.06, 0, Math.PI, true)
-                ctx.lineTo(cx - w * 0.07, bendY + h * 0.2)
-                ctx.stroke()
-                head(cx - w * 0.07, bendY + h * 0.27, Math.PI / 2)
-            } else if (root.maneuver === 4) {
-                ctx.moveTo(cx, startY)
-                ctx.lineTo(cx, bendY + h * 0.06)
-                ctx.stroke()
+            // The band either side of the centre line, half-width scaled by depth.
+            function band(scale) {
+                const left = [], right = []
+                for (let i = 0; i < points.length; ++i) {
+                    const a = points[Math.max(0, i - 1)], b = points[Math.min(points.length - 1, i + 1)]
+                    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1
+                    const nx = -(b[1] - a[1]) / len, ny = (b[0] - a[0]) / len
+                    const half = w * scale * depth(points[i][1])
+                    left.push([points[i][0] + nx * half, points[i][1] + ny * half])
+                    right.push([points[i][0] - nx * half, points[i][1] - ny * half])
+                }
                 ctx.beginPath()
-                ctx.arc(cx, bendY - h * 0.02, w * 0.035, 0, Math.PI * 2)
+                ctx.moveTo(left[0][0], left[0][1])
+                for (let i = 1; i < left.length; ++i)
+                    ctx.lineTo(left[i][0], left[i][1])
+                for (let i = right.length - 1; i >= 0; --i)
+                    ctx.lineTo(right[i][0], right[i][1])
+                ctx.closePath()
+            }
+            function headPath(size) {
+                const len = w * size * depth(head[1])
+                ctx.beginPath()
+                ctx.moveTo(head[0] + Math.cos(angle) * len * 0.45, head[1] + Math.sin(angle) * len * 0.45)
+                ctx.lineTo(head[0] - Math.cos(angle - 0.7) * len, head[1] - Math.sin(angle - 0.7) * len)
+                ctx.lineTo(head[0] - Math.cos(angle) * len * 0.35, head[1] - Math.sin(angle) * len * 0.35)
+                ctx.lineTo(head[0] - Math.cos(angle + 0.7) * len, head[1] - Math.sin(angle + 0.7) * len)
+                ctx.closePath()
+            }
+            function dot(radius) {
+                ctx.beginPath()
+                ctx.arc(head[0], head[1], w * radius, 0, Math.PI * 2)
+            }
+
+            switch (Style.arrowStyle) {
+            case "ribbon":
+                ctx.fillStyle = soft
+                band(0.05)
                 ctx.fill()
-            } else {
-                ctx.moveTo(cx, startY)
-                ctx.lineTo(cx, horizon + h * 0.2)
+                ctx.strokeStyle = color
+                ctx.lineWidth = w * 0.008
+                polyline()
                 ctx.stroke()
-                head(cx, horizon + h * 0.12, -Math.PI / 2)
+                ctx.fillStyle = color
+                if (angle === -1) { dot(0.03); ctx.fill() } else { headPath(0.075); ctx.fill() }
+                break
+            case "outline":
+                ctx.fillStyle = faint
+                band(0.04)
+                ctx.fill()
+                ctx.strokeStyle = color
+                ctx.lineWidth = 4
+                band(0.04)
+                ctx.stroke()
+                if (angle === -1) {
+                    dot(0.03); ctx.fillStyle = faint; ctx.fill(); ctx.stroke()
+                } else {
+                    headPath(0.08); ctx.fillStyle = faint; ctx.fill(); ctx.stroke()
+                }
+                break
+            case "chevrons": {
+                // Marks every so far along the path, measured along it.
+                let walked = 0
+                const spacing = h * 0.075
+                let next = spacing * 0.5
+                for (let i = 1; i < points.length; ++i) {
+                    const a = points[i - 1], b = points[i]
+                    const segment = Math.hypot(b[0] - a[0], b[1] - a[1])
+                    const dir = Math.atan2(b[1] - a[1], b[0] - a[0])
+                    while (next <= walked + segment) {
+                        const t = (next - walked) / segment
+                        const x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t
+                        const size = w * 0.032 * depth(y)
+                        ctx.strokeStyle = color
+                        ctx.globalAlpha = (1 - root.drop * 0.8) * (0.45 + 0.55 * depth(y))
+                        ctx.lineWidth = Math.max(3, size * 0.45)
+                        ctx.beginPath()
+                        ctx.moveTo(x - Math.cos(dir - 0.8) * size, y - Math.sin(dir - 0.8) * size)
+                        ctx.lineTo(x, y)
+                        ctx.lineTo(x - Math.cos(dir + 0.8) * size, y - Math.sin(dir + 0.8) * size)
+                        ctx.stroke()
+                        next += spacing
+                    }
+                    walked += segment
+                }
+                ctx.globalAlpha = 1 - root.drop * 0.8
+                ctx.fillStyle = color
+                if (angle === -1) { dot(0.03); ctx.fill() } else { headPath(0.07); ctx.fill() }
+                break
+            }
+            default:   // solid
+                ctx.strokeStyle = color
+                ctx.fillStyle = color
+                ctx.lineWidth = w * 0.035
+                polyline()
+                ctx.stroke()
+                if (angle === -1) { dot(0.035); ctx.fill() } else { headPath(0.06); ctx.fill() }
             }
             ctx.globalAlpha = 1
         }

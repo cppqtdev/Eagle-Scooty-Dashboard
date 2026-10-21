@@ -147,6 +147,13 @@ Item {
         }
     }
 
+    // On the board a rotary encoder arrives as a wheel: one detent, one step.
+    WheelHandler {
+        enabled: boardMode
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+        onWheel: event => root.step(event.angleDelta.y < 0)
+    }
+
     // The ring fades after a while without a key, as it would after a touch.
     onKeysInUseChanged: if (keysInUse) idle.restart()
     function touchKey() { keysInUse = true; idle.restart() }

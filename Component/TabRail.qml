@@ -22,9 +22,9 @@ ListView {
     highlightMoveVelocity: -1
     highlightResizeDuration: 0
 
-    Rectangle {   // the rail
+    Rectangle {   // the rail, as long as the tabs and no longer
         width: 2
-        height: rail.height
+        height: Math.min(rail.contentHeight, rail.height)
         radius: 1
         color: Style.border
         z: -1

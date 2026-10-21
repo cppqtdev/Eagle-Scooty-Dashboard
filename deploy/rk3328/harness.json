@@ -1,0 +1,22 @@
+{
+    "_comment": "Cluster connector to RK3328 pins. Lines are offsets on a gpiochip; check yours with gpioinfo. Every entry is optional.",
+    "digital": {
+        "highBeam":     { "chip": "gpiochip2", "line": 2,  "activeLow": true },
+        "turnLeft":     { "chip": "gpiochip2", "line": 3,  "activeLow": true },
+        "turnRight":    { "chip": "gpiochip2", "line": 4,  "activeLow": true },
+        "neutral":      { "chip": "gpiochip2", "line": 5,  "activeLow": true },
+        "abs":          { "chip": "gpiochip2", "line": 6,  "activeLow": true },
+        "checkEngine":  { "chip": "gpiochip2", "line": 7,  "activeLow": true },
+        "illumination": { "chip": "gpiochip3", "line": 0,  "activeLow": false },
+        "sideStand":    { "chip": "gpiochip3", "line": 1,  "activeLow": true }
+    },
+    "speed": { "chip": "gpiochip3", "line": 2, "pulsesPerKm": 4800 },
+    "battery": {
+        "device": "iio:device0", "channel": 1, "dividerRatio": 50.0,
+        "curve": [[60000, 0], [64000, 10], [70000, 50], [78000, 90], [84000, 100]]
+    },
+    "temperature": {
+        "device": "iio:device0", "channel": 2, "target": "motor",
+        "vrefMv": 1800, "pullupOhm": 10000, "r25Ohm": 10000, "beta": 3950
+    }
+}

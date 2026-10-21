@@ -14,6 +14,7 @@ EaglePage {
     readonly property color modeColor: Style.modeColor(dashboardData.rideMode)
     readonly property bool phoneRoute: phone.linked && phone.connected && dashboardData.navigating
     Sampled { id: turnDistance; source: dashboardData.maneuverDistanceM; interval: 500 }
+    Sampled { id: roadSpeed; source: dashboardData.speed; interval: 250 }
     property string destination: qsTr("Office")
     readonly property var places: [
         { name: qsTr("Home"), detail: qsTr("8.4 km · about 15 min") },
@@ -63,10 +64,31 @@ EaglePage {
                 anchors.topMargin: 150
             }
 
+            // The speed, just above the road's horizon.
+            Column {
+                id: speedBox
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 28
+                spacing: -6
+                DigitText {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    pixelSize: 88
+                    isBold: true
+                    color: dashboardData.gear === "R" ? Style.warning : Style.textPrimary
+                    text: Math.round(roadSpeed.value)
+                }
+                Caption {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: dashboardData.speedUnit
+                }
+            }
+
             // What to do and where.
             ColumnLayout {
                 anchors.left: parent.left
-                anchors.right: distanceRow.left
+                anchors.right: speedBox.left
+                anchors.rightMargin: 24
                 anchors.top: parent.top
                 anchors.margins: 32
                 spacing: 6

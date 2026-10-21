@@ -11,6 +11,7 @@
 #include "bluetoothmanager.h"
 #include "canvehiclesource.h"
 #include "dashboarddata.h"
+#include "harnessinputs.h"
 #include "phonelink/protocolphonelink.h"
 #include "phonelink/tcpphonetransport.h"
 #include "phonelinkbridge.h"
@@ -102,6 +103,10 @@ int main(int argc, char *argv[])
     parser.addOption({QStringLiteral("no-simulator"), QStringLiteral("Wait for live vehicle data instead of simulating a ride.")});
     parser.addOption({QStringLiteral("can"), QStringLiteral("Read live vehicle data from the SocketCAN <interface> instead of simulating."),
                       QStringLiteral("interface")});
+    parser.addOption({QStringLiteral("harness"),
+                      QStringLiteral("Read the cluster connector's lamp, switch, speed-sensor and ADC lines as mapped "
+                                     "in <map.json> (docs/Inputs.md)."),
+                      QStringLiteral("map")});
     parser.addOption({QStringLiteral("phone"),
                       QStringLiteral("Where the rider's phone comes from: ble (the Ride app over Bluetooth, the "
                                      "board's default), tcp (the app or scripts/phone_link_sim.py on port 47100) or "
@@ -119,6 +124,7 @@ int main(int argc, char *argv[])
     PhoneService phone;
     VehicleDocuments documents;
     CanVehicleSource can(&dashboardData);
+    HarnessInputs harnessInputs(&dashboardData);
     BluetoothManager bluetooth(&phone);
     WifiManager wifi;
 
@@ -179,6 +185,7 @@ int main(int argc, char *argv[])
     context->setContextProperty(QStringLiteral("vehicleDocuments"), &documents);
     context->setContextProperty(QStringLiteral("bluetooth"), &bluetooth);
     context->setContextProperty(QStringLiteral("canSource"), &can);
+    context->setContextProperty(QStringLiteral("harness"), &harnessInputs);
     context->setContextProperty(QStringLiteral("wifi"), &wifi);
     context->setContextProperty(QStringLiteral("boardMode"), boardMode);
     context->setContextProperty(QStringLiteral("snapshotDir"), parser.value(QStringLiteral("snapshot")));
@@ -197,9 +204,18 @@ int main(int argc, char *argv[])
 
     // Live data when a CAN interface is given and opens; otherwise the simulated ride.
     const QString canInterface = parser.value(QStringLiteral("can"));
-    const bool live = !canInterface.isEmpty() && can.open(canInterface);
+    const bool liveCan = !canInterface.isEmpty() && can.open(canInterface);
     if (!canInterface.isEmpty())
         qInfo().noquote() << can.status();
+    // The connector's own lines, alone or beside CAN (a lamp wired straight to
+    // the cluster and the rest on the bus).
+    const QString harnessMap = parser.value(QStringLiteral("harness"));
+    const bool liveHarness = !harnessMap.isEmpty() && harnessInputs.open(harnessMap);
+    if (!harnessMap.isEmpty())
+        qInfo().noquote() << harnessInputs.status();
+    if (liveHarness && !liveCan)
+        dashboardData.setReady(true); // powered by the ignition: on means ready
+    const bool live = liveCan || liveHarness;
     if (!live && !parser.isSet(QStringLiteral("no-simulator")))
         simulator.keyOn();
 

@@ -16,6 +16,7 @@ SOURCES += \
         ../alertcenter.cpp \
         ../canvehiclesource.cpp \
         ../dashboarddata.cpp \
+        ../harnessinputs.cpp \
         ../phoneservice.cpp \
         ../phonelink/iphonelink.cpp \
         ../phonelink/phonetypes.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
         ../alertcenter.h \
         ../canvehiclesource.h \
         ../dashboarddata.h \
+        ../harnessinputs.h \
         ../phoneservice.h \
         ../phonelink/iphonelink.h \
         ../vehicledocuments.h

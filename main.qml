@@ -99,8 +99,8 @@ ApplicationWindow {
             height: 34
             radius: 17
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Style.alpha("#0D3B3A", 0.16) }
-                GradientStop { position: 1.0; color: Style.alpha("#0D3B3A", 0.0) }
+                GradientStop { position: 0.0; color: Qt.rgba(0.05, 0.23, 0.23, 0.14) }
+                GradientStop { position: 1.0; color: Qt.rgba(0.05, 0.23, 0.23, 0.0) }
             }
         }
         Header {

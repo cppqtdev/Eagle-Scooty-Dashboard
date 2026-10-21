@@ -81,8 +81,14 @@ QtObject {
     readonly property color modeSport: isDark ? "#FF7A2F" : "#EA580C"
 
     // A colour with a new alpha; Qt.alpha() needs Qt 6.5, the board runs 6.2.
+    // c may be a color or a string such as "#FFFFFF" (a string has no .r, so it
+    // is turned into a color first; Qt.lighter by 1 changes nothing else).
+    // How the navigation arrow is drawn: "solid", "ribbon", "chevrons" or "outline".
+    property string arrowStyle: "ribbon"
+
     function alpha(c, a) {
-        return Qt.rgba(c.r, c.g, c.b, a)
+        const color = Qt.lighter(c, 1.0)
+        return Qt.rgba(color.r, color.g, color.b, a)
     }
 
     function modeColor(mode) {

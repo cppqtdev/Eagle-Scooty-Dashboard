@@ -46,28 +46,36 @@ Control {
     contentItem: ColumnLayout {
         spacing: 14
 
-        // A level meter that moves while music plays.
-        Row {
+        // A level meter that moves while music plays, in a box of fixed height
+        // (the tallest a bar can reach), so the keys below never move with it.
+        Item {
             visible: root.showMeter
             Layout.alignment: Qt.AlignHCenter
-            spacing: 5
+            implicitWidth: meter.implicitWidth
+            implicitHeight: 40
             opacity: root.meterOpacity
-            Repeater {
-                model: 15
-                Rectangle {
-                    id: bar
-                    required property int index
-                    readonly property real rest: 10 + 18 * Math.abs(Math.sin(index * 1.7))
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 4
-                    height: rest
-                    radius: 2
-                    color: root.tone
-                    SequentialAnimation on height {
-                        running: root.meterRunning
-                        loops: Animation.Infinite
-                        NumberAnimation { to: bar.rest * 0.4; duration: 260 + (bar.index % 4) * 70; easing.type: Easing.InOutSine }
-                        NumberAnimation { to: bar.rest * 1.4; duration: 300 + (bar.index % 3) * 60; easing.type: Easing.InOutSine }
+
+            Row {
+                id: meter
+                anchors.centerIn: parent
+                spacing: 5
+                Repeater {
+                    model: 15
+                    Rectangle {
+                        id: bar
+                        required property int index
+                        readonly property real rest: 8 + 18 * Math.abs(Math.sin(index * 1.7))   // x 1.4 stays under 40
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 4
+                        height: rest
+                        radius: 2
+                        color: root.tone
+                        SequentialAnimation on height {
+                            running: root.meterRunning
+                            loops: Animation.Infinite
+                            NumberAnimation { to: bar.rest * 0.4; duration: 260 + (bar.index % 4) * 70; easing.type: Easing.InOutSine }
+                            NumberAnimation { to: bar.rest * 1.4; duration: 300 + (bar.index % 3) * 60; easing.type: Easing.InOutSine }
+                        }
                     }
                 }
             }
