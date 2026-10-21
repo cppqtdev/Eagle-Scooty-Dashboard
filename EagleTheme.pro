@@ -7,15 +7,23 @@ CONFIG += c++17
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 SOURCES += \
+        alertcenter.cpp \
         dashboarddata.cpp \
         main.cpp \
+        phoneservice.cpp \
         systemclock.cpp \
-        themecontroller.cpp
+        themecontroller.cpp \
+        vehicledocuments.cpp \
+        vehiclesimulator.cpp
 
 HEADERS += \
+        alertcenter.h \
         dashboarddata.h \
+        phoneservice.h \
         systemclock.h \
-        themecontroller.h
+        themecontroller.h \
+        vehicledocuments.h \
+        vehiclesimulator.h
 
 RESOURCES += qml.qrc
 
