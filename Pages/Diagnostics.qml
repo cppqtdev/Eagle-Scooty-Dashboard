@@ -9,6 +9,13 @@ import "../Component"
 EaglePage {
     id: root
 
+    // Each scenario in the colour of what it raises.
+    readonly property var scenarioTones: ({
+        lowTyre: Style.warning, overheat: Style.warning, lowBattery: Style.warning, absFault: Style.warning,
+        motorFault: Style.danger, sideStand: Style.danger,
+        charge: Style.success, hazard: Style.success, reverse: "#F28C28", clear: Style.accent
+    })
+
     readonly property var scenarioLabels: ({
         lowTyre: qsTr("Low tyre"), overheat: qsTr("Overheat"), motorFault: qsTr("Motor fault"),
         lowBattery: qsTr("Low battery"), sideStand: qsTr("Side stand"), absFault: qsTr("ABS fault"),
@@ -21,6 +28,7 @@ EaglePage {
         property string label
         property string value
         property bool warn: false
+        property color hue: Style.accent   // the tile's own colour; amber replaces it on a warning
         Layout.fillWidth: true
         topPadding: 18
         bottomPadding: 18
@@ -29,17 +37,17 @@ EaglePage {
         // The soft fill of every row, washed from the left: accent, or amber on a warning.
         background: Rectangle {
             id: readingBackground
-            readonly property color tone: reading.warn ? Style.warning : Style.accent
+            readonly property color tone: reading.warn ? Style.warning : reading.hue
             radius: Style.metrics.radiusMd
             color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
-            border.color: Style.alpha(tone, reading.warn ? 0.8 : 0.25)
+            border.color: Style.alpha(tone, reading.warn ? 0.8 : 0.4)
             border.width: reading.warn ? 1.5 : 1
             Rectangle {
                 anchors.fill: parent
                 radius: parent.radius
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: Style.alpha(readingBackground.tone, Style.isDark ? 0.20 : 0.10) }
+                    GradientStop { position: 0.0; color: Style.alpha(readingBackground.tone, Style.isDark ? 0.24 : 0.13) }
                     GradientStop { position: 1.0; color: Style.alpha(readingBackground.tone, 0.0) }
                 }
             }
@@ -65,6 +73,7 @@ EaglePage {
         id: pill
         focusPolicy: Qt.StrongFocus
         property bool primary: false
+        property color tone: Style.accent   // the kind of action: critical, warning, phone…
         Layout.fillWidth: true
         implicitHeight: 64
         leftPadding: 20
@@ -75,11 +84,11 @@ EaglePage {
         background: Rectangle {
             radius: height / 2
             color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
-            border.color: Style.alpha(Style.accent, pill.primary ? 0.9 : 0.35)
+            border.color: Style.alpha(pill.tone, pill.primary ? 0.9 : 0.5)
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Style.alpha(Style.accent, pill.primary ? 0.95 : (Style.isDark ? 0.24 : 0.14)) }
-                GradientStop { position: 1.0; color: Style.alpha(Style.accent, pill.primary ? 0.65 : 0.02) }
+                GradientStop { position: 0.0; color: Style.alpha(pill.tone, pill.primary ? 0.95 : (Style.isDark ? 0.28 : 0.16)) }
+                GradientStop { position: 1.0; color: Style.alpha(pill.tone, pill.primary ? 0.65 : 0.02) }
             }
         }
         contentItem: PrefsLabel {
@@ -118,14 +127,14 @@ EaglePage {
                 columns: width > 900 ? 4 : 2
                 columnSpacing: 16
                 rowSpacing: 16
-                Reading { label: qsTr("Battery"); value: qsTr("%1%").arg(dashboardData.batteryPercent); warn: dashboardData.batteryPercent <= 15 }
-                Reading { label: qsTr("Battery temp"); value: qsTr("%1 °C").arg(dashboardData.batteryTempC); warn: dashboardData.batteryTempC >= 55 }
-                Reading { label: qsTr("Motor temp"); value: qsTr("%1 °C").arg(dashboardData.motorTempC); warn: dashboardData.motorTempC >= 90 }
-                Reading { label: qsTr("Odometer"); value: qsTr("%L1 km").arg(dashboardData.odometerKm) }
-                Reading { label: qsTr("Front tyre"); value: qsTr("%1 bar").arg(dashboardData.tyreFrontBar.toFixed(1)); warn: dashboardData.tyreFrontBar < 1.8 }
-                Reading { label: qsTr("Rear tyre"); value: qsTr("%1 bar").arg(dashboardData.tyreRearBar.toFixed(1)); warn: dashboardData.tyreRearBar < 1.8 }
-                Reading { label: qsTr("Motor"); value: dashboardData.motorFault ? qsTr("Fault") : qsTr("OK"); warn: dashboardData.motorFault }
-                Reading { label: qsTr("ABS"); value: dashboardData.absFault ? qsTr("Fault") : qsTr("OK"); warn: dashboardData.absFault }
+                Reading { hue: "#2EBD59"; label: qsTr("Battery"); value: qsTr("%1%").arg(dashboardData.batteryPercent); warn: dashboardData.batteryPercent <= 15 }
+                Reading { hue: "#F28C28"; label: qsTr("Battery temp"); value: qsTr("%1 °C").arg(dashboardData.batteryTempC); warn: dashboardData.batteryTempC >= 55 }
+                Reading { hue: "#E8590C"; label: qsTr("Motor temp"); value: qsTr("%1 °C").arg(dashboardData.motorTempC); warn: dashboardData.motorTempC >= 90 }
+                Reading { hue: "#3B82F6"; label: qsTr("Odometer"); value: qsTr("%L1 km").arg(dashboardData.odometerKm) }
+                Reading { hue: "#14B8C4"; label: qsTr("Front tyre"); value: qsTr("%1 bar").arg(dashboardData.tyreFrontBar.toFixed(1)); warn: dashboardData.tyreFrontBar < 1.8 }
+                Reading { hue: "#14B8C4"; label: qsTr("Rear tyre"); value: qsTr("%1 bar").arg(dashboardData.tyreRearBar.toFixed(1)); warn: dashboardData.tyreRearBar < 1.8 }
+                Reading { hue: "#8B5CF6"; label: qsTr("Motor"); value: dashboardData.motorFault ? qsTr("Fault") : qsTr("OK"); warn: dashboardData.motorFault }
+                Reading { hue: "#6366F1"; label: qsTr("ABS"); value: dashboardData.absFault ? qsTr("Fault") : qsTr("OK"); warn: dashboardData.absFault }
             }
 
             // Alerts and, on the desk, the scenarios: side by side when there is
@@ -158,14 +167,42 @@ EaglePage {
                             required property string icon
                             Layout.fillWidth: true
                             padding: 14
+                            // The tiles' style, in the alert's colour.
                             background: Rectangle {
+                                id: alertBackground
+                                readonly property color tone: alertRow.severity === 2 ? Style.danger
+                                                              : alertRow.severity === 1 ? Style.warning : Style.success
                                 radius: Style.metrics.radiusMd
-                                color: Style.surface
-                                border.color: alertRow.severity === 2 ? Style.danger : alertRow.severity === 1 ? Style.warning : Style.accent
+                                color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
+                                border.color: Style.alpha(tone, 0.5)
+                                Rectangle {
+                                    anchors.fill: parent
+                                    radius: parent.radius
+                                    gradient: Gradient {
+                                        orientation: Gradient.Horizontal
+                                        GradientStop { position: 0.0; color: Style.alpha(alertBackground.tone, Style.isDark ? 0.24 : 0.13) }
+                                        GradientStop { position: 0.8; color: Style.alpha(alertBackground.tone, 0.0) }
+                                    }
+                                }
                             }
                             contentItem: RowLayout {
                                 spacing: 16
-                                AlertIcon { sourceSize: Qt.size(40, 40); key: alertRow.icon; severity: alertRow.severity }
+                                // The telltale where there is one; otherwise a line icon in the alert's colour,
+                                // which reads on both themes (the white symbol files do not on light).
+                                readonly property bool telltale: ["tyre", "sideStand", "batteryTemp"].indexOf(alertRow.icon) >= 0
+                                AlertIcon {
+                                    visible: parent.telltale
+                                    sourceSize: Qt.size(40, 40)
+                                    key: alertRow.icon
+                                    severity: alertRow.severity
+                                }
+                                LineIcon {
+                                    visible: !parent.telltale
+                                    size: 40
+                                    strokeWidth: 2
+                                    color: alertBackground.tone
+                                    name: alertRow.severity === 2 ? "xCircle" : alertRow.severity === 1 ? "alertCircle" : "checkCircle"
+                                }
                                 ColumnLayout {
                                     Layout.fillWidth: true
                                     spacing: 2
@@ -193,12 +230,13 @@ EaglePage {
                             Pill {
                                 required property string modelData
                                 primary: modelData === "clear"
+                                tone: root.scenarioTones[modelData] || Style.accent
                                 text: root.scenarioLabels[modelData]
                                 onClicked: simulator.trigger(modelData)
                             }
                         }
-                        Pill { text: qsTr("Incoming call"); onClicked: phone.simulateIncomingCall() }
-                        Pill { text: qsTr("Text message"); onClicked: phone.simulateMessage() }
+                        Pill { tone: "#3B82F6"; text: qsTr("Incoming call"); onClicked: phone.simulateIncomingCall() }
+                        Pill { tone: "#3B82F6"; text: qsTr("Text message"); onClicked: phone.simulateMessage() }
                     }
                 }
             }

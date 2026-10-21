@@ -62,12 +62,13 @@ EaglePage {
                     }
                 }
 
-                DigitText {
+                // The figure in the bar's own gradient, so the two read as one.
+                GradientText {
                     Layout.alignment: Qt.AlignHCenter
                     pixelSize: 230
-                    isBold: true
                     color: root.tone
-                    text: dashboardData.batteryPercent
+                    widestText: "100%"
+                    text: dashboardData.batteryPercent + "%"
                 }
 
                 ProgressRunning {

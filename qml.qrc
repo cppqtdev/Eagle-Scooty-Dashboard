@@ -191,6 +191,7 @@
         <file>Component/MediaControls.qml</file>
         <file>Component/ManeuverGlyph.qml</file>
         <file>Component/TelltaleStrip.qml</file>
+        <file>Component/GradientText.qml</file>
         <file>Icons/topIcons/icn_abs.png</file>
         <file>Icons/topIcons/icn_abs_glow.png</file>
         <file>Icons/topIcons/icn_malfunction.png</file>

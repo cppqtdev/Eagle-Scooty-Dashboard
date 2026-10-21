@@ -16,6 +16,17 @@ Control {
     readonly property bool shown: hazard || reverse
     readonly property color tone: reverse ? Style.warning : Style.success
 
+    // A capsule behind it, so it reads over the road it may sit on.
+    leftPadding: 18
+    rightPadding: 18
+    topPadding: 4
+    bottomPadding: 4
+    background: Rectangle {
+        radius: height / 2
+        color: Style.alpha(Style.background, 0.9)
+        border.color: Style.alpha(root.tone, 0.45)
+    }
+
     opacity: shown ? 1 : 0
     visible: opacity > 0
     Behavior on opacity { NumberAnimation { duration: Style.motion.normal } }

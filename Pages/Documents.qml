@@ -160,18 +160,26 @@ EaglePage {
                     topPadding: 18
                     bottomPadding: 18
 
+                    // As the rider's cards: a soft fill washed from the left in the status colour.
                     background: Rectangle {
+                        id: paperBackground
+                        readonly property color tone: root.statusColor(paper.modelData.status)
                         radius: Style.metrics.radiusMd
                         color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
+                        border.color: Style.alpha(tone, 0.45)
+                        border.width: 1
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: parent.radius
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: Style.alpha(paperBackground.tone, Style.isDark ? 0.22 : 0.12) }
+                                GradientStop { position: 0.7; color: Style.alpha(paperBackground.tone, 0.0) }
+                            }
+                        }
                     }
                     contentItem: RowLayout {
                         spacing: 20
-                        Rectangle {
-                            Layout.preferredWidth: 10
-                            Layout.fillHeight: true
-                            radius: 5
-                            color: root.statusColor(paper.modelData.status)
-                        }
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 2

@@ -60,8 +60,8 @@ EaglePage {
 
             DriveStatus {
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: 150
+                anchors.top: speedBox.bottom
+                anchors.topMargin: 14
             }
 
             // The speed, just above the road's horizon.
@@ -138,44 +138,83 @@ EaglePage {
                 anchors.bottomMargin: 24
                 spacing: 18
 
+                // The route: a track filled in the ride-mode colour up to the rider, a
+                // glowing dot that pulses where they are, and a flag at the destination.
                 Item {
                     id: track
                     readonly property real progress: 1 - Math.min(1, dashboardData.distanceKm / 8.4)
                     Layout.fillWidth: true
-                    implicitHeight: 16
+                    implicitHeight: 30
+
                     Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         width: parent.width
-                        height: 4
-                        radius: 2
-                        color: Style.border
+                        height: 6
+                        radius: 3
+                        color: Style.alpha(Style.textPrimary, Style.isDark ? 0.10 : 0.08)
                     }
                     Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
-                        width: parent.width * track.progress
-                        height: 4
-                        radius: 2
-                        color: root.modeColor
+                        width: Math.max(height, parent.width * track.progress)
+                        height: 6
+                        radius: 3
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0.0; color: Style.alpha(root.modeColor, 0.25) }
+                            GradientStop { position: 1.0; color: root.modeColor }
+                        }
                         Behavior on width { NumberAnimation { duration: Style.motion.theme } }
                     }
-                    Rectangle {   // the rider
+                    Item {   // the rider
+                        width: 30
+                        height: 30
                         anchors.verticalCenter: parent.verticalCenter
                         x: parent.width * track.progress - width / 2
-                        width: 16
-                        height: 16
-                        radius: 8
-                        color: Style.surface
-                        border.color: root.modeColor
-                        border.width: 4
                         Behavior on x { NumberAnimation { duration: Style.motion.theme } }
+                        Rectangle {
+                            id: riderPulse
+                            anchors.centerIn: parent
+                            width: 30
+                            height: 30
+                            radius: 15
+                            color: Style.alpha(root.modeColor, 0.35)
+                            SequentialAnimation on scale {
+                                loops: Animation.Infinite
+                                running: root.visible
+                                NumberAnimation { from: 0.5; to: 1.3; duration: 1600; easing.type: Easing.OutCubic }
+                            }
+                            SequentialAnimation on opacity {
+                                loops: Animation.Infinite
+                                running: root.visible
+                                NumberAnimation { from: 0.9; to: 0; duration: 1600; easing.type: Easing.OutCubic }
+                            }
+                        }
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 16
+                            height: 16
+                            radius: 8
+                            color: root.modeColor
+                            border.color: Style.isDark ? "#FFFFFF" : Style.surface
+                            border.width: 3
+                        }
                     }
-                    Rectangle {   // the destination
+                    // The destination: a dot at the end of the track with the flag's pole
+                    // standing on it (the pole sits at 5/24 across the icon, its foot at 22/24).
+                    Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
-                        anchors.right: parent.right
-                        width: 12
-                        height: 12
-                        radius: 3
-                        rotation: 45
+                        x: parent.width - width
+                        width: 10
+                        height: 10
+                        radius: 5
+                        color: Style.textPrimary
+                    }
+                    LineIcon {
+                        size: 30
+                        x: parent.width - 5 - size * 5 / 24
+                        y: parent.height / 2 - size * 22 / 24
+                        name: "flag"
+                        strokeWidth: 2.2
                         color: Style.textPrimary
                     }
                 }

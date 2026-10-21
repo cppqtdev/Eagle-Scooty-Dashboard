@@ -66,13 +66,16 @@ Item {
         onPaint: {
             const ctx = getContext("2d")
             const w = width, h = height
-            const horizon = root.horizon, cx = root.cx
+            const horizon = root.horizon
             const edge = root.edgeX
             ctx.reset()
 
-            const tarmac = Style.isDark ? "#18231F" : "#E1E9EA"
-            const line = Style.isDark ? "#3E5157" : "#AFC1C3"
+            // Colours as r, g, b so they can fade: the tarmac, and the edge lines with a teal cast.
+            const tarmac = Style.isDark ? [30, 43, 46] : [220, 229, 230]
+            const line = Style.isDark ? [95, 185, 178] : [112, 146, 150]
+            const rgba = (c, a) => "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"
 
+            // The tarmac, solid near the rider and fading into the distance.
             function surface() {
                 ctx.beginPath()
                 ctx.moveTo(edge(-1, horizon), horizon)
@@ -81,55 +84,85 @@ Item {
                 ctx.lineTo(edge(-1, h), h)
                 ctx.closePath()
             }
-            ctx.fillStyle = tarmac
+            const depth = ctx.createLinearGradient(0, h, 0, horizon)
+            depth.addColorStop(0, rgba(tarmac, 1))
+            depth.addColorStop(0.7, rgba(tarmac, 0.75))
+            depth.addColorStop(1, rgba(tarmac, 0.1))
+            ctx.fillStyle = depth
             surface()
             ctx.fill()
 
-            // Side road for the turn, joining between joinTop and joinBottom.
+            // The side road: short, leaving where the turn is and fading out.
             const joinY = root.joinY
             const joinTop = joinY - h * 0.05
             const joinBottom = joinY + h * 0.09
-            const farX = root.turnSide < 0 ? 0 : w
-            function sideRoad() {
-                ctx.beginPath()
-                ctx.moveTo(edge(root.turnSide, joinTop), joinTop)
-                ctx.lineTo(farX, joinTop + h * 0.01)
-                ctx.lineTo(farX, joinBottom + h * 0.02)
-                ctx.lineTo(edge(root.turnSide, joinBottom), joinBottom)
-                ctx.closePath()
-            }
+            const side = root.turnSide
+            const reach = w * 0.2
+            const outerTop = edge(side, joinTop) + side * reach
+            const outerBottom = edge(side, joinBottom) + side * reach
             if (root.hasSideRoad) {
-                ctx.fillStyle = tarmac
-                sideRoad()
+                const away = ctx.createLinearGradient(edge(side, joinY), 0, edge(side, joinY) + side * reach, 0)
+                away.addColorStop(0, rgba(tarmac, 1))
+                away.addColorStop(1, rgba(tarmac, 0))
+                ctx.fillStyle = away
+                ctx.beginPath()
+                ctx.moveTo(edge(side, joinTop), joinTop)
+                ctx.lineTo(outerTop, joinTop + h * 0.008)
+                ctx.lineTo(outerBottom, joinBottom + h * 0.016)
+                ctx.lineTo(edge(side, joinBottom), joinBottom)
+                ctx.closePath()
                 ctx.fill()
             }
 
             // High beam lights the tarmac ahead.
             if (root.highBeam) {
                 const beam = ctx.createLinearGradient(0, h, 0, horizon)
-                beam.addColorStop(0, "rgba(66, 133, 244, 0.30)")
-                beam.addColorStop(1, "rgba(66, 133, 244, 0.04)")
+                beam.addColorStop(0, "rgba(66, 133, 244, 0.32)")
+                beam.addColorStop(1, "rgba(66, 133, 244, 0.0)")
                 ctx.fillStyle = beam
                 surface()
                 ctx.fill()
             }
 
-            // Edges, broken where the side road joins, and the side road's own edges.
-            ctx.strokeStyle = line
-            ctx.lineWidth = 3
-            ctx.beginPath()
-            for (const side of [-1, 1]) {
-                ctx.moveTo(edge(side, horizon), horizon)
-                if (root.hasSideRoad && side === root.turnSide) {
-                    ctx.lineTo(edge(side, joinTop), joinTop)
-                    ctx.lineTo(farX, joinTop + h * 0.01)
-                    ctx.moveTo(farX, joinBottom + h * 0.02)
-                    ctx.lineTo(edge(side, joinBottom), joinBottom)
+            // Edges: a soft glow under a fine line, both fading towards the horizon,
+            // broken where the side road leaves.
+            function edges() {
+                ctx.beginPath()
+                for (const s of [-1, 1]) {
+                    ctx.moveTo(edge(s, horizon), horizon)
+                    if (root.hasSideRoad && s === side) {
+                        ctx.lineTo(edge(s, joinTop), joinTop)
+                        ctx.moveTo(edge(s, joinBottom), joinBottom)
+                    }
+                    ctx.lineTo(edge(s, h), h)
                 }
-                ctx.lineTo(edge(side, h), h)
             }
-            ctx.stroke()
-
+            for (const [width, alpha] of [[9, 0.12], [2.5, 0.9]]) {
+                const fade = ctx.createLinearGradient(0, h, 0, horizon)
+                fade.addColorStop(0, rgba(line, alpha))
+                fade.addColorStop(1, rgba(line, 0))
+                ctx.strokeStyle = fade
+                ctx.lineWidth = width
+                ctx.lineCap = "round"
+                edges()
+                ctx.stroke()
+            }
+            // The side road's edges, fading the way it does.
+            if (root.hasSideRoad) {
+                for (const [width, alpha] of [[9, 0.12], [2.5, 0.9]]) {
+                    const fade = ctx.createLinearGradient(edge(side, joinY), 0, edge(side, joinY) + side * reach, 0)
+                    fade.addColorStop(0, rgba(line, alpha))
+                    fade.addColorStop(1, rgba(line, 0))
+                    ctx.strokeStyle = fade
+                    ctx.lineWidth = width
+                    ctx.beginPath()
+                    ctx.moveTo(edge(side, joinTop), joinTop)
+                    ctx.lineTo(outerTop, joinTop + h * 0.008)
+                    ctx.moveTo(edge(side, joinBottom), joinBottom)
+                    ctx.lineTo(outerBottom, joinBottom + h * 0.016)
+                    ctx.stroke()
+                }
+            }
         }
     }
 
@@ -161,7 +194,8 @@ Item {
             width: 2 + 6 * (y0 - root.horizon) / (root.height - root.horizon)
             height: Math.max(1, y1 - y0)
             radius: width / 2
-            color: Style.isDark ? "#3E5157" : "#AFC1C3"
+            color: Style.isDark ? "#5FB9B2" : "#7A9598"
+            opacity: 0.15 + 0.7 * t0   // fading into the distance, as the edges do
         }
     }
 
