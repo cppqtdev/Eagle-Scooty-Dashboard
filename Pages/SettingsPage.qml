@@ -13,17 +13,17 @@ EaglePage {
     property int current: 0
 
     readonly property var entries: [
-        { title: qsTr("Display"), value: [qsTr("Auto"), qsTr("Light"), qsTr("Dark")][Style.themeMode], page: displayPage },
-        { title: qsTr("Bluetooth"), value: bluetooth.powered ? (phone.connected ? phone.deviceName : qsTr("On")) : qsTr("Off"), page: bluetoothPage },
-        { title: qsTr("Wi-Fi"), value: wifi.enabled ? (wifi.connectedSsid || qsTr("On")) : qsTr("Off"), page: wifiPage },
-        { title: qsTr("Sound"), value: qsTr("Volume %1%").arg(phone.volume), page: soundPage },
-        { title: qsTr("Documents"), value: vehicleDocuments.attentionCount > 0 ? qsTr("%1 due").arg(vehicleDocuments.attentionCount) : qsTr("All valid"), page: documentsPage },
-        { title: qsTr("Diagnostics"), value: alertCenter.count === 0 ? qsTr("All OK") : alertCenter.count === 1 ? qsTr("1 alert") : qsTr("%1 alerts").arg(alertCenter.count), page: diagnosticsPage },
-        { title: qsTr("My Trips"), value: qsTr("%1 km").arg(dashboardData.tripKm), page: mytripPage },
-        { title: qsTr("Notifications"), value: qsTr("On"), page: systemNotificationPage },
-        { title: qsTr("System Update"), value: qsTr("v%1").arg(Qt.application.version), page: systemUpdatePage },
-        { title: qsTr("Profile"), value: qsTr("Rider"), page: profilePage },
-        { title: qsTr("About"), value: "", page: aboutPage },
+        { icon: "display", title: qsTr("Display"), value: [qsTr("Auto"), qsTr("Light"), qsTr("Dark")][Style.themeMode], page: displayPage },
+        { icon: "bluetooth", title: qsTr("Bluetooth"), value: bluetooth.powered ? (phone.connected ? phone.deviceName : qsTr("On")) : qsTr("Off"), page: bluetoothPage },
+        { icon: "wifi", title: qsTr("Wi-Fi"), value: wifi.enabled ? (wifi.connectedSsid || qsTr("On")) : qsTr("Off"), page: wifiPage },
+        { icon: "sound", title: qsTr("Sound"), value: qsTr("Volume %1%").arg(phone.volume), page: soundPage },
+        { icon: "documents", title: qsTr("Documents"), value: vehicleDocuments.attentionCount > 0 ? qsTr("%1 due").arg(vehicleDocuments.attentionCount) : qsTr("All valid"), page: documentsPage },
+        { icon: "diagnostics", title: qsTr("Diagnostics"), value: alertCenter.count === 0 ? qsTr("All OK") : alertCenter.count === 1 ? qsTr("1 alert") : qsTr("%1 alerts").arg(alertCenter.count), page: diagnosticsPage },
+        { icon: "trips", title: qsTr("My Trips"), value: qsTr("%1 km").arg(dashboardData.tripKm), page: mytripPage },
+        { icon: "notifications", title: qsTr("Notifications"), value: qsTr("On"), page: systemNotificationPage },
+        { icon: "update", title: qsTr("System Update"), value: qsTr("v%1").arg(Qt.application.version), page: systemUpdatePage },
+        { icon: "profile", title: qsTr("Profile"), value: qsTr("Rider"), page: profilePage },
+        { icon: "about", title: qsTr("About"), value: "", page: aboutPage },
     ]
 
     Component { id: profilePage; Profile {} }
@@ -63,26 +63,101 @@ EaglePage {
                     text: root.entries[root.current].title
                 }
 
+                // The tabs: a rail down the left, and the chosen tab lit from it with
+                // a glow that fades across the row; the light slides to a new tab.
                 ListView {
+                    id: tabs
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
-                    spacing: 6
-                    // Room for the selected row's outline, which the clip would cut.
-                    topMargin: 3
-                    bottomMargin: 3
+                    spacing: 4
+                    currentIndex: root.current
                     model: root.entries.length
-                    delegate: InfoRow {
+                    boundsBehavior: Flickable.StopAtBounds
+                    highlightFollowsCurrentItem: true
+                    highlightMoveDuration: Style.motion.normal
+                    highlightMoveVelocity: -1
+                    highlightResizeDuration: 0
+
+                    Rectangle {   // the rail
+                        x: 0
+                        y: 0
+                        width: 2
+                        height: tabs.height
+                        radius: 1
+                        color: Style.border
+                        z: -1
+                    }
+
+                    highlight: Item {
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: Style.metrics.radiusMd
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: Style.alpha(Style.accent, Style.isDark ? 0.42 : 0.24) }
+                                GradientStop { position: 0.7; color: Style.alpha(Style.accent, 0.06) }
+                                GradientStop { position: 1.0; color: Style.alpha(Style.accent, 0.0) }
+                            }
+                        }
+                        // The lit edge, with a soft halo on the rail.
+                        Rectangle {
+                            x: 0
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 9
+                            height: parent.height - 6
+                            radius: 5
+                            color: Style.alpha(Style.accentStrong, 0.25)
+                        }
+                        Rectangle {
+                            x: 0
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 4
+                            height: parent.height - 14
+                            radius: 2
+                            color: Style.isDark ? Style.accentStrong : Style.accent
+                        }
+                    }
+
+                    delegate: AbstractButton {
+                        id: tab
                         required property int index
-                        x: 3
-                        width: ListView.view.width - 6
-                        implicitHeight: 50
-                        showEdge: false
-                        selected: root.current === index
-                        title: root.entries[index].title
-                        value: root.entries[index].value
-                        valueColor: Style.textMuted
+                        readonly property bool current: ListView.isCurrentItem
+                        width: ListView.view.width
+                        implicitHeight: 56
+                        leftPadding: 22
+                        rightPadding: 16
                         onClicked: root.current = index
+
+                        background: Rectangle {
+                            radius: Style.metrics.radiusMd
+                            color: tab.pressed && !tab.current ? Style.alpha(Style.textPrimary, 0.06) : "transparent"
+                        }
+                        contentItem: RowLayout {
+                            spacing: 16
+                            LineIcon {
+                                name: root.entries[tab.index].icon
+                                size: 26
+                                color: tab.current ? (Style.isDark ? Style.accentStrong : Style.accent) : Style.textMuted
+                            }
+                            PrefsLabel {
+                                Layout.fillWidth: true
+                                font.pixelSize: Style.h4
+                                isBold: tab.current
+                                color: tab.current ? Style.textPrimary : Style.textSecondary
+                                elide: Text.ElideRight
+                                wrapMode: Text.NoWrap
+                                text: root.entries[tab.index].title
+                            }
+                            PrefsLabel {
+                                Layout.maximumWidth: tab.availableWidth * 0.45
+                                font.pixelSize: Style.h6
+                                color: Style.textMuted
+                                elide: Text.ElideRight
+                                wrapMode: Text.NoWrap
+                                text: root.entries[tab.index].value
+                            }
+                        }
                     }
                 }
             }

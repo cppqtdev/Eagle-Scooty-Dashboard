@@ -17,26 +17,28 @@ QtObject {
     readonly property ThemeComponents.Motion motion: ThemeComponents.Motion {}
 
     readonly property ThemeComponents.ColorPalette lightPalette: ThemeComponents.ColorPalette {}
+    // Night palette from the design spec: Blue Zircon (#69FFF6) on #101817, with
+    // its green, red, grey and white.
     readonly property ThemeComponents.ColorPalette darkPalette: ThemeComponents.ColorPalette {
-        ground: "#080B0D"
-        surface: "#101619"
-        surfaceRaised: "#172024"
-        surfaceSunken: "#0C1113"
-        border: "#26363A"
-        borderStrong: "#3B5257"
+        ground: "#0A100F"
+        surface: "#101817"
+        surfaceRaised: "#17211F"
+        surfaceSunken: "#0C1312"
+        border: "#22302E"
+        borderStrong: "#35504C"
 
-        textPrimary: "#F4FAFA"
-        textSecondary: "#C4D1D2"
-        textMuted: "#829799"
-        textOnAccent: "#FFFFFF"
+        textPrimary: "#FFFFFF"
+        textSecondary: "#B9B9B9"
+        textMuted: "#8A9A98"
+        textOnAccent: "#101817"
 
-        accent: "#18B8B3"
+        accent: "#2FD9CF"
         accentStrong: "#69FFF6"
-        accentSoft: "#163B3C"
+        accentSoft: "#143B38"
 
-        success: "#31D158"
+        success: "#11B411"
         warning: "#FFB340"
-        danger: "#FF453A"
+        danger: "#FF0000"
         shadow: "#A0000000"
     }
 

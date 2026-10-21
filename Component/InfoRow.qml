@@ -13,34 +13,36 @@ AbstractButton {
     property string subtitle
     property string value
     property string iconSource
+    property string glyph            // a LineIcon name for the avatar; else the title's initial
     property color tone: Style.accent
     property color valueColor: tone
     property bool selected: false
-    property bool showEdge: true
+    property bool showEdge: true     // the leading avatar
 
-    leftPadding: showEdge ? 32 : 22
-    rightPadding: 24
-    topPadding: 14
-    bottomPadding: 14
+    leftPadding: 16
+    rightPadding: 20
+    topPadding: 12
+    bottomPadding: 12
     implicitWidth: implicitContentWidth + leftPadding + rightPadding
-    implicitHeight: Math.max(subtitle.length > 0 ? 92 : 76, implicitContentHeight + topPadding + bottomPadding)
+    implicitHeight: Math.max(subtitle.length > 0 ? 84 : 68, implicitContentHeight + topPadding + bottomPadding)
 
+    // A soft filled row, no hard outline; the selected one is lit in its tone.
     background: Rectangle {
         radius: Style.metrics.radiusMd
-        color: row.pressed ? Style.surfaceSunken : row.selected ? Style.alpha(Style.accent, 0.10) : Style.surface
-        border.color: row.selected ? Style.accent : Style.border
-        border.width: row.selected ? 2 : 1
+        color: row.pressed ? Style.alpha(Style.textPrimary, 0.09) : Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
+        border.color: row.selected ? Style.alpha(row.tone, 0.7) : "transparent"
+        border.width: row.selected ? 1.5 : 0
         Behavior on color { ColorAnimation { duration: Style.motion.instant } }
 
         Rectangle {
-            visible: row.showEdge
-            anchors.left: parent.left
-            anchors.leftMargin: 10
-            anchors.verticalCenter: parent.verticalCenter
-            width: 5
-            height: parent.height - 26
-            radius: 3
-            color: row.tone
+            visible: row.selected
+            anchors.fill: parent
+            radius: parent.radius
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: Style.alpha(row.tone, Style.isDark ? 0.30 : 0.18) }
+                GradientStop { position: 0.8; color: Style.alpha(row.tone, 0.0) }
+            }
         }
     }
 
@@ -51,6 +53,29 @@ AbstractButton {
             visible: row.iconSource.length > 0
             sourceSize: Qt.size(36, 36)
             source: row.iconSource
+        }
+        Rectangle {
+            visible: row.showEdge && row.iconSource.length === 0
+            Layout.preferredWidth: 46
+            Layout.preferredHeight: 46
+            radius: 23
+            color: Style.alpha(row.tone, 0.16)
+            border.color: Style.alpha(row.tone, 0.45)
+            LineIcon {
+                visible: row.glyph.length > 0
+                anchors.centerIn: parent
+                name: row.glyph
+                size: 24
+                color: row.tone
+            }
+            PrefsLabel {
+                visible: row.glyph.length === 0
+                anchors.centerIn: parent
+                font.pixelSize: Style.h5
+                isBold: true
+                color: row.tone
+                text: (row.title || "?").charAt(0).toUpperCase()
+            }
         }
         ColumnLayout {
             Layout.fillWidth: true

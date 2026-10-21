@@ -115,7 +115,7 @@ EaglePage {
                     Layout.fillWidth: true
                     title: modelData.name
                     subtitle: modelData.number
-                    showEdge: false
+                    tone: Style.success
                     value: qsTr("Call")
                     valueColor: Style.success
                     onClicked: phone.dial(modelData.number || modelData.name)

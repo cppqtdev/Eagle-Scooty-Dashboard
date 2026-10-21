@@ -46,6 +46,7 @@ EaglePage {
             model: wifi.networks
             InfoRow {
                 required property var modelData
+                glyph: "wifi"
                 Layout.fillWidth: true
                 title: modelData.ssid
                 subtitle: (modelData.secure ? qsTr("Secured") : qsTr("Open")) + "  " + root.bars(modelData.signal)

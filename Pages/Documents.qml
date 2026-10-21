@@ -149,8 +149,7 @@ EaglePage {
 
                     background: Rectangle {
                         radius: Style.metrics.radiusMd
-                        color: Style.surface
-                        border.color: Style.border
+                        color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
                     }
                     contentItem: RowLayout {
                         spacing: 20

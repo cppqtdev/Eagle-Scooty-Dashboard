@@ -28,15 +28,29 @@ EaglePage {
             onToggled: bluetooth.powered = checked
         }
 
+        // The companion app's own link, when this build listens for it.
+        InfoRow {
+            visible: phone.linked
+            Layout.fillWidth: true
+            glyph: "phone"
+            title: qsTr("Ride app")
+            subtitle: phone.connected ? qsTr("Linked · calls, music, navigation and messages")
+                                      : qsTr("Waiting · open the app and tap Find my bike")
+            tone: phone.connected ? Style.success : Style.warning
+            value: phone.connected ? qsTr("%1% battery").arg(phone.phoneBattery) : ""
+            valueColor: Style.textMuted
+        }
+
         Caption { Layout.topMargin: 10; text: qsTr("Paired devices") }
         Repeater {
             model: bluetooth.devices.filter(d => d.paired)
             InfoRow {
                 required property var modelData
                 Layout.fillWidth: true
+                glyph: modelData.kind === "headset" ? "headset" : "phone"
                 title: modelData.name
                 subtitle: root.kindLabel(modelData.kind) + " · " + modelData.address
-                tone: modelData.connected ? Style.success : Style.borderStrong
+                tone: modelData.connected ? Style.success : Style.textMuted
                 value: modelData.connected ? qsTr("Connected") : qsTr("Forget")
                 valueColor: modelData.connected ? Style.success : Style.danger
                 onClicked: if (!modelData.connected) bluetooth.forget(modelData.address)
@@ -59,6 +73,7 @@ EaglePage {
             InfoRow {
                 required property var modelData
                 Layout.fillWidth: true
+                glyph: modelData.kind === "headset" ? "headset" : "phone"
                 title: modelData.name
                 subtitle: root.kindLabel(modelData.kind) + qsTr(" · signal %1 dBm").arg(modelData.rssi)
                 tone: Style.accent

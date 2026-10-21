@@ -179,5 +179,6 @@
         <file>Component/DigitText.qml</file>
         <file>Component/Sampled.qml</file>
         <file>Component/RideLock.qml</file>
+        <file>Component/LineIcon.qml</file>
     </qresource>
 </RCC>
