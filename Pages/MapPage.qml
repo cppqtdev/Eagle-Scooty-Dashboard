@@ -71,8 +71,7 @@ EaglePage {
                 spacing: 8
                 PrefsLabel {
                     id: distanceValue
-                    font.pixelSize: 96
-                    isBold: true
+                    font.pixelSize: 72
                     text: dashboardData.maneuverDistanceM >= 1000
                           ? (dashboardData.maneuverDistanceM / 1000).toFixed(1)
                           : dashboardData.maneuverDistanceM

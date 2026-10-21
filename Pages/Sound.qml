@@ -16,7 +16,7 @@ EaglePage {
         Caption { text: qsTr("Media volume") }
         RowLayout {
             spacing: 18
-            OutlineButton { implicitWidth: 90; text: "−"; onClicked: phone.volume = phone.volume - 10 }
+            OutlineButton { implicitWidth: 90; symbol: "minus"; onClicked: phone.volume = phone.volume - 10 }
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 18
@@ -30,7 +30,7 @@ EaglePage {
                     Behavior on width { NumberAnimation { duration: Style.motion.fast } }
                 }
             }
-            OutlineButton { implicitWidth: 90; text: "+"; onClicked: phone.volume = phone.volume + 10 }
+            OutlineButton { implicitWidth: 90; symbol: "plus"; onClicked: phone.volume = phone.volume + 10 }
             PrefsLabel { Layout.preferredWidth: 90; font.pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(phone.volume) }
         }
 

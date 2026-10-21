@@ -6,7 +6,7 @@ import Style 1.0
 Label {
     property bool accent: false
 
-    font.family: Style.mediumFontFamily
+    font.family: Style.regularFontFamily
     font.pixelSize: 17
     font.letterSpacing: 3
     font.capitalization: Font.AllUppercase

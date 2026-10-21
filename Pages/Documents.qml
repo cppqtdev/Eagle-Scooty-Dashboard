@@ -26,6 +26,8 @@ EaglePage {
         anchors.fill: parent
         anchors.leftMargin: 40
         anchors.rightMargin: 40
+        anchors.topMargin: 24
+        anchors.bottomMargin: 16
         contentHeight: column.implicitHeight + 40
         clip: true
 
@@ -148,6 +150,7 @@ EaglePage {
     // A card shown large, for an officer to read.
     Rectangle {
         anchors.fill: parent
+        radius: Style.metrics.radiusLg
         color: Qt.rgba(0, 0, 0, 0.6)
         opacity: root.shown ? 1 : 0
         visible: opacity > 0

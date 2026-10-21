@@ -107,7 +107,7 @@ EaglePage {
 
                 Caption { Layout.alignment: Qt.AlignHCenter; text: qsTr("Volume") }
                 PrefsLabel { Layout.alignment: Qt.AlignHCenter; font.pixelSize: Style.typography.display + 8; isBold: true; text: phone.volume }
-                OutlineButton { Layout.alignment: Qt.AlignHCenter; implicitWidth: 120; text: "+"; onClicked: phone.volume = phone.volume + 10 }
+                OutlineButton { Layout.alignment: Qt.AlignHCenter; implicitWidth: 120; symbol: "plus"; onClicked: phone.volume = phone.volume + 10 }
                 Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     Layout.fillHeight: true
@@ -123,7 +123,7 @@ EaglePage {
                         Behavior on height { NumberAnimation { duration: Style.motion.fast } }
                     }
                 }
-                OutlineButton { Layout.alignment: Qt.AlignHCenter; implicitWidth: 120; text: "−"; onClicked: phone.volume = phone.volume - 10 }
+                OutlineButton { Layout.alignment: Qt.AlignHCenter; implicitWidth: 120; symbol: "minus"; onClicked: phone.volume = phone.volume - 10 }
             }
         }
     }

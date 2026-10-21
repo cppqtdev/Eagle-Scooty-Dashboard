@@ -8,6 +8,8 @@ Rectangle {
     id: button
 
     property string text
+    // "plus" or "minus": drawn as bars rather than a glyph, so it stays crisp and sized
+    property string symbol: ""
     property bool highlighted: false
     property color tone: Style.accent
     signal clicked()
@@ -22,8 +24,31 @@ Rectangle {
     Behavior on color { ColorAnimation { duration: Style.motion.instant } }
     Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
 
+    Item {
+        visible: button.symbol.length > 0
+        anchors.centerIn: parent
+        width: 26
+        height: 26
+        Rectangle {
+            anchors.centerIn: parent
+            width: parent.width
+            height: 4
+            radius: 2
+            color: button.highlighted ? Style.textOnAccent : button.tone
+        }
+        Rectangle {
+            visible: button.symbol === "plus"
+            anchors.centerIn: parent
+            width: 4
+            height: parent.height
+            radius: 2
+            color: button.highlighted ? Style.textOnAccent : button.tone
+        }
+    }
+
     PrefsLabel {
         id: label
+        visible: button.symbol.length === 0
         anchors.centerIn: parent
         font.pixelSize: Style.h5
         font.letterSpacing: 2

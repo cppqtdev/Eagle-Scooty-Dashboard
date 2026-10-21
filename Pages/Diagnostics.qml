@@ -43,6 +43,8 @@ EaglePage {
         anchors.fill: parent
         anchors.leftMargin: 40
         anchors.rightMargin: 40
+        anchors.topMargin: 24
+        anchors.bottomMargin: 16
         spacing: 22
 
         PrefsLabel { font.pixelSize: Style.h1; isBold: true; text: qsTr("Vehicle health") }

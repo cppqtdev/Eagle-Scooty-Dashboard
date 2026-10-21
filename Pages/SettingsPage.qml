@@ -52,7 +52,7 @@ EaglePage {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 22
+                anchors.margins: 24
                 spacing: 8
 
                 Caption { text: qsTr("Settings") }
@@ -67,12 +67,16 @@ EaglePage {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
-                    spacing: 4
+                    spacing: 6
+                    // Room for the selected row's outline, which the clip would cut.
+                    topMargin: 3
+                    bottomMargin: 3
                     model: root.entries.length
                     delegate: InfoRow {
                         required property int index
-                        width: ListView.view.width
-                        implicitHeight: 54
+                        x: 3
+                        width: ListView.view.width - 6
+                        implicitHeight: 50
                         showEdge: false
                         selected: root.current === index
                         title: root.entries[index].title

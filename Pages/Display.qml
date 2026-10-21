@@ -39,7 +39,7 @@ EaglePage {
         Caption { Layout.topMargin: 24; text: qsTr("Brightness") }
         RowLayout {
             spacing: 18
-            OutlineButton { implicitWidth: 90; text: "−"; onClicked: themeController.brightness = Math.max(20, themeController.brightness - 10) }
+            OutlineButton { implicitWidth: 90; symbol: "minus"; onClicked: themeController.brightness = Math.max(20, themeController.brightness - 10) }
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 18
@@ -53,7 +53,7 @@ EaglePage {
                     Behavior on width { NumberAnimation { duration: Style.motion.fast } }
                 }
             }
-            OutlineButton { implicitWidth: 90; text: "+"; onClicked: themeController.brightness = Math.min(100, themeController.brightness + 10) }
+            OutlineButton { implicitWidth: 90; symbol: "plus"; onClicked: themeController.brightness = Math.min(100, themeController.brightness + 10) }
             PrefsLabel { Layout.preferredWidth: 90; font.pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(themeController.brightness) }
         }
 

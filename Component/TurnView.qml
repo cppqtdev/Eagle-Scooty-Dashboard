@@ -57,29 +57,40 @@ Canvas {
         ctx.closePath()
         ctx.fill()
 
-        // Side road for the turn.
+        // Side road for the turn, joining the road between joinTop and joinBottom.
         const turnSide = maneuver === 1 || maneuver === 3 ? -1 : maneuver === 2 ? 1 : 0
         const joinY = h * 0.5 + drop * (horizon - h * 0.5)
-        if (turnSide !== 0 && maneuver !== 3) {
-            const near = joinY + h * 0.09
+        const hasSideRoad = turnSide !== 0 && maneuver !== 3
+        const joinTop = joinY - h * 0.05
+        const joinBottom = joinY + h * 0.09
+        const farX = turnSide < 0 ? 0 : w
+        if (hasSideRoad) {
             ctx.beginPath()
-            ctx.moveTo(edge(turnSide, joinY - h * 0.05), joinY - h * 0.05)
-            ctx.lineTo(turnSide < 0 ? 0 : w, joinY - h * 0.04)
-            ctx.lineTo(turnSide < 0 ? 0 : w, near + h * 0.02)
-            ctx.lineTo(edge(turnSide, near), near)
+            ctx.moveTo(edge(turnSide, joinTop), joinTop)
+            ctx.lineTo(farX, joinTop + h * 0.01)
+            ctx.lineTo(farX, joinBottom + h * 0.02)
+            ctx.lineTo(edge(turnSide, joinBottom), joinBottom)
             ctx.closePath()
             ctx.fill()
         }
 
-        // Road edges and the dashed centre line.
+        // Road edges, broken where the side road joins, and the side road's own edges.
         ctx.strokeStyle = line
         ctx.lineWidth = 3
         ctx.beginPath()
-        ctx.moveTo(edge(-1, horizon), horizon)
-        ctx.lineTo(edge(-1, h), h)
-        ctx.moveTo(edge(1, horizon), horizon)
-        ctx.lineTo(edge(1, h), h)
+        for (const side of [-1, 1]) {
+            ctx.moveTo(edge(side, horizon), horizon)
+            if (hasSideRoad && side === turnSide) {
+                ctx.lineTo(edge(side, joinTop), joinTop)
+                ctx.lineTo(farX, joinTop + h * 0.01)
+                ctx.moveTo(farX, joinBottom + h * 0.02)
+                ctx.lineTo(edge(side, joinBottom), joinBottom)
+            }
+            ctx.lineTo(edge(side, h), h)
+        }
         ctx.stroke()
+
+        // Dashed centre line.
         for (let i = 0; i < 9; ++i) {
             const y0 = horizon + (h - horizon) * Math.pow(i / 9, 1.6)
             const y1 = horizon + (h - horizon) * Math.pow((i + 0.45) / 9, 1.6)
@@ -109,7 +120,7 @@ Canvas {
             ctx.fill()
         }
         ctx.beginPath()
-        if (turnSide !== 0 && maneuver !== 3) {
+        if (hasSideRoad) {
             const endX = cx + turnSide * w * 0.4
             ctx.moveTo(cx, startY)
             ctx.lineTo(cx, bendY + h * 0.08)
