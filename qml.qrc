@@ -2,8 +2,15 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>StyleTheme.qml</file>
+        <file>Theme/ColorPalette.qml</file>
+        <file>Theme/Typography.qml</file>
+        <file>Theme/Metrics.qml</file>
+        <file>Theme/Motion.qml</file>
         <file>app.ico</file>
         <file>Icons/topbar.svg</file>
+        <file>Icons/topbar.png</file>
+        <file>Icons/theme_light.png</file>
+        <file>Icons/theme_dark.png</file>
         <file>Icons/footerbar.svg</file>
         <file>Icons/Eagle.png</file>
         <file>Icons/green.png</file>
@@ -47,7 +54,6 @@
         <file>Icons/scooty.png</file>
         <file>Component/PrefsButton.qml</file>
         <file>Icons/brightness 2.svg</file>
-        <file>Component/PrefsSlider.qml</file>
         <file>Icons/tooltip.svg</file>
         <file>Component/PrefsSwitch.qml</file>
         <file>Icons/HorizontalSeparator.png</file>
@@ -115,10 +121,6 @@
         <file>Icons/entypo_arrow-left.svg</file>
         <file>Icons/time.svg</file>
         <file>Icons/gps-signal.gif</file>
-        <file>fonts/HelveticaNeueLTCom-Bd.ttf</file>
-        <file>fonts/HelveticaNeueLTCom-Lt.ttf</file>
-        <file>fonts/HelveticaNeueLTCom-Md.ttf</file>
-        <file>fonts/HelveticaNeueLTCom-Roman.ttf</file>
         <file>Component/PrefsLabel.qml</file>
         <file>Icons/topIcons/icn_batterytemp_glow.svg</file>
         <file>Icons/topIcons/icn_highbeam_glow.svg</file>
@@ -140,7 +142,6 @@
         <file>Icons/MapIcons/Add.svg</file>
         <file>Icons/MapIcons/Search.svg</file>
         <file>Icons/MapIcons/switch.svg</file>
-        <file>Component/MapDetails.qml</file>
         <file>Icons/MapIcons/charing.svg</file>
         <file>Icons/MapIcons/Plus.svg</file>
         <file>Icons/MapIcons/save.svg</file>
@@ -155,5 +156,48 @@
         <file>Icons/dark/top_dark.png</file>
         <file>Icons/dark/background.png</file>
         <file>Icons/dark/stars.png</file>
+        <file>Component/Telltale.qml</file>
+        <file>Component/ManeuverIcon.qml</file>
+        <file>Component/AlertIcon.qml</file>
+        <file>Component/AlertBanner.qml</file>
+        <file>Component/CriticalAlert.qml</file>
+        <file>Component/CallOverlay.qml</file>
+        <file>Component/BootScreen.qml</file>
+        <file>Pages/Documents.qml</file>
+        <file>Pages/Diagnostics.qml</file>
+        <file>Component/SnapshotDriver.qml</file>
+        <file>Component/RouteMap.qml</file>
+        <file>fonts/Orbitron-Regular.ttf</file>
+        <file>fonts/Orbitron-Medium.ttf</file>
+        <file>fonts/Orbitron-Bold.ttf</file>
+        <file>Component/Caption.qml</file>
+        <file>Component/Panel.qml</file>
+        <file>Component/InfoRow.qml</file>
+        <file>Component/OutlineButton.qml</file>
+        <file>Component/TurnView.qml</file>
+        <file>fonts/Orbitron-OFL.txt</file>
+        <file>Component/ToggleRow.qml</file>
+        <file>Pages/Wifi.qml</file>
+        <file>Component/KeyboardPanel.qml</file>
+        <file>Component/DigitText.qml</file>
+        <file>Component/Sampled.qml</file>
+        <file>Component/RideLock.qml</file>
+        <file>Component/LineIcon.qml</file>
+        <file>Component/TabRail.qml</file>
+        <file>Component/BlinkClock.qml</file>
+        <file>Component/DriveStatus.qml</file>
+        <file>Component/HandlebarInput.qml</file>
+        <file>Component/GlyphTelltale.qml</file>
+        <file>Component/MediaControls.qml</file>
+        <file>Component/ManeuverGlyph.qml</file>
+        <file>Component/TelltaleStrip.qml</file>
+        <file>Component/GradientText.qml</file>
+        <file>Icons/topIcons/icn_abs.png</file>
+        <file>Icons/topIcons/icn_abs_glow.png</file>
+        <file>Icons/topIcons/icn_malfunction.png</file>
+        <file>Icons/topIcons/icn_malfunction_glow.png</file>
+        <file>Pages/Language.qml</file>
+        <file>Component/SegmentedControl.qml</file>
+        <file>Component/RoundIconButton.qml</file>
     </qresource>
 </RCC>

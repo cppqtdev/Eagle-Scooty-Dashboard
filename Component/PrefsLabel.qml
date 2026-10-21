@@ -1,16 +1,27 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
+import QtQuick
+import QtQuick.Controls
 import Style 1.0
 
+// Text in the dashboard's type: Orbitron Regular for reading, Medium for emphasis,
+// and Bold only for large figures, where the heavier strokes still read cleanly.
 Label {
+    id: control
+
     property bool isBold: false
     property bool isStyle: false
-    clip: true
-    color: isStyle ? Style.styleColor : Style.baseColor
+
+    readonly property bool largeFigure: font.pixelSize >= 48
+
+    color: isStyle ? Style.accentStrong : Style.textPrimary
     font.pixelSize: Style.h3
-    font.capitalization: Font.Capitalize
-    font.bold: isBold ? Font.Bold : Font.Normal
-    font.weight: isBold ? Font.Bold : Font.Normal
-    font.family: isBold ? Style.helveticaNeureBold.name : Style.helveticaNeureMedium.name
+    font.family: !isBold ? Style.regularFontFamily : largeFigure ? Style.boldFontFamily : Style.mediumFontFamily
+    font.weight: !isBold ? Font.Normal : largeFigure ? Font.Bold : Font.Medium
     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+    // The canvas is scaled to the panel: distance-field text stays sharp at any
+    // scale, where native glyphs are rasterised at 1920 x 1080 and then resampled.
+    renderType: Text.QtRendering
+
+    Behavior on color {
+        ColorAnimation { duration: Style.motion.normal }
+    }
 }

@@ -1,0 +1,27 @@
+# Starts the Eagle dashboard on the RK3328 HMI panel once Weston is up.
+[Unit]
+Description=Eagle scooter dashboard
+After=weston.service
+Wants=weston.service
+
+[Service]
+Environment=EAGLE_BOARD=1
+Environment=QT_QPA_PLATFORM=wayland
+Environment=QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+Environment=QT_QUICK_BACKEND=software
+Environment=QT_IM_MODULE=qtvirtualkeyboard
+# Lay out at 1920 x 1080 but render at the panel's own pixels (1024 / 1920), so
+# text is drawn sharp at its real size instead of drawn large and shrunk.
+# 1280 x 720 panel: 0.666667.
+Environment=QT_SCALE_FACTOR=0.533333
+Environment=QT_SCALE_FACTOR_ROUNDING_POLICY=PassThrough
+Environment=XDG_RUNTIME_DIR=/run/user/0
+# Wait for the compositor's socket rather than racing it.
+ExecStartPre=/bin/sh -c 'for i in $(seq 1 50); do [ -S /run/user/0/wayland-1 ] || [ -S /run/user/0/wayland-0 ] && exit 0; sleep 0.2; done; exit 1'
+ExecStart=/opt/eagle/bin/EagleTheme --board --can can0 --harness /etc/eagle/harness.json --phone ble
+# A dashboard must always come back: after a crash, a kill or a clean exit.
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

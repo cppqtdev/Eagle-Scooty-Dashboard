@@ -1,124 +1,140 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Layouts
 import Style 1.0
-Image{
-    id:root
+
+// Battery and range above the navigation bar. The bar's tabs show which page is
+// open: the active one is lit from below with a bar under it.
+Image {
+    id: root
+
+    property string currentPage: "home"
+    signal navigate(string page)
+
     width: parent.width
     source: Style.isDark ? "qrc:/Icons/dark/bottom_dark.png" : "qrc:/Icons/green.png"
-    sourceSize: Qt.size(root.width , Style.isDark ? 150 : 134)
-    signal settingsClicked()
-    signal musicClicked()
-    signal callingClicked()
-    signal homeClicked()
-    signal mapClicked()
-    signal chargeClicked()
-    Image{
+    sourceSize: Qt.size(root.width, Style.isDark ? 150 : 134)
+
+    component Tab: Item {
+        id: tab
+        property string page
+        property string icon
+        readonly property bool current: root.currentPage === page
+
+        Layout.preferredWidth: 90
+        Layout.preferredHeight: 80
+
+        // The open page is lit from below, like the tabs elsewhere.
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            width: 88
+            height: 74
+            radius: 2
+            opacity: tab.current ? 1 : 0
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "transparent" }
+                GradientStop { position: 1.0; color: Style.alpha(Style.modeColor(dashboardData.rideMode), Style.isDark ? 0.34 : 0.22) }
+            }
+            Behavior on opacity { NumberAnimation { duration: Style.motion.normal } }
+        }
+        IconButton {
+            anchors.centerIn: parent
+            roundIcon: true
+            iconWidth: 55
+            iconHeight: 55
+            setIcon: tab.icon
+            opacity: tab.current ? 1 : 0.6
+            scale: tab.current ? 1.08 : 1
+            onClicked: root.navigate(tab.page)
+            Behavior on opacity { NumberAnimation { duration: Style.motion.fast } }
+            Behavior on scale { NumberAnimation { duration: Style.motion.normal; easing.type: Easing.OutBack } }
+        }
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            width: tab.current ? 28 : 0
+            height: 4
+            radius: 2
+            color: Style.modeColor(dashboardData.rideMode)
+            Behavior on width { NumberAnimation { duration: Style.motion.normal; easing.type: Easing.OutCubic } }
+        }
+    }
+
+    Image {
         visible: !Style.isDark
-        source: Style.isDark ? "qrc:/Icons/dark/bottom_dark2.png" : "qrc:/Icons/white.png"
+        source: "qrc:/Icons/white.png"
         sourceSize.height: 116
         width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
     }
-    RowLayout{
+
+    RowLayout {
         width: parent.width * 0.35
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        spacing: 10
-        ColumnLayout{
-            PrefsLabel{
+        spacing: 16
+
+        ColumnLayout {
+            spacing: 2
+            PrefsLabel {
+                font.pixelSize: Style.h1
+                isBold: true
                 isStyle: true
-                text: qsTr("72%")
+                color: dashboardData.batteryPercent <= 15 && !dashboardData.charging ? Style.warning : Style.accentStrong
+                text: qsTr("%1%").arg(dashboardData.batteryPercent)
             }
-            PrefsLabel{
-                isStyle: true
-                text: qsTr("Battery")
+            PrefsLabel {
+                font.pixelSize: Style.h6
+                color: Style.textMuted
+                text: dashboardData.charging ? qsTr("Charging") : qsTr("Battery")
             }
         }
-        ProgressRunning{
-            height: 24
+        ProgressRunning {
             Layout.fillWidth: true
+            implicitHeight: 20
+            value: dashboardData.batteryPercent
+            charging: dashboardData.charging
+            fillColor: Style.modeColor(dashboardData.rideMode)
         }
-        ColumnLayout{
-            PrefsLabel{
+        ColumnLayout {
+            spacing: 2
+            PrefsLabel {
+                Layout.alignment: Qt.AlignRight
+                font.pixelSize: Style.h1
+                isBold: true
                 isStyle: true
-                text: qsTr("136KM")
+                text: qsTr("%1 km").arg(dashboardData.rangeKm)
             }
-            PrefsLabel{
-                isStyle: true
+            PrefsLabel {
+                Layout.alignment: Qt.AlignRight
+                font.pixelSize: Style.h6
+                color: Style.textMuted
                 text: qsTr("Range")
             }
         }
     }
-    RowLayout{
+
+    RowLayout {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: 12
         width: parent.width * 0.9
-        Item{
-            Layout.preferredWidth: 75
-        }
-        RowLayout{
-            Layout.preferredWidth: parent.width /4.5
-            IconButton{
-                roundIcon: true
-                iconWidth: 55
-                iconHeight: 55
-                checkable: true
-                setIcon:"qrc:/Icons/bottomIcons/home.svg"
-                onClicked: homeClicked()
-            }
-            IconButton{
-                roundIcon: true
-                iconWidth: 55
-                iconHeight: 55
-                checkable: true
-                setIcon:"qrc:/Icons/bottomIcons/map.svg"
-                onClicked: mapClicked()
-            }
-            IconButton{
-                roundIcon: true
-                iconWidth: 55
-                iconHeight: 55
-                checkable: true
-                setIcon:"qrc:/Icons/bottomIcons/phone.svg"
-                onClicked: callingClicked()
-            }
-        }
-        Item{
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-        }
 
-        RowLayout{
-            Layout.preferredWidth: parent.width /4.5
-            IconButton{
-                roundIcon: true
-                iconWidth: 55
-                iconHeight: 55
-                checkable: true
-                setIcon:"qrc:/Icons/bottomIcons/Music.svg"
-                onClicked: musicClicked()
-            }
-            IconButton{
-                roundIcon: true
-                iconWidth: 55
-                iconHeight: 55
-                checkable: true
-                setIcon:"qrc:/Icons/bottomIcons/petrol.svg"
-                onClicked: chargeClicked()
-            }
-            IconButton{
-                roundIcon: true
-                iconWidth: 55
-                iconHeight: 55
-                checkable: true
-                setIcon:"qrc:/Icons/bottomIcons/settings.svg"
-                onClicked: settingsClicked()
-            }
+        Item { Layout.preferredWidth: 75 }
+        RowLayout {
+            spacing: 24
+            Tab { page: "home"; icon: "qrc:/Icons/bottomIcons/home.svg" }
+            Tab { page: "map"; icon: "qrc:/Icons/bottomIcons/map.svg" }
+            Tab { page: "phone"; icon: "qrc:/Icons/bottomIcons/phone.svg" }
         }
+        Item { Layout.fillWidth: true }
+        RowLayout {
+            spacing: 24
+            Tab { page: "music"; icon: "qrc:/Icons/bottomIcons/Music.svg" }
+            Tab { page: "charging"; icon: "qrc:/Icons/bottomIcons/petrol.svg" }
+            Tab { page: "settings"; icon: "qrc:/Icons/bottomIcons/settings.svg" }
+        }
+        Item { Layout.preferredWidth: 75 }
     }
-
 }
-

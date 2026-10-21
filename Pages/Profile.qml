@@ -1,143 +1,40 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// The rider and the scooter.
 EaglePage {
-    id:root
-    contentData: ColumnLayout{
-        width: root.width
-        spacing: 20
-        RowLayout{
-            width: parent.width
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 30
+    background: null
 
-            Image{
-                source: "qrc:/app.ico"
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 14
+
+        RowLayout {
+            spacing: 24
+            Rectangle {
+                implicitWidth: 120
+                implicitHeight: 120
+                radius: 60
+                color: Style.accentSoft
+                PrefsLabel { anchors.centerIn: parent; font.pixelSize: 54; isBold: true; color: Style.accentStrong; text: "A" }
             }
-
-            PrefsLabel{
-                font.pixelSize: Style.h1
-                text: qsTr("Mike")
-            }
-        }
-
-        RowLayout{
-            width: parent.width
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 50
-            RowLayout{
-                spacing: 20
-                PrefsLabel{
-                    font.pixelSize: Style.h2
-                    color: Style.grayColor
-                    text: qsTr("Model Number")
-                }
-                PrefsLabel{
-                    isBold: true
-                    font.pixelSize: Style.h2
-                    text: qsTr("RGEB001")
-                }
-            }
-
-            Image{
-                source: "qrc:/Icons/smallSeparator.png"
-            }
-
-            RowLayout{
-                spacing: 20
-                PrefsLabel{
-                    font.pixelSize: Style.h2
-                    color: Style.grayColor
-                    text: qsTr("Registration Number")
-                }
-                PrefsLabel{
-                    isBold: true
-                    font.pixelSize: Style.h2
-                    text: qsTr("AK15 1246")
-                }
-            }
-
-            Image{
-                source: "qrc:/Icons/smallSeparator.png"
-            }
-
-            RowLayout{
-                spacing: 20
-                PrefsLabel{
-                    font.pixelSize: Style.h2
-                    color: Style.grayColor
-                    text: qsTr("Vin Number")
-                }
-                PrefsLabel{
-                    isBold: true
-                    font.pixelSize: Style.h2
-                    text: qsTr("1516GH4516")
-                }
+            ColumnLayout {
+                spacing: 4
+                Caption { text: qsTr("Rider") }
+                PrefsLabel { font.pixelSize: Style.typography.display + 4; isBold: true; text: qsTr("Aarav Mehta") }
+                PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: qsTr("Fingerprint and PIN set up") }
             }
         }
 
-        RowLayout{
-            Layout.alignment: Qt.AlignLeft
-            width: parent.width
-            Item{
-                Layout.preferredWidth: 180
-            }
-
-            PrefsLabel{
-                isBold: true
-                font.pixelSize: Style.h1
-                text: qsTr("Documents")
-            }
-        }
-
-        RowLayout{
-            width: parent.width
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 120
-            RowLayout{
-                ColumnLayout{
-                    Image{
-                        source: "qrc:/Icons/doc/driving.png"
-                    }
-
-                    PrefsLabel{
-                        font.pixelSize: Style.h2
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Driving License")
-                    }
-                }
-            }
-
-            RowLayout{
-                ColumnLayout{
-                    Image{
-                        source: "qrc:/Icons/doc/pencard.png"
-                    }
-
-                    PrefsLabel{
-                        font.pixelSize: Style.h2
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Pan Card")
-                    }
-                }
-            }
-
-            RowLayout{
-                ColumnLayout{
-                    Image{
-                        source: "qrc:/Icons/doc/Adhaar.png"
-                    }
-
-                    PrefsLabel{
-                        font.pixelSize: Style.h2
-                        Layout.alignment: Qt.AlignHCenter
-                        text: qsTr("Adhaar Card")
-                    }
-                }
-            }
-        }
+        Caption { Layout.topMargin: 18; text: qsTr("Scooter") }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Model"); value: qsTr("Eagle EV 3.2"); valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Registration"); value: "KA 05 •• ••42"; valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Battery"); value: qsTr("3.2 kWh lithium-ion"); valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Odometer"); value: qsTr("%L1 km").arg(dashboardData.odometerKm); valueColor: Style.textMuted }
+        Item { Layout.fillHeight: true }
     }
 }

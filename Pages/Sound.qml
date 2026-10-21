@@ -1,65 +1,44 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// Media volume and the sounds the dashboard itself makes.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding: 100
-    contentData: ColumnLayout{
-        width: root.width
-        spacing: 10
-        SwitchDelegate{
-            Layout.preferredWidth: parent.width * 0.75
-            spacing : 20
-            background:Rectangle{
-                anchors.fill: parent
-                color: "transparent"
-                radius: 7.9
-            }
+    background: null
 
-            contentItem:  PrefsLabel{
-                topPadding: 5
-                text: qsTr("Turn indicator sounds")
-            }
-            indicator : PrefsSwitch{
-                checked: true
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                anchors.rightMargin: 10
-            }
-        }
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
-        }
-        SwitchDelegate{
-            Layout.preferredWidth: parent.width * 0.75
-            spacing : 20
-            background:Rectangle{
-                anchors.fill: parent
-                color: "transparent"
-                radius: 7.9
-            }
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 14
 
-            contentItem: PrefsLabel{
-                text: qsTr("Parking Assist sounds")
-                topPadding: 5
+        Caption { text: qsTr("Media volume") }
+        RowLayout {
+            spacing: 18
+            OutlineButton { symbol: "minus"; onClicked: phone.volume = phone.volume - 10 }
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 18
+                radius: 9
+                color: Style.surfaceSunken
+                Rectangle {
+                    width: parent.width * phone.volume / 100
+                    height: parent.height
+                    radius: 9
+                    color: Style.accent
+                    Behavior on width { NumberAnimation { duration: Style.motion.fast } }
+                }
             }
-            indicator : PrefsSwitch{
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                anchors.rightMargin: 10
-            }
-        }
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
+            OutlineButton { symbol: "plus"; onClicked: phone.volume = phone.volume + 10 }
+            DigitText { Layout.preferredWidth: 110; pixelSize: Style.h3; isBold: true; text: qsTr("%1%").arg(phone.volume) }
         }
 
+        Caption { Layout.topMargin: 18; text: qsTr("Dashboard sounds") }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Alert chime"); subtitle: qsTr("Warnings and critical alerts sound once, then repeat every 10 s"); checked: true }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Ringtone in helmet"); subtitle: qsTr("Incoming calls ring through the paired headset"); checked: true }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Indicator tick"); subtitle: qsTr("A soft tick while an indicator is on"); checked: true }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Touch sounds"); checked: false }
+        Item { Layout.fillHeight: true }
     }
 }

@@ -1,191 +1,355 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
+import Eagle.Blink 1.0
 import "../Component"
 
+// Navigation, after the ApexCluster design: the next manoeuvre drawn onto the
+// road with its distance large, what to do and where above it, the remaining
+// distance and arrival time below; the route and saved places on the right.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding :100
-    rightPadding:100
-    contentItem: RowLayout{
-        width: parent.width
-        spacing: 20
-        Pane{
-            padding: 0
-            Layout.preferredWidth: root.width * 0.3
-            Layout.preferredHeight: root.height * 0.5
-            background: Rectangle{
-                color: palette.base
+    id: root
+
+    readonly property color modeColor: Style.modeColor(dashboardData.rideMode)
+    readonly property bool phoneRoute: phone.linked && phone.connected && dashboardData.navigating
+    Sampled { id: turnDistance; source: dashboardData.maneuverDistanceM; interval: 500 }
+    Sampled { id: roadSpeed; source: dashboardData.speed; interval: 250 }
+    property string destination: qsTr("Office")
+    readonly property var places: [
+        { name: qsTr("Home"), detail: qsTr("8.4 km · about 15 min") },
+        { name: qsTr("Office"), detail: qsTr("6.4 km · about 12 min") },
+        { name: qsTr("Charger · Koramangala"), detail: qsTr("2.1 km · about 4 min") },
+    ]
+
+    function instruction(maneuver) {
+        switch (maneuver) {
+        case 1: return qsTr("Turn left onto")
+        case 2: return qsTr("Turn right onto")
+        case 3: return qsTr("Make a U-turn at")
+        case 4: return qsTr("Arriving at")
+        }
+        return qsTr("Continue on")
+    }
+
+    leftPadding: Style.metrics.pageMargin
+    rightPadding: Style.metrics.pageMargin
+    topPadding: 24
+    bottomPadding: 24
+
+    contentItem: RowLayout {
+        spacing: 28
+
+        Panel {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            clip: true
+
+            TurnView {
                 anchors.fill: parent
-                radius: 15
+                anchors.topMargin: 150
+                anchors.bottomMargin: 150
+                maneuver: dashboardData.maneuver
+                arrowColor: root.modeColor
+                distanceM: turnDistance.value
+                speed: dashboardData.speed
+                reverse: dashboardData.gear === "R"
+                hazard: BlinkClock.hazard
+                highBeam: dashboardData.highBeam
             }
 
-            RoundRectangle{
-                id:topLabel
-                width: parent.width
-                height: 80
-                radius: 15
-                radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop
+            DriveStatus {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: speedBox.bottom
+                anchors.topMargin: 14
+            }
+
+            // The speed, just above the road's horizon.
+            Column {
+                id: speedBox
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
-                color: palette.dark
-
-                RowLayout{
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    IconButton{
-                        setIcon: "qrc:/Icons/MapIcons/Search.svg"
-                    }
-                    PrefsLabel{
-                        color: palette.light
-                        text: qsTr("Search Here")
-                    }
+                anchors.topMargin: 28
+                spacing: -6
+                DigitText {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    pixelSize: 88
+                    isBold: true
+                    color: dashboardData.gear === "R" ? Style.warning : Style.textPrimary
+                    text: Math.round(roadSpeed.value)
+                }
+                Caption {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: dashboardData.speedUnit
                 }
             }
 
-            RowLayout{
-                anchors.top: topLabel.bottom
-                anchors.topMargin: 20
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width * 0.9
-                Image{
-                    source: "qrc:/Icons/MapIcons/searchIcon.svg"
-                }
-                Item{
-                    Layout.preferredWidth: 5
-                }
-
-                ColumnLayout{
-                    width: parent.width
-                    Layout.alignment: Qt.AlignHCenter
-                    TextFieldInput{
-                        placeholderText: qsTr("Choose Starting Point")
-                        placeholderTextColor: palette.dark
-                        implicitWidth: parent.width * 0.95
-                        implicitHeight: 55
-                        font.pixelSize: Style.paragraph
-                        selectedTextColor: "#FFFFFF"
-                        backgroundColor : Style.grayColor
-                        selectionColor: Style.grayColor
-                        radius: 8
-                        borderColor : Style.grayColor
-                        color: palette.windowText
-                    }
-                    Item{
-                        Layout.fillHeight: true
-                    }
-
-                    TextFieldInput{
-                        placeholderText: qsTr("Choose Destination")
-                        placeholderTextColor: palette.dark
-                        implicitWidth: parent.width * 0.95
-                        implicitHeight: 55
-                        font.pixelSize: Style.paragraph
-                        backgroundColor : Style.grayColor
-                        selectedTextColor: "#FFFFFF"
-                        selectionColor: Style.grayColor
-                        radius: 8
-                        borderColor : Style.grayColor
-                        color: palette.windowText
-                    }
-                }
-
-                IconButton{
-                    setIcon: "qrc:/Icons/MapIcons/switch.svg"
+            // What to do and where.
+            ColumnLayout {
+                anchors.left: parent.left
+                anchors.right: speedBox.left
+                anchors.rightMargin: 24
+                anchors.top: parent.top
+                anchors.margins: 32
+                spacing: 6
+                Caption { accent: true; text: root.instruction(dashboardData.maneuver) }
+                // Sized to stay clear of the speed; a long name takes a second line, then elides.
+                PrefsLabel {
+                    Layout.fillWidth: true
+                    font.pixelSize: Style.h2
+                    isBold: true
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
+                    text: dashboardData.street
                 }
             }
 
-            RowLayout{
-                anchors.horizontalCenter: parent.horizontalCenter
+            // Distance to the manoeuvre.
+            Row {
+                id: distanceRow
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: 28
+                spacing: 8
+                DigitText {
+                    id: distanceValue
+                    pixelSize: 72
+                    text: turnDistance.value >= 1000
+                          ? (turnDistance.value / 1000).toFixed(1)
+                          : Math.round(turnDistance.value / 10) * 10
+                }
+                PrefsLabel {
+                    anchors.baseline: distanceValue.baseline
+                    font.pixelSize: Style.h1
+                    color: Style.textMuted
+                    text: turnDistance.value >= 1000 ? qsTr("km") : qsTr("m")
+                }
+            }
+
+            // The trip: how far along the route the rider is, then what is left,
+            // how long it takes and when they arrive, as three figures.
+            ColumnLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: 10
-                IconButton{
-                    roundIcon: true
-                    iconWidth: 28
-                    iconHeight: 28
-                    setIcon: "qrc:/Icons/MapIcons/Add.svg"
+                anchors.leftMargin: 32
+                anchors.rightMargin: 32
+                anchors.bottomMargin: 24
+                spacing: 18
+
+                // The route: a track filled in the ride-mode colour up to the rider, a
+                // glowing dot that pulses where they are, and a flag at the destination.
+                Item {
+                    id: track
+                    readonly property real progress: 1 - Math.min(1, dashboardData.distanceKm / 8.4)
+                    Layout.fillWidth: true
+                    implicitHeight: 30
+
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: parent.width
+                        height: 6
+                        radius: 3
+                        color: Style.alpha(Style.textPrimary, Style.isDark ? 0.10 : 0.08)
+                    }
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: Math.max(height, parent.width * track.progress)
+                        height: 6
+                        radius: 3
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop { position: 0.0; color: Style.alpha(root.modeColor, 0.25) }
+                            GradientStop { position: 1.0; color: root.modeColor }
+                        }
+                        Behavior on width { NumberAnimation { duration: Style.motion.theme } }
+                    }
+                    Item {   // the rider
+                        width: 30
+                        height: 30
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: parent.width * track.progress - width / 2
+                        Behavior on x { NumberAnimation { duration: Style.motion.theme } }
+                        Rectangle {
+                            id: riderPulse
+                            anchors.centerIn: parent
+                            width: 30
+                            height: 30
+                            radius: 15
+                            color: Style.alpha(root.modeColor, 0.35)
+                            SequentialAnimation on scale {
+                                loops: Animation.Infinite
+                                running: root.visible
+                                NumberAnimation { from: 0.5; to: 1.3; duration: 1600; easing.type: Easing.OutCubic }
+                            }
+                            SequentialAnimation on opacity {
+                                loops: Animation.Infinite
+                                running: root.visible
+                                NumberAnimation { from: 0.9; to: 0; duration: 1600; easing.type: Easing.OutCubic }
+                            }
+                        }
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 16
+                            height: 16
+                            radius: 8
+                            color: root.modeColor
+                            border.color: Style.isDark ? "#FFFFFF" : Style.surface
+                            border.width: 3
+                        }
+                    }
+                    // The destination: a dot at the end of the track with the flag's pole
+                    // standing on it (the pole sits at 5/24 across the icon, its foot at 22/24).
+                    Rectangle {
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: parent.width - width
+                        width: 10
+                        height: 10
+                        radius: 5
+                        color: Style.textPrimary
+                    }
+                    LineIcon {
+                        size: 30
+                        x: parent.width - 5 - size * 5 / 24
+                        y: parent.height / 2 - size * 22 / 24
+                        name: "flag"
+                        strokeWidth: 2.2
+                        color: Style.textPrimary
+                    }
                 }
-                PrefsLabel{
-                    color: palette.dark
-                    font.pixelSize: Style.h5
-                    text: qsTr("Add destination")
+
+                // Three equal cells, so the figures sit at the same place whatever they read.
+                Row {
+                    id: figures
+                    Layout.fillWidth: true
+
+                    component TripFigure: Item {
+                        id: cell
+                        property string label
+                        property string value
+                        property string unit
+                        property bool strong: false
+                        property bool divider: true
+                        width: figures.width / 3
+                        implicitHeight: cellColumn.implicitHeight
+
+                        Rectangle {
+                            visible: cell.divider
+                            y: 4
+                            width: 1
+                            height: cellColumn.height - 8
+                            color: Style.border
+                        }
+                        Column {
+                            id: cellColumn
+                            x: cell.divider ? 28 : 0
+                            spacing: 4
+                            Caption { text: cell.label }
+                            Row {
+                                spacing: 8
+                                DigitText {
+                                    id: figure
+                                    pixelSize: Style.typography.display
+                                    isBold: cell.strong
+                                    text: cell.value
+                                }
+                                PrefsLabel {
+                                    anchors.baseline: figure.baseline
+                                    font.pixelSize: Style.h5
+                                    color: Style.textMuted
+                                    text: cell.unit
+                                }
+                            }
+                        }
+                    }
+
+                    TripFigure {
+                        divider: false
+                        label: qsTr("Remaining")
+                        value: dashboardData.distanceKm.toFixed(1)
+                        unit: qsTr("km")
+                    }
+                    TripFigure {
+                        label: qsTr("Time")
+                        value: dashboardData.arrivalMinutes
+                        unit: qsTr("min")
+                    }
+                    TripFigure {
+                        label: qsTr("Arrival")
+                        value: Qt.formatTime(new Date(Date.now() + dashboardData.arrivalMinutes * 60000), "hh:mm")
+                        strong: true
+                    }
                 }
             }
         }
-        Pane{
-            padding: 0
-            Layout.fillWidth: true
-            Layout.preferredHeight: root.height * 0.9
-            background: Rectangle{
-                color: palette.base
-                anchors.fill: parent
-                radius: 15
-            }
-            RoundRectangle{
-                z:3
-                width: parent.width
-                height: 80
-                radius: 15
-                radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                color: palette.dark
 
-                RowLayout{
+        ColumnLayout {
+            Layout.preferredWidth: 600
+            Layout.fillWidth: false   // a child filling would otherwise make the column grab the row
+            Layout.fillHeight: true
+            spacing: 18
+
+            Panel {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 330
+                clip: true
+                RouteMap {
+                    anchors.fill: parent
+                    anchors.margins: 2
+                    progress: 1 - Math.min(1, dashboardData.distanceKm / 8.4)
+                    routeColor: root.modeColor
+                }
+                Rectangle {
                     anchors.left: parent.left
-                    anchors.leftMargin: 10
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    RowLayout{
-                        IconButton{
-                            roundIcon: true
-                            iconWidth: 32
-                            iconHeight: 32
-                            setIcon: "qrc:/Icons/time.svg"
-                        }
-                        PrefsLabel{
-                            Layout.alignment: Qt.AlignLeft
-                            color: Style.grayColor
-                            text: qsTr("23m Time")
-                        }
-                    }
-                    RowLayout{
-                        IconButton{
-                            roundIcon: true
-                            iconWidth: 32
-                            iconHeight: 32
-                            setIcon: "qrc:/Icons/entypo_arrow-left.svg"
-                        }
-                        PrefsLabel{
-                            Layout.alignment: Qt.AlignLeft
-                            color: Style.grayColor
-                            text: qsTr("1.2km Distance")
-                        }
-                    }
-                }
-
-                RowLayout{
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    anchors.verticalCenter: parent.verticalCenter
-                    IconButton{
-                        roundIcon: true
-                        iconWidth: 32
-                        iconHeight: 32
-                        checkable: true
-                        setIcon:"qrc:/Icons/bottomIcons/settings.svg"
+                    anchors.top: parent.top
+                    anchors.margins: 14
+                    width: routeLabel.implicitWidth + 28
+                    height: 40
+                    radius: 20
+                    color: Style.surface
+                    Caption {
+                        id: routeLabel
+                        anchors.centerIn: parent
+                        text: root.phoneRoute ? qsTr("Route from the Ride app") : qsTr("To %1").arg(root.destination)
                     }
                 }
             }
 
-            MapDetails{
-                z:1
-                anchors.fill: parent
-                id:mapview
+            // With the app guiding, the destination is chosen on the phone.
+            Panel {
+                visible: root.phoneRoute
+                Layout.fillWidth: true
+                Layout.preferredHeight: 150
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 24
+                    spacing: 8
+                    Caption { accent: true; text: qsTr("Guided by your phone") }
+                    PrefsLabel {
+                        Layout.fillWidth: true
+                        font.pixelSize: Style.h4
+                        text: qsTr("Pick or change the destination in the Ride app; turns follow here live.")
+                    }
+                }
             }
+
+            Caption { visible: !root.phoneRoute; text: qsTr("Where to?") }
+            Repeater {
+                model: root.phoneRoute ? [] : root.places
+                InfoRow {
+                    required property var modelData
+                    Layout.fillWidth: true
+                    title: modelData.name
+                    subtitle: modelData.detail
+                    selected: root.destination === modelData.name
+                    tone: root.modeColor
+                    value: selected ? qsTr("Active") : qsTr("Go")
+                    valueColor: selected ? root.modeColor : Style.textMuted
+                    onClicked: root.destination = modelData.name
+                }
+            }
+            Item { Layout.fillHeight: true }
         }
     }
 }

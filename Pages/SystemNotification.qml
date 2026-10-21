@@ -1,71 +1,34 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import QtLocation 5.15
-import QtPositioning 5.6
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// What may interrupt a ride. Critical vehicle alerts always show.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding: 100
-    header:RowLayout{
-        width: parent.width
-        spacing: 5
-        PrefsLabel{
-            Layout.alignment: Qt.AlignLeft
-            Layout.leftMargin: 100
-            font.pixelSize: Style.h2
-            isBold: true
-            isStyle: true
-            text: qsTr("Notification")
-            MouseArea{
-                anchors.fill: parent
-                onClicked: myTost.open()
-            }
-        }
-    }
-    contentData: ColumnLayout{
-        width: root.width
-        spacing: 20
-        Item{
-            Layout.fillWidth: true
-        }
+    background: null
 
-        Image{
-            width: parent.width
-            Layout.alignment: Qt.AlignLeft
-            source: "qrc:/Icons/HorizontalSeparator.png"
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 14
+
+        Caption { text: qsTr("From the phone") }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Calls"); subtitle: qsTr("Show incoming calls with answer and decline"); checked: true }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Messages"); subtitle: qsTr("Show the sender and the first line"); checked: true }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Only when stopped"); subtitle: qsTr("Hold messages until the scooter is at a standstill"); checked: false }
+
+        Caption { Layout.topMargin: 18; text: qsTr("From the scooter") }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Service reminders"); subtitle: qsTr("Before the service and document expiry dates"); checked: true }
+        ToggleRow { Layout.fillWidth: true; title: qsTr("Charging complete"); checked: true }
+        InfoRow {
+            Layout.fillWidth: true
+            title: qsTr("Critical alerts")
+            subtitle: qsTr("Motor, brake and battery faults cannot be switched off")
+            value: qsTr("Always on")
+            tone: Style.danger
+            valueColor: Style.danger
         }
-        InfoPopup{
-            infoColor: "#00CC99"
-            icon: "qrc:/Icons/Notification/Success.svg"
-            title:  qsTr("Success")
-            subTitle: qsTr("Order Placed Successfully. Thank you for shopping with us.")
-        }
-        InfoPopup{
-            infoColor: "#EB5757"
-            icon: "qrc:/Icons/Notification/Error.svg"
-            title:  qsTr("Error")
-            subTitle: qsTr("Payment for order could not be proceed. Please try again.")
-        }
-        InfoPopup{
-            infoColor: "#F2C94C"
-            icon: "qrc:/Icons/Notification/Warning.svg"
-            title:  qsTr("Warning")
-            subTitle: qsTr("Order will not delivered in this pincode. Please try other pincode.")
-        }
-        InfoPopup{
-            infoColor: "#5458F7"
-            icon: "qrc:/Icons/Notification/Info.svg"
-            title:  qsTr("Info")
-            subTitle: qsTr("You will receive a tracking link as soon as your order ships.")
-        }
-        Toast{
-            id:myTost
-            x:700
-            y:200
-        }
+        Item { Layout.fillHeight: true }
     }
 }

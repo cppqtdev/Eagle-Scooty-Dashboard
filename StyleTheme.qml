@@ -1,38 +1,139 @@
 pragma Singleton
 
-import QtQuick 2.15
+import QtQuick
+import "Theme" as ThemeComponents
+
 QtObject {
-    property bool isDark: false
-    readonly property color background: isDark ? "#00000000" : "#DCF3F3"
-    readonly property color fontColor: "#FFFFFF"
-    readonly property color baseColor: isDark ? systemPalette.base : systemPalette.windowText
-    readonly property color styleColor: "#045457"
-    readonly property color grayColor: "#7C7C7C"
+    id: root
+
+    readonly property bool isDark: themeController.dark
+    readonly property int themeMode: themeController.mode
+    readonly property int autoMode: 0
+    readonly property int lightMode: 1
+    readonly property int darkMode: 2
+
+    readonly property ThemeComponents.Typography typography: ThemeComponents.Typography {}
+    readonly property ThemeComponents.Metrics metrics: ThemeComponents.Metrics {}
+    readonly property ThemeComponents.Motion motion: ThemeComponents.Motion {}
+
+    readonly property ThemeComponents.ColorPalette lightPalette: ThemeComponents.ColorPalette {}
+    // Night palette from the design spec: Blue Zircon (#69FFF6) on #101817, with
+    // its green, red, grey and white.
+    readonly property ThemeComponents.ColorPalette darkPalette: ThemeComponents.ColorPalette {
+        ground: "#0A100F"
+        surface: "#101817"
+        surfaceRaised: "#17211F"
+        surfaceSunken: "#0C1312"
+        border: "#22302E"
+        borderStrong: "#35504C"
+
+        textPrimary: "#FFFFFF"
+        textSecondary: "#B9B9B9"
+        textMuted: "#8A9A98"
+        textOnAccent: "#101817"
+
+        accent: "#2FD9CF"
+        accentStrong: "#69FFF6"
+        accentSoft: "#143B38"
+
+        success: "#11B411"
+        warning: "#FFB340"
+        danger: "#FF0000"
+        shadow: "#A0000000"
+    }
+
+    readonly property ThemeComponents.ColorPalette target: isDark ? darkPalette : lightPalette
+
+    property color background: target.ground
+    property color surface: target.surface
+    property color surfaceRaised: target.surfaceRaised
+    property color surfaceSunken: target.surfaceSunken
+    property color border: target.border
+    property color borderStrong: target.borderStrong
+    property color textPrimary: target.textPrimary
+    property color textSecondary: target.textSecondary
+    property color textMuted: target.textMuted
+    property color textOnAccent: target.textOnAccent
+    property color accent: target.accent
+    property color accentStrong: target.accentStrong
+    property color accentSoft: target.accentSoft
+    property color success: target.success
+    property color warning: target.warning
+    property color danger: target.danger
+    property color shadow: target.shadow
+
+    Behavior on background { ColorAnimation { duration: root.motion.theme } }
+    Behavior on surface { ColorAnimation { duration: root.motion.theme } }
+    Behavior on surfaceRaised { ColorAnimation { duration: root.motion.theme } }
+    Behavior on surfaceSunken { ColorAnimation { duration: root.motion.theme } }
+    Behavior on border { ColorAnimation { duration: root.motion.theme } }
+    Behavior on borderStrong { ColorAnimation { duration: root.motion.theme } }
+    Behavior on textPrimary { ColorAnimation { duration: root.motion.theme } }
+    Behavior on textSecondary { ColorAnimation { duration: root.motion.theme } }
+    Behavior on textMuted { ColorAnimation { duration: root.motion.theme } }
+    Behavior on accent { ColorAnimation { duration: root.motion.theme } }
+    Behavior on accentStrong { ColorAnimation { duration: root.motion.theme } }
+    Behavior on accentSoft { ColorAnimation { duration: root.motion.theme } }
+
+    // Ride-mode accents: the speed, the mode chip and the battery bar follow the mode.
+    readonly property color modeEco: isDark ? "#31D158" : "#16A34A"
+    readonly property color modeCity: isDark ? "#18B8B3" : "#087F83"
+    readonly property color modeSport: isDark ? "#FF7A2F" : "#EA580C"
+
+    // A colour with a new alpha; Qt.alpha() needs Qt 6.5, the board runs 6.2.
+    // c may be a color or a string such as "#FFFFFF" (a string has no .r, so it
+    // is turned into a color first; Qt.lighter by 1 changes nothing else).
+    // How the navigation arrow is drawn: "solid", "ribbon", "chevrons", "outline" or "sign".
+    readonly property string arrowStyle: ["solid", "ribbon", "chevrons", "outline", "sign"][themeController.arrowStyle] || "sign"
+
+    function alpha(c, a) {
+        if (!c)
+            return "transparent"
+        const color = Qt.lighter(c, 1.0)
+        return Qt.rgba(color.r, color.g, color.b, a)
+    }
+
+    function modeColor(mode) {
+        return mode === 2 ? modeSport : mode === 1 ? modeCity : modeEco
+    }
+
+    // Shadows and glows need the GPU scene graph; the board's software renderer skips them.
+    readonly property bool effects: typeof effectsEnabled === "undefined" ? true : effectsEnabled
+
+    function setDark(dark) {
+        themeController.dark = dark
+    }
+
+    function setMode(mode) {
+        themeController.mode = mode
+    }
+
+    function toggle() {
+        themeController.toggle()
+    }
+
+    // Compatibility aliases for existing screens. New code should use the
+    // semantic roles above rather than appearance-specific names.
+    readonly property color fontColor: textOnAccent
+    readonly property color baseColor: textPrimary
+    readonly property color styleColor: accentStrong
+    readonly property color grayColor: textMuted
 
     property int left : 0
     property int right : 1
     property int alternate : 2
 
-    readonly property int h1: 28
-    readonly property int h2: 26
-    readonly property int h3: 24
-    readonly property int h4: 22
-    readonly property int h5: 20
-    readonly property int h6: 18
-    readonly property int paragraph : 16
+    readonly property int h1: typography.titleLarge
+    readonly property int h2: typography.title
+    readonly property int h3: typography.heading
+    readonly property int h4: typography.bodyLarge
+    readonly property int h5: typography.body
+    readonly property int h6: typography.bodySmall
+    readonly property int paragraph: typography.bodySmall
 
-    readonly property var systemPalette: SystemPalette { colorGroup: SystemPalette.Active }
-
-    readonly property var helveticaNeureMedium: FontLoader{
-        source:"qrc:/fonts/HelveticaNeueLTCom-Md.ttf"
-    }
-    readonly property var helveticaNeureBold: FontLoader{
-        source:"qrc:/fonts/HelveticaNeueLTCom-Bd.ttf"
-    }
-    readonly property var helveticaNeurRoman: FontLoader{
-        source:"qrc:/fonts/HelveticaNeueLTCom-Roman.ttf"
-    }
-    readonly property var helveticaNeurLight: FontLoader{
-        source: "qrc:/fonts/HelveticaNeueLTCom-Lt.ttf"
-    }
+    readonly property string lightFontFamily: typography.lightFamily
+    readonly property string regularFontFamily: typography.regularFamily
+    readonly property string mediumFontFamily: typography.mediumFamily
+    readonly property string boldFontFamily: typography.boldFamily
+    readonly property bool fontsReady: typography.ready
 }

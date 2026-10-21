@@ -1,14 +1,11 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
-import QtLocation 5.15
-import QtPositioning 5.6
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
 EaglePage {
     id:root
-    width: parent.width
     leftPadding: 100
     contentData: ColumnLayout{
         width: root.width
@@ -133,8 +130,10 @@ EaglePage {
                 anchors.leftMargin: 20
                 radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop | Qt.AlignBottom
                 color : Style.isDark ? palette.dark : palette.light
-                MapDetails{
-                    id:mapview
+                PrefsLabel {
+                    anchors.centerIn: parent
+                    color: palette.mid
+                    text: qsTr("Map support is unavailable")
                 }
             }
         }

@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick
 Rectangle {
     id: root
     property int radiusCorners: Qt.AlignLeft | Qt.AlignRight | Qt.AlignTop | Qt.AlignBottom /* Default: */

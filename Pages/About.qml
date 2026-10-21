@@ -1,147 +1,31 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// The software, what it is built with, and the open-source licences.
 EaglePage {
-    id:root
-    width: parent.width
-    leftPadding:100
-    contentData: RowLayout{
-        width: root.width
-        spacing: 20
-        Image{
-            id:ebike
-            source: "qrc:/Icons/scooty.png"
+    background: null
+
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 28
+        spacing: 14
+
+        Image {
+            Layout.preferredWidth: 360
+            Layout.preferredHeight: 190
+            sourceSize: Qt.size(360, 190)
+            source: Style.isDark ? "qrc:/Icons/Eagle/5.png" : "qrc:/Icons/Eagle/7.png"
         }
-        Pane{
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            padding: 0
-            leftPadding: 100
-            background: Rectangle{
-                anchors.fill: parent
-                color: Style.background
-            }
+        PrefsLabel { font.pixelSize: Style.typography.display + 4; isBold: true; text: qsTr("Eagle Dashboard") }
+        PrefsLabel { font.pixelSize: Style.h5; color: Style.textMuted; text: qsTr("Version %1 · TechCoderHub").arg(Qt.application.version) }
 
-            ColumnLayout{
-                width: parent.width
-                spacing: 30
-                PrefsLabel{
-                    Layout.alignment: Qt.AlignLeft
-                    font.pixelSize: Style.h1
-                    text: qsTr("People E-bike")
-                }
-
-                PrefsLabel{
-                    Layout.alignment: Qt.AlignLeft
-                    font.pixelSize: Style.h2
-                    text: qsTr("White")
-                }
-
-                RowLayout{
-                    width: parent.width
-                    ColumnLayout{
-                        spacing: 30
-                        ColumnLayout{
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h2
-                                color: Style.grayColor
-                                text: qsTr("Range")
-                            }
-
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h3
-                                text: qsTr("180")
-                            }
-                        }
-                        ColumnLayout{
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h2
-                                color: Style.grayColor
-                                text: qsTr("Top Speed")
-                            }
-
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h3
-                                text: qsTr("110 KMPH")
-                            }
-                        }
-                        ColumnLayout{
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h2
-                                color: Style.grayColor
-                                text: qsTr("0 to 100% Charging")
-                            }
-
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h3
-                                text: qsTr("3 Hrs")
-                            }
-                        }
-                    }
-
-                    Item{
-                        Layout.fillWidth: true
-                    }
-
-                    ColumnLayout{
-                        spacing: 30
-                        ColumnLayout{
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h2
-                                color: Style.grayColor
-                                text: qsTr("Ride Modes")
-                            }
-
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h3
-                                text: qsTr("Economy,Regular,Sports")
-                            }
-                        }
-                        ColumnLayout{
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h2
-                                color: Style.grayColor
-                                text: qsTr("0 to 60 KMPH")
-                            }
-
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h3
-                                text: qsTr("3.8 Sec")
-                            }
-                        }
-                        ColumnLayout{
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h2
-                                color: Style.grayColor
-                                text: qsTr("Max Power")
-                            }
-
-                            PrefsLabel{
-                                Layout.alignment: Qt.AlignLeft
-                                font.pixelSize: Style.h3
-                                text: qsTr("90 Hp")
-                            }
-                        }
-                    }
-                    Item{
-                        Layout.preferredWidth: 200
-                    }
-                }
-            }
-        }
+        Caption { Layout.topMargin: 18; text: qsTr("Built with") }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Qt 6 · Qt Quick · C++20"); value: qsTr("LGPL v3"); valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Orbitron typeface"); value: qsTr("SIL Open Font License"); valueColor: Style.textMuted }
+        InfoRow { Layout.fillWidth: true; showEdge: false; title: qsTr("Target"); value: boardMode ? qsTr("HMI panel") : qsTr("Desktop preview"); valueColor: Style.textMuted }
+        Item { Layout.fillHeight: true }
     }
 }
