@@ -221,15 +221,17 @@ void VehicleSimulator::ride(qreal seconds)
         m_data->setBatteryTempC(qRound(31 + m_speed * 0.08));
 
     // Navigation and indicators.
-    m_data->setManeuverDistanceM(qMax(0, qRound(m_metresToTurn / 10.0) * 10));
-    m_data->setDistanceKm(m_data->distanceKm() > 0.05 ? m_data->distanceKm() - metres / 1000.0 : 8.4);
-    m_data->setArrivalMinutes(qMax(1, qRound(m_data->distanceKm() / qMax<qreal>(20.0, m_speed) * 60.0)));
+    if (!m_phoneGuiding) {
+        m_data->setManeuverDistanceM(qMax(0, qRound(m_metresToTurn / 10.0) * 10));
+        m_data->setDistanceKm(m_data->distanceKm() > 0.05 ? m_data->distanceKm() - metres / 1000.0 : 8.4);
+        m_data->setArrivalMinutes(qMax(1, qRound(m_data->distanceKm() / qMax<qreal>(20.0, m_speed) * 60.0)));
+    }
     const auto maneuver = m_data->maneuver();
-    const bool signalling = m_metresToTurn < kIndicatorBeforeTurnM && m_speed > 1.0;
+    const bool signalling = m_data->navigating() && m_data->maneuverDistanceM() < kIndicatorBeforeTurnM && m_speed > 1.0;
     m_data->setLeftIndicator(signalling && (maneuver == DashboardData::TurnLeft || maneuver == DashboardData::UTurn));
     m_data->setRightIndicator(signalling && maneuver == DashboardData::TurnRight);
 
-    if (m_metresToTurn <= 0.0)
+    if (m_metresToTurn <= 0.0 && !m_phoneGuiding)
         nextStep();
 }
 

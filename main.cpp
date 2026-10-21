@@ -11,12 +11,21 @@
 #include "bluetoothmanager.h"
 #include "canvehiclesource.h"
 #include "dashboarddata.h"
+#include "phonelink/protocolphonelink.h"
+#include "phonelink/tcpphonetransport.h"
+#include "phonelinkbridge.h"
 #include "phoneservice.h"
 #include "systemclock.h"
 #include "themecontroller.h"
 #include "vehicledocuments.h"
 #include "vehiclesimulator.h"
 #include "wifimanager.h"
+
+#ifdef EAGLE_HAS_BLUETOOTH
+#include "phonelink/bleperipheraltransport.h"
+#endif
+
+#include <memory>
 
 namespace {
 
@@ -93,6 +102,11 @@ int main(int argc, char *argv[])
     parser.addOption({QStringLiteral("no-simulator"), QStringLiteral("Wait for live vehicle data instead of simulating a ride.")});
     parser.addOption({QStringLiteral("can"), QStringLiteral("Read live vehicle data from the SocketCAN <interface> instead of simulating."),
                       QStringLiteral("interface")});
+    parser.addOption({QStringLiteral("phone"),
+                      QStringLiteral("Where the rider's phone comes from: ble (the Ride app over Bluetooth, the "
+                                     "board's default), tcp (the app or scripts/phone_link_sim.py on port 47100) or "
+                                     "demo (a built-in phone, the desk's default)."),
+                      QStringLiteral("source")});
     parser.addOption({QStringLiteral("snapshot"), QStringLiteral("Save every page and alert state as PNG files in <dir>, then quit."),
                       QStringLiteral("dir")});
     parser.process(app);
@@ -107,6 +121,31 @@ int main(int argc, char *argv[])
     CanVehicleSource can(&dashboardData);
     BluetoothManager bluetooth(&phone);
     WifiManager wifi;
+
+    // The companion app, when asked for. The built-in phone stays for the desk.
+    const QString phoneSource = parser.value(QStringLiteral("phone")).isEmpty()
+                                    ? (boardMode ? QStringLiteral("ble") : QStringLiteral("demo"))
+                                    : parser.value(QStringLiteral("phone"));
+    std::unique_ptr<phonelink::IPhoneTransport> transport;
+    if (phoneSource == QLatin1String("tcp"))
+        transport = std::make_unique<phonelink::TcpPhoneTransport>();
+#ifdef EAGLE_HAS_BLUETOOTH
+    else if (phoneSource == QLatin1String("ble"))
+        transport = std::make_unique<phonelink::BlePeripheralTransport>(QStringLiteral("Eagle"));
+#endif
+    else if (phoneSource != QLatin1String("demo"))
+        qWarning().noquote() << "No phone link" << phoneSource << "in this build; using the built-in phone";
+
+    std::unique_ptr<phonelink::ProtocolPhoneLink> phoneLink;
+    std::unique_ptr<PhoneLinkBridge> phoneBridge;
+    if (transport) {
+        phonelink::ProtocolPhoneLink::Options options;
+        options.firmware = QCoreApplication::applicationVersion();
+        phoneLink = std::make_unique<phonelink::ProtocolPhoneLink>(std::move(transport), options);
+        phone.attachLink(phoneLink.get());
+        phoneBridge = std::make_unique<PhoneLinkBridge>(phoneLink.get(), &dashboardData, &simulator);
+        phoneLink->start();
+    }
 
     QObject::connect(&phone, &PhoneService::messageReceived, &alertCenter,
                      [&alertCenter](const QString &from, const QString &text) {
@@ -125,6 +164,8 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();
+    if (phoneLink)
+        engine.addImageProvider(QStringLiteral("phoneart"), new PhoneArtProvider(phoneLink.get()));
     context->setContextProperty(QStringLiteral("themeController"), &themeController);
     context->setContextProperty(QStringLiteral("systemClock"), &systemClock);
     context->setContextProperty(QStringLiteral("dashboardData"), &dashboardData);

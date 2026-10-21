@@ -29,6 +29,8 @@ public slots:
     // "charge" or "clear".
     void trigger(const QString &scenario);
     void toggleCharging();
+    // While the phone guides, the route on screen is the phone's, not the demo's.
+    void setPhoneGuiding(bool guiding) { m_phoneGuiding = guiding; }
 
 signals:
     void runningChanged();
@@ -55,4 +57,5 @@ private:
     qreal m_sinceKeyOn = 0.0;
     qreal m_chargeHeat = 0.0;  // seconds of charging, warms the pack slowly
     bool m_keyedOn = false;
+    bool m_phoneGuiding = false;
 };

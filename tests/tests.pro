@@ -1,7 +1,7 @@
 # Unit tests of the dashboard core: CAN decoding, alerts, phone and documents.
 QT += testlib
 QT -= gui
-CONFIG += c++17 console testcase
+CONFIG += c++20 console testcase
 CONFIG -= app_bundle
 TARGET = tst_core
 
@@ -17,10 +17,13 @@ SOURCES += \
         ../canvehiclesource.cpp \
         ../dashboarddata.cpp \
         ../phoneservice.cpp \
+        ../phonelink/iphonelink.cpp \
+        ../phonelink/phonetypes.cpp \
         ../vehicledocuments.cpp
 HEADERS += \
         ../alertcenter.h \
         ../canvehiclesource.h \
         ../dashboarddata.h \
         ../phoneservice.h \
+        ../phonelink/iphonelink.h \
         ../vehicledocuments.h

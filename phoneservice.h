@@ -4,9 +4,11 @@
 #include <QTimer>
 #include <QVariantList>
 
+namespace phonelink { class IPhoneLink; }
+
 // The rider's phone as the dashboard sees it: connection, calls, media and the
-// contact lists. The calls and media come from the phone over Bluetooth (HFP and
-// AVRCP on the board); on the desk a built-in phone plays the same part.
+// contact lists. With the Ride app linked (attachLink) all of it comes from
+// the phone; without it a built-in phone plays the same part on the desk.
 class PhoneService final : public QObject
 {
     Q_OBJECT
@@ -28,15 +30,22 @@ class PhoneService final : public QObject
     Q_PROPERTY(int positionSeconds READ positionSeconds NOTIFY positionChanged)
     Q_PROPERTY(int durationSeconds READ durationSeconds NOTIFY mediaChanged)
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
+    Q_PROPERTY(QString trackSource READ trackSource NOTIFY mediaChanged)
+    Q_PROPERTY(QString artworkUrl READ artworkUrl NOTIFY artworkChanged)
+    Q_PROPERTY(bool linked READ linked NOTIFY connectionChanged)
 
     Q_PROPERTY(QVariantList recents READ recents NOTIFY recentsChanged)
-    Q_PROPERTY(QVariantList contacts READ contacts CONSTANT)
+    Q_PROPERTY(QVariantList contacts READ contacts NOTIFY contactsChanged)
 
 public:
     enum CallState { Idle, Incoming, Dialing, Active };
     Q_ENUM(CallState)
 
     explicit PhoneService(QObject *parent = nullptr);
+
+    // From now on the phone is the one behind this link; the built-in demo stops.
+    void attachLink(phonelink::IPhoneLink *link);
+    phonelink::IPhoneLink *link() const { return m_link; }
 
     bool connected() const { return m_connected; }
     QString deviceName() const { return m_deviceName; }
@@ -56,6 +65,9 @@ public:
     int positionSeconds() const { return m_position; }
     int durationSeconds() const;
     int volume() const { return m_volume; }
+    QString trackSource() const;
+    QString artworkUrl() const;
+    bool linked() const { return m_link != nullptr; }
 
     QVariantList recents() const { return m_recents; }
     QVariantList contacts() const { return m_contacts; }
@@ -84,6 +96,8 @@ signals:
     void positionChanged();
     void volumeChanged();
     void recentsChanged();
+    void contactsChanged();
+    void artworkChanged();
     // A text the rider should see; the dashboard shows it as an information banner.
     void messageReceived(const QString &from, const QString &text);
     void callMissed(const QString &name);
@@ -92,6 +106,18 @@ private:
     void setCall(CallState state, const QString &name, const QString &number);
     void addRecent(const QString &name, const QString &number, const QString &kind);
     QString nameFor(const QString &number) const;
+    void syncConnection();
+    void syncCall();
+    void syncMedia();
+    void syncContacts();
+
+    phonelink::IPhoneLink *m_link = nullptr;
+    QString m_liveTitle;
+    QString m_liveArtist;
+    QString m_liveSource;
+    int m_liveDuration = 0;
+    quint32 m_artId = 0;
+    bool m_artReady = false;
 
     bool m_connected = true;
     QString m_deviceName = QStringLiteral("Pixel 8");
