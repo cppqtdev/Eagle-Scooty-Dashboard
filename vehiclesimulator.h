@@ -26,7 +26,7 @@ public slots:
     void setRunning(bool running);
     void keyOn();
     // "lowTyre", "overheat", "motorFault", "lowBattery", "sideStand", "absFault",
-    // "charge" or "clear".
+    // "charge", "hazard" and "reverse" (both toggle), or "clear".
     void trigger(const QString &scenario);
     void toggleCharging();
     // While the phone guides, the route on screen is the phone's, not the demo's.
@@ -58,4 +58,6 @@ private:
     qreal m_chargeHeat = 0.0;  // seconds of charging, warms the pack slowly
     bool m_keyedOn = false;
     bool m_phoneGuiding = false;
+    bool m_hazard = false;
+    bool m_reverseWanted = false;   // asked for on the move; taken at the stop
 };

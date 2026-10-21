@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Style 1.0
+import Eagle.Blink 1.0
 import "../Component"
 
 // Navigation, after the ApexCluster design: the next manoeuvre drawn onto the
@@ -49,6 +50,17 @@ EaglePage {
                 anchors.bottomMargin: 150
                 maneuver: dashboardData.maneuver
                 arrowColor: root.modeColor
+                distanceM: turnDistance.value
+                speed: dashboardData.speed
+                reverse: dashboardData.gear === "R"
+                hazard: BlinkClock.hazard
+                highBeam: dashboardData.highBeam
+            }
+
+            DriveStatus {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 150
             }
 
             // What to do and where.

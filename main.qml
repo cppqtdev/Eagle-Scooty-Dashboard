@@ -220,6 +220,8 @@ ApplicationWindow {
     Shortcut { sequence: "F"; onActivated: simulator.trigger("motorFault") }
     Shortcut { sequence: "L"; onActivated: simulator.trigger("lowTyre") }
     Shortcut { sequence: "O"; onActivated: simulator.trigger("overheat") }
+    Shortcut { sequence: "Z"; onActivated: simulator.trigger("hazard") }
+    Shortcut { sequence: "R"; onActivated: simulator.trigger("reverse") }
     Shortcut { sequence: "Escape"; onActivated: simulator.trigger("clear") }
     Shortcut { sequence: "1"; onActivated: root.navigate("home") }
     Shortcut { sequence: "2"; onActivated: root.navigate("map") }

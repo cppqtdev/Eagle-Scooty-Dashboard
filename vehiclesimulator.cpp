@@ -53,7 +53,7 @@ QStringList VehicleSimulator::scenarios() const
 {
     return {QStringLiteral("lowTyre"), QStringLiteral("overheat"), QStringLiteral("motorFault"),
             QStringLiteral("lowBattery"), QStringLiteral("sideStand"), QStringLiteral("absFault"),
-            QStringLiteral("charge"), QStringLiteral("clear")};
+            QStringLiteral("charge"), QStringLiteral("hazard"), QStringLiteral("reverse"), QStringLiteral("clear")};
 }
 
 void VehicleSimulator::setRunning(bool running)
@@ -96,7 +96,21 @@ void VehicleSimulator::trigger(const QString &scenario)
     } else if (scenario == QLatin1String("charge")) {
         if (!m_data->charging())
             toggleCharging();
+    } else if (scenario == QLatin1String("hazard")) {
+        m_hazard = !m_hazard;
+    } else if (scenario == QLatin1String("reverse")) {
+        // Reverse is only taken at a standstill; the motor then holds it under 5 km/h.
+        if (m_data->gear() == QLatin1String("R"))
+            m_data->setGear(QStringLiteral("D"));
+        else if (m_speed < 1.0 && !m_data->charging())
+            m_data->setGear(QStringLiteral("R"));
+        else
+            m_reverseWanted = true;
     } else if (scenario == QLatin1String("clear")) {
+        m_hazard = false;
+        m_reverseWanted = false;
+        if (m_data->gear() == QLatin1String("R"))
+            m_data->setGear(QStringLiteral("D"));
         m_data->setTyreFrontBar(2.2);
         m_data->setTyreRearBar(2.2);
         m_data->setBatteryTempC(34);
@@ -167,10 +181,21 @@ int VehicleSimulator::topSpeed() const
 
 void VehicleSimulator::ride(qreal seconds)
 {
-    const bool cannotMove = m_data->motorFault() || m_data->sideStandDown() || m_data->gear() != QLatin1String("D");
+    const bool reverse = m_data->gear() == QLatin1String("R");
+    const bool cannotMove = m_data->motorFault() || m_data->sideStandDown()
+                            || (m_data->gear() != QLatin1String("D") && !reverse);
 
-    // Target: cruise, slow for the turn, stop briefly at junctions.
+    // Target: cruise, slow for the turn, stop briefly at junctions. A reverse
+    // asked for on the move waits for the stop, then backs up at walking pace.
     qreal target = topSpeed();
+    if (m_reverseWanted)
+        target = 0.0;
+    if (m_reverseWanted && m_speed < 1.0) {
+        m_reverseWanted = false;
+        m_data->setGear(QStringLiteral("R"));
+    }
+    if (reverse)
+        target = 3.0;
     if (m_metresToTurn < 250.0)
         target = qMin(target, 18.0 + m_metresToTurn / 10.0);
     if (m_stopSeconds > 0.0) {
@@ -197,7 +222,8 @@ void VehicleSimulator::ride(qreal seconds)
 
     // Distance, trip and odometer.
     const qreal metres = m_speed / 3.6 * seconds;
-    m_metresToTurn -= metres;
+    if (!reverse)
+        m_metresToTurn -= metres;
     m_tripMetres += metres;
     m_odoMetres += metres;
     if (m_tripMetres >= 1000.0) {
@@ -228,8 +254,8 @@ void VehicleSimulator::ride(qreal seconds)
     }
     const auto maneuver = m_data->maneuver();
     const bool signalling = m_data->navigating() && m_data->maneuverDistanceM() < kIndicatorBeforeTurnM && m_speed > 1.0;
-    m_data->setLeftIndicator(signalling && (maneuver == DashboardData::TurnLeft || maneuver == DashboardData::UTurn));
-    m_data->setRightIndicator(signalling && maneuver == DashboardData::TurnRight);
+    m_data->setLeftIndicator(m_hazard || (signalling && (maneuver == DashboardData::TurnLeft || maneuver == DashboardData::UTurn)));
+    m_data->setRightIndicator(m_hazard || (signalling && maneuver == DashboardData::TurnRight));
 
     if (m_metresToTurn <= 0.0 && !m_phoneGuiding)
         nextStep();

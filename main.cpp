@@ -161,6 +161,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<PhoneService>("Eagle.Backend", 1, 0, "Phone", QStringLiteral("Use phone"));
     qmlRegisterUncreatableType<AlertCenter>("Eagle.Backend", 1, 0, "Alerts", QStringLiteral("Use alertCenter"));
     qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/StyleTheme.qml")), "Style", 1, 0, "Style");
+    qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/Component/BlinkClock.qml")), "Eagle.Blink", 1, 0, "BlinkClock");
 
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();

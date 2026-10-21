@@ -1,13 +1,14 @@
 import QtQuick
 import QtQuick.Layouts
 import Style 1.0
+import Eagle.Blink 1.0
 
 // Date, the telltale strip and the phone status. Every lamp follows the vehicle;
 // the indicators share one blink clock so left, right and hazard flash together.
 Image {
     id: root
 
-    property bool blinkPhase: true
+    readonly property bool blinkPhase: BlinkClock.on
     // At key-on every telltale lights for two seconds, so the rider can see that
     // none of the lamps is dead before relying on it (the usual bulb check).
     property bool lampCheck: false
@@ -22,14 +23,6 @@ Image {
 
     source: Style.isDark ? "qrc:/Icons/dark/top_dark.png" : "qrc:/Icons/topbar.svg"
 
-    // 85 flashes a minute, inside the 60–120 the regulations allow.
-    Timer {
-        interval: 353
-        repeat: true
-        running: dashboardData.leftIndicator || dashboardData.rightIndicator
-        onTriggered: root.blinkPhase = !root.blinkPhase
-        onRunningChanged: root.blinkPhase = true
-    }
 
     RowLayout {
         anchors.horizontalCenter: parent.horizontalCenter

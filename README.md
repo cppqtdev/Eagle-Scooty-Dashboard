@@ -63,7 +63,8 @@ Options: `--board` (full screen on the panel), `--can can0` (live data),
 
 Bench keys: **M** ride mode, **C** incoming call / answer, **X** message,
 **P** charger, **T** theme, **H** high beam, **F** motor fault, **L** low tyre,
-**O** overheat, **Esc** clear, **1–6** pages.
+**O** overheat, **Z** hazard lights, **R** reverse (taken at the next stop), **Esc** clear,
+**1–6** pages.
 
 Tests: `cd tests && qmake && make && ./tst_core` (CAN decoding, alert rules,
 call flow, documents).

@@ -34,7 +34,10 @@ QtObject {
         ["13g-settings-diagnostics", 1.2, () => { canvas.openSetting(5); Style.setMode(Style.lightMode) }],
         ["14-map", 1.2, () => canvas.navigate("map")],
         ["14b-ride-lock", 1.2, () => { canvas.rideLock = true; canvas.openSetting(0) }],
-        ["15-home-sport-dark", 3.0, () => { canvas.navigate("home"); Style.setMode(Style.darkMode); dashboardData.rideMode = 2 }],
+        ["14c-map-hazard", 1.6, () => { canvas.rideLock = false; canvas.navigate("map"); simulator.trigger("hazard"); dashboardData.highBeam = true }],
+        ["14d-map-reverse", 9.0, () => { simulator.trigger("hazard"); dashboardData.highBeam = false; simulator.trigger("reverse") }],
+        ["14e-home-reverse", 1.4, () => canvas.navigate("home")],
+        ["15-home-sport-dark", 3.0, () => { simulator.trigger("clear"); canvas.navigate("home"); Style.setMode(Style.darkMode); dashboardData.rideMode = 2 }],
     ]
 
     function next() {

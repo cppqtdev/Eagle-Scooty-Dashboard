@@ -12,7 +12,8 @@ EaglePage {
     readonly property var scenarioLabels: ({
         lowTyre: qsTr("Low tyre"), overheat: qsTr("Overheat"), motorFault: qsTr("Motor fault"),
         lowBattery: qsTr("Low battery"), sideStand: qsTr("Side stand"), absFault: qsTr("ABS fault"),
-        charge: qsTr("Plug in charger"), clear: qsTr("Clear all")
+        charge: qsTr("Plug in charger"), hazard: qsTr("Hazard lights"), reverse: qsTr("Reverse"),
+        clear: qsTr("Clear all")
     })
 
     component Reading: Control {

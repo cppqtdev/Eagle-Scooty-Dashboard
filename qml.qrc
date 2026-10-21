@@ -181,6 +181,8 @@
         <file>Component/RideLock.qml</file>
         <file>Component/LineIcon.qml</file>
         <file>Component/TabRail.qml</file>
+        <file>Component/BlinkClock.qml</file>
+        <file>Component/DriveStatus.qml</file>
         <file>Component/SegmentedControl.qml</file>
         <file>Component/RoundIconButton.qml</file>
     </qresource>

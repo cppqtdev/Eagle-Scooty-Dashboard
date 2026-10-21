@@ -31,6 +31,9 @@ Page {
     // the mode changes; then a status lamp. Tap a mode to select it.
     RowLayout {
         id: modeRow
+        opacity: driveStatus.shown ? 0 : 1
+        visible: opacity > 0
+        Behavior on opacity { NumberAnimation { duration: Style.motion.normal } }
         anchors.horizontalCenter: wings.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 28
@@ -98,6 +101,13 @@ Page {
         }
     }
 
+    // Hazards or reverse take the mode row's place.
+    DriveStatus {
+        id: driveStatus
+        anchors.horizontalCenter: wings.horizontalCenter
+        anchors.verticalCenter: modeRow.verticalCenter
+    }
+
     Image {
         id: wings
         width: 1120
@@ -115,6 +125,7 @@ Page {
         anchors.verticalCenterOffset: -150
         pixelSize: 140
         isBold: true
+        color: driveStatus.reverse ? Style.warning : Style.textPrimary
         text: Math.round(speed.value)
     }
     PrefsLabel {
@@ -142,7 +153,7 @@ Page {
                 readonly property bool current: dashboardData.gear === modelData
                 font.pixelSize: current ? Style.h1 : Style.h4
                 isBold: current
-                color: current ? page.modeColor : Style.textMuted
+                color: !current ? Style.textMuted : modelData === "R" ? Style.warning : page.modeColor
                 text: modelData
                 Behavior on font.pixelSize { NumberAnimation { duration: Style.motion.fast } }
             }
