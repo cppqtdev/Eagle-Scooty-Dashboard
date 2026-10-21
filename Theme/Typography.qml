@@ -31,12 +31,14 @@ QtObject {
                                   && mediumLoader.status === FontLoader.Ready
                                   && boldLoader.status === FontLoader.Ready
 
-    readonly property int display: 32
-    readonly property int titleLarge: 28
-    readonly property int title: 24
-    readonly property int heading: 22
-    readonly property int bodyLarge: 20
-    readonly property int body: 18
-    readonly property int bodySmall: 16
-    readonly property int caption: 14
+    // Sized for a 1920 x 1080 canvas shown on a 1024 x 600 panel: about half size,
+    // so nothing here may drop below ~12 px on the panel.
+    readonly property int display: 40
+    readonly property int titleLarge: 34
+    readonly property int title: 30
+    readonly property int heading: 28
+    readonly property int bodyLarge: 26
+    readonly property int body: 24
+    readonly property int bodySmall: 22
+    readonly property int caption: 20
 }

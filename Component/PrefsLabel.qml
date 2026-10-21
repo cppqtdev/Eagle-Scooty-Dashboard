@@ -17,7 +17,9 @@ Label {
     font.family: !isBold ? Style.regularFontFamily : largeFigure ? Style.boldFontFamily : Style.mediumFontFamily
     font.weight: !isBold ? Font.Normal : largeFigure ? Font.Bold : Font.Medium
     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-    renderType: Text.NativeRendering
+    // The canvas is scaled to the panel: distance-field text stays sharp at any
+    // scale, where native glyphs are rasterised at 1920 x 1080 and then resampled.
+    renderType: Text.QtRendering
 
     Behavior on color {
         ColorAnimation { duration: Style.motion.normal }

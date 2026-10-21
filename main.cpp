@@ -53,6 +53,8 @@ void loadFonts(QGuiApplication &app)
         return;
     QFont applicationFont(families.constFirst());
     applicationFont.setStyleStrategy(QFont::PreferAntialias);
+    // Hinting snaps glyphs to the 1920 x 1080 pixel grid, which the panel scale then breaks.
+    applicationFont.setHintingPreference(QFont::PreferNoHinting);
     app.setFont(applicationFont);
 }
 

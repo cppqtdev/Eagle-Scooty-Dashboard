@@ -7,8 +7,8 @@ Label {
     property bool accent: false
 
     font.family: Style.regularFontFamily
-    font.pixelSize: 17
-    font.letterSpacing: 3
+    font.pixelSize: 20
+    font.letterSpacing: 2.5
     font.capitalization: Font.AllUppercase
     color: accent ? Style.accent : Style.textMuted
 }
