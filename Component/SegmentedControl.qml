@@ -55,6 +55,7 @@ Control {
             model: control.model
             AbstractButton {
                 id: segment
+                focusPolicy: Qt.StrongFocus
                 required property int index
                 required property var modelData
                 readonly property bool current: control.currentIndex === index

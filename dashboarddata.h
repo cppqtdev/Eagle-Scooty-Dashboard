@@ -43,6 +43,8 @@ class DashboardData final : public QObject
     Q_PROPERTY(bool rightIndicator READ rightIndicator WRITE setRightIndicator NOTIFY lampsChanged)
     Q_PROPERTY(bool lowBeam READ lowBeam WRITE setLowBeam NOTIFY lampsChanged)
     Q_PROPERTY(bool highBeam READ highBeam WRITE setHighBeam NOTIFY lampsChanged)
+    // The lighting switch is on (the harness's illumination line): the panel dims for the night.
+    Q_PROPERTY(bool illumination READ illumination WRITE setIllumination NOTIFY lampsChanged)
     Q_PROPERTY(bool sideStandDown READ sideStandDown WRITE setSideStandDown NOTIFY lampsChanged)
 
     // Tyres (bar)
@@ -53,6 +55,8 @@ class DashboardData final : public QObject
     // Faults
     Q_PROPERTY(bool motorFault READ motorFault WRITE setMotorFault NOTIFY faultsChanged)
     Q_PROPERTY(bool absFault READ absFault WRITE setAbsFault NOTIFY faultsChanged)
+    // The controller's malfunction lamp (MIL): a fault that needs a workshop.
+    Q_PROPERTY(bool checkEngine READ checkEngine WRITE setCheckEngine NOTIFY faultsChanged)
 
     // Navigation from the phone
     Q_PROPERTY(bool navigating READ navigating WRITE setNavigating NOTIFY navigationChanged)
@@ -98,6 +102,7 @@ public:
     bool rightIndicator() const { return m_rightIndicator; }
     bool lowBeam() const { return m_lowBeam; }
     bool highBeam() const { return m_highBeam; }
+    bool illumination() const { return m_illumination; }
     bool sideStandDown() const { return m_sideStandDown; }
 
     qreal tyreFrontBar() const { return m_tyreFrontBar; }
@@ -106,6 +111,7 @@ public:
 
     bool motorFault() const { return m_motorFault; }
     bool absFault() const { return m_absFault; }
+    bool checkEngine() const { return m_checkEngine; }
 
     bool navigating() const { return m_navigating; }
     Maneuver maneuver() const { return m_maneuver; }
@@ -136,11 +142,13 @@ public slots:
     void setRightIndicator(bool value);
     void setLowBeam(bool value);
     void setHighBeam(bool value);
+    void setIllumination(bool value);
     void setSideStandDown(bool value);
     void setTyreFrontBar(qreal value);
     void setTyreRearBar(qreal value);
     void setMotorFault(bool value);
     void setAbsFault(bool value);
+    void setCheckEngine(bool value);
     void setNavigating(bool value);
     void setManeuver(Maneuver value);
     void setStreet(const QString &value);
@@ -185,6 +193,7 @@ private:
     bool m_rightIndicator = false;
     bool m_lowBeam = true;
     bool m_highBeam = false;
+    bool m_illumination = false;
     bool m_sideStandDown = true;
 
     qreal m_tyreFrontBar = 2.2;
@@ -192,6 +201,7 @@ private:
 
     bool m_motorFault = false;
     bool m_absFault = false;
+    bool m_checkEngine = false;
 
     bool m_navigating = true;
     Maneuver m_maneuver = TurnRight;

@@ -51,16 +51,17 @@ EaglePage {
     // A rounded action: the simulator's scenarios and the phone demos.
     component Pill: AbstractButton {
         id: pill
+        focusPolicy: Qt.StrongFocus
         property bool primary: false
         Layout.fillWidth: true
         implicitHeight: 64
         leftPadding: 20
         rightPadding: 20
-        scale: pressed ? 0.97 : 1
+        scale: pressed ? 0.98 : 1
         Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
         background: Rectangle {
             radius: height / 2
-            color: pill.primary ? Style.accent : pill.pressed ? Style.surfaceSunken : Style.surfaceRaised
+            color: pill.primary ? Style.accent : Style.surfaceRaised
             border.color: pill.primary ? Style.accent : Style.border
         }
         contentItem: PrefsLabel {

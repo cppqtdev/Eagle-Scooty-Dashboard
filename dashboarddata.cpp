@@ -206,6 +206,18 @@ void DashboardData::setAbsFault(bool value)
         emit faultsChanged();
 }
 
+void DashboardData::setCheckEngine(bool value)
+{
+    if (assign(m_checkEngine, value))
+        emit faultsChanged();
+}
+
+void DashboardData::setIllumination(bool value)
+{
+    if (assign(m_illumination, value))
+        emit lampsChanged();
+}
+
 void DashboardData::setNavigating(bool value)
 {
     if (assign(m_navigating, value))

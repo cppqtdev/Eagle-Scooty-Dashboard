@@ -122,6 +122,9 @@ int main(int argc, char *argv[])
     BluetoothManager bluetooth(&phone);
     WifiManager wifi;
 
+    QObject::connect(&dashboardData, &DashboardData::lampsChanged, &themeController,
+                     [&] { themeController.setLightsOn(dashboardData.illumination()); });
+
     // The companion app, when asked for. The built-in phone stays for the desk.
     const QString phoneSource = parser.value(QStringLiteral("phone")).isEmpty()
                                     ? (boardMode ? QStringLiteral("ble") : QStringLiteral("demo"))

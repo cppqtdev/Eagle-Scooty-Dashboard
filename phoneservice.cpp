@@ -81,6 +81,13 @@ QString PhoneService::trackTitle() const { return m_link ? m_liveTitle : QString
 QString PhoneService::trackArtist() const { return m_link ? m_liveArtist : QString::fromUtf8(kPlaylist[m_track].artist); }
 QString PhoneService::trackAlbum() const { return m_link ? QString() : QString::fromUtf8(kPlaylist[m_track].album); }
 int PhoneService::durationSeconds() const { return m_link ? m_liveDuration : kPlaylist[m_track].seconds; }
+PhoneService::PlayerState PhoneService::playerState() const
+{
+    if (!m_connected || trackTitle().isEmpty())
+        return NoSource;
+    return m_playing && m_callState == Idle ? Playing : Paused;
+}
+
 QString PhoneService::trackSource() const { return m_link ? m_liveSource : QString(); }
 
 QString PhoneService::artworkUrl() const
@@ -132,6 +139,7 @@ void PhoneService::syncConnection()
     m_phoneBattery = m_link->batteryPercent();
     m_signalBars = m_link->signalBars();
     emit connectionChanged();
+    emit mediaChanged(); // no phone, no source
 }
 
 void PhoneService::syncCall()
@@ -154,8 +162,10 @@ void PhoneService::syncCall()
         m_callSeconds = call.durationSeconds;
         emit callTimeChanged();
     }
-    if (changed)
+    if (changed) {
         emit callChanged();
+        emit mediaChanged(); // the music holds while a call is on
+    }
 }
 
 void PhoneService::syncMedia()
@@ -210,6 +220,7 @@ void PhoneService::setConnected(bool connected, const QString &deviceName)
     if (!connected)
         setCall(Idle, {}, {});
     emit connectionChanged();
+    emit mediaChanged(); // no phone, no source
 }
 
 void PhoneService::answer()
@@ -361,6 +372,7 @@ void PhoneService::setCall(CallState state, const QString &name, const QString &
     m_callerName = name;
     m_callerNumber = number;
     emit callChanged();
+    emit mediaChanged(); // the music holds while a call is on
 }
 
 void PhoneService::addRecent(const QString &name, const QString &number, const QString &kind)

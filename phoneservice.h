@@ -27,6 +27,8 @@ class PhoneService final : public QObject
     Q_PROPERTY(QString trackArtist READ trackArtist NOTIFY mediaChanged)
     Q_PROPERTY(QString trackAlbum READ trackAlbum NOTIFY mediaChanged)
     Q_PROPERTY(bool playing READ playing NOTIFY mediaChanged)
+    // The one value the player UI follows (its QML states key off it).
+    Q_PROPERTY(PlayerState playerState READ playerState NOTIFY mediaChanged)
     Q_PROPERTY(int positionSeconds READ positionSeconds NOTIFY positionChanged)
     Q_PROPERTY(int durationSeconds READ durationSeconds NOTIFY mediaChanged)
     Q_PROPERTY(int volume READ volume WRITE setVolume NOTIFY volumeChanged)
@@ -40,6 +42,9 @@ class PhoneService final : public QObject
 public:
     enum CallState { Idle, Incoming, Dialing, Active };
     Q_ENUM(CallState)
+    // NoSource: no phone, or nothing loaded. A call holds the music, so it reads as Paused.
+    enum PlayerState { NoSource, Paused, Playing };
+    Q_ENUM(PlayerState)
 
     explicit PhoneService(QObject *parent = nullptr);
 
@@ -62,6 +67,7 @@ public:
     QString trackArtist() const;
     QString trackAlbum() const;
     bool playing() const { return m_playing; }
+    PlayerState playerState() const;
     int positionSeconds() const { return m_position; }
     int durationSeconds() const;
     int volume() const { return m_volume; }

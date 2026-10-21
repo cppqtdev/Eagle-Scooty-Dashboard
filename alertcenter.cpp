@@ -121,6 +121,9 @@ void AlertCenter::evaluate()
                  QStringLiteral("tyre"));
     setCondition(m_data->absFault(), !m_data->absFault(), QStringLiteral("abs"), Warning, tr("ABS unavailable"),
                  tr("Brakes work without ABS. Have it checked."), QStringLiteral("abs"));
+    setCondition(m_data->checkEngine(), !m_data->checkEngine(), QStringLiteral("checkEngine"), Warning,
+                 tr("Drive system fault"), tr("The controller has logged a fault. Ride gently to a workshop."),
+                 QStringLiteral("checkEngine"));
 
     const bool full = m_data->charging() && battery >= m_data->chargeLimitPercent();
     setCondition(full, !m_data->charging(), QStringLiteral("chargeDone"), Info, tr("Charging complete"),

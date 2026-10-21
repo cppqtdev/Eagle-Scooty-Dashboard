@@ -132,10 +132,11 @@ Item {
             AbstractButton {
                 implicitWidth: 60
                 implicitHeight: 60
+                scale: pressed ? 0.98 : 1
                 onClicked: alertCenter.acknowledge(root.shownAlert.id)
                 background: Rectangle {
                     radius: width / 2
-                    color: parent.pressed ? Style.alpha("#FFFFFF", 0.18) : Style.alpha("#FFFFFF", 0.08)
+                    color: Style.alpha("#FFFFFF", 0.08)
                     border.color: Style.alpha("#FFFFFF", 0.16)
                     Behavior on color { ColorAnimation { duration: Style.motion.instant } }
                 }

@@ -6,6 +6,7 @@ import Style 1.0
 // highlighted one is filled in its tone with a soft halo.
 AbstractButton {
     id: button
+    focusPolicy: Qt.StrongFocus
 
     property string iconName
     property color tone: Style.accent
@@ -14,7 +15,7 @@ AbstractButton {
 
     implicitWidth: diameter
     implicitHeight: diameter
-    scale: pressed ? 0.94 : 1
+    scale: pressed ? 0.98 : 1
     Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
 
     background: Item {
@@ -30,7 +31,7 @@ AbstractButton {
             anchors.fill: parent
             radius: width / 2
             color: button.highlighted ? button.tone
-                   : button.pressed ? Style.alpha(Style.textPrimary, 0.10) : Style.alpha(Style.textPrimary, 0.05)
+                   : Style.alpha(Style.textPrimary, 0.05)
             border.color: button.highlighted ? button.tone : Style.border
         }
     }

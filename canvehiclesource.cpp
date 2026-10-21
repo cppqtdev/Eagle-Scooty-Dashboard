@@ -21,6 +21,7 @@ enum : quint32 {
     TyresId = 0x104,    // front, rear bar x10 (u8 each)
     FaultsId = 0x105,   // flags (u8: bit0 motor, bit1 ABS)
     TripId = 0x106,     // trip km (u16), odometer km (u32)
+    ButtonsId = 0x107,  // handlebar keys held (u8: up, down, left, right, ok, back), encoder detents (s8)
 };
 
 quint16 u16(const QByteArray &p, int at) { return qFromLittleEndian<quint16>(p.constData() + at); }
@@ -123,6 +124,7 @@ void CanVehicleSource::apply(quint32 id, const QByteArray &p)
             return;
         m_data->setMotorFault(bit(quint8(p.at(0)), 0));
         m_data->setAbsFault(bit(quint8(p.at(0)), 1));
+        m_data->setCheckEngine(bit(quint8(p.at(0)), 2));
         break;
     case TripId:
         if (p.size() < 6)
@@ -130,6 +132,25 @@ void CanVehicleSource::apply(quint32 id, const QByteArray &p)
         m_data->setTripKm(u16(p, 0));
         m_data->setOdometerKm(int(u32(p, 2)));
         break;
+    case ButtonsId: {
+        if (p.isEmpty())
+            return;
+        // A key counts when it goes down; the encoder's detents are steps.
+        static const char *const kNames[] = {"up", "down", "left", "right", "ok", "back"};
+        const quint8 held = quint8(p.at(0));
+        const quint8 pressed = held & ~m_buttonsHeld;
+        m_buttonsHeld = held;
+        for (int i = 0; i < 6; ++i) {
+            if (bit(pressed, i))
+                emit buttonPressed(QString::fromLatin1(kNames[i]));
+        }
+        if (p.size() >= 2) {
+            const int detents = qint8(p.at(1));
+            for (int i = 0; i < qAbs(detents); ++i)
+                emit buttonPressed(detents > 0 ? QStringLiteral("down") : QStringLiteral("up"));
+        }
+        break;
+    }
     default:
         break;
     }

@@ -8,11 +8,14 @@ import Style 1.0
 // grows with a longer explanation (which wraps to two lines at most).
 AbstractButton {
     id: row
+    focusPolicy: Qt.StrongFocus
 
     property string title
     property string subtitle
 
     checkable: true
+    scale: pressed ? 0.98 : 1
+    Behavior on scale { NumberAnimation { duration: Style.motion.instant } }
     leftPadding: 24
     rightPadding: 24
     topPadding: 16
@@ -22,8 +25,7 @@ AbstractButton {
 
     background: Rectangle {
         radius: Style.metrics.radiusMd
-        color: row.pressed ? Style.surfaceSunken : Style.surface
-        border.color: Style.border
+        color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
     }
 
     contentItem: RowLayout {

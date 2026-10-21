@@ -7,6 +7,7 @@ import Style 1.0
 // transport keys and dialog choices. Its width follows the label plus padding.
 AbstractButton {
     id: button
+    focusPolicy: Qt.StrongFocus
 
     // "plus" or "minus": drawn as bars rather than a glyph, so it stays crisp and sized
     property string symbol: ""
@@ -17,12 +18,13 @@ AbstractButton {
     rightPadding: 28
     implicitWidth: symbol.length > 0 ? 90 : Math.max(150, implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: 64
-    scale: pressed ? 0.96 : 1
+    // A press only scales the button a touch; it never changes colour.
+    scale: pressed ? 0.98 : 1
     Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
 
     background: Rectangle {
         radius: 14
-        color: button.highlighted ? button.tone : button.pressed ? Style.surfaceSunken : "transparent"
+        color: button.highlighted ? button.tone : "transparent"
         border.color: button.highlighted ? button.tone : Style.borderStrong
         border.width: 2
         Behavior on color { ColorAnimation { duration: Style.motion.instant } }

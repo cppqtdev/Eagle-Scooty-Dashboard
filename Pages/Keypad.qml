@@ -34,10 +34,10 @@ EaglePage {
         implicitWidth: 200
         implicitHeight: 96
         radius: 18
-        color: tap.pressed ? Style.accentSoft : Style.surfaceSunken
-        border.color: tap.pressed ? Style.accent : "transparent"
+        color: Style.surfaceSunken
+        border.color: "transparent"
         border.width: 2
-        scale: tap.pressed ? 0.96 : 1
+        scale: tap.pressed ? 0.98 : 1
         Behavior on color { ColorAnimation { duration: Style.motion.instant } }
         Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
         ColumnLayout {

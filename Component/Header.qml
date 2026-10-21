@@ -71,6 +71,16 @@ Image {
                 offSource: "qrc:/Icons/topIcons/icn_tyrepressure.svg"
                 onSource: "qrc:/Icons/topIcons/icn_tyrepressure_glow.svg"
             }
+            GlyphTelltale {
+                lampCheck: root.lampCheck
+                label: "ABS"
+                active: dashboardData.absFault
+            }
+            GlyphTelltale {
+                lampCheck: root.lampCheck
+                glyph: "engine"
+                active: dashboardData.checkEngine
+            }
             Telltale {
                 lampCheck: root.lampCheck
                 active: dashboardData.highBeam

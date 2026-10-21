@@ -8,6 +8,7 @@ import Style 1.0
 // A button underneath, so padding, background and height follow the content.
 AbstractButton {
     id: row
+    focusPolicy: Qt.StrongFocus
 
     property string title
     property string subtitle
@@ -19,6 +20,9 @@ AbstractButton {
     property bool selected: false
     property bool showEdge: true     // the leading avatar
 
+    // A press only scales the row a touch; it never changes colour.
+    scale: pressed ? 0.98 : 1
+    Behavior on scale { NumberAnimation { duration: Style.motion.instant } }
     leftPadding: 16
     rightPadding: 20
     topPadding: 12
@@ -29,10 +33,9 @@ AbstractButton {
     // A soft filled row, no hard outline; the selected one is lit in its tone.
     background: Rectangle {
         radius: Style.metrics.radiusMd
-        color: row.pressed ? Style.alpha(Style.textPrimary, 0.09) : Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
+        color: Style.alpha(Style.textPrimary, Style.isDark ? 0.045 : 0.035)
         border.color: row.selected ? Style.alpha(row.tone, 0.7) : "transparent"
         border.width: row.selected ? 1.5 : 0
-        Behavior on color { ColorAnimation { duration: Style.motion.instant } }
 
         Rectangle {
             visible: row.selected

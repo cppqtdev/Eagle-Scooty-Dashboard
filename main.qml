@@ -46,6 +46,8 @@ ApplicationWindow {
         objectName: "canvas"
 
         property string currentPage: "home"
+        property alias handlebar: handlebar
+
         // Screens that need more than a glance are locked while moving.
         property bool rideLock: true
         readonly property var pages: ({
@@ -87,6 +89,20 @@ ApplicationWindow {
             source: "qrc:/Icons/dark/background.png"
         }
 
+        // The header casts the same soft shadow as the footer; the dark artwork has its own.
+        Rectangle {
+            visible: !Style.isDark
+            anchors.top: header.bottom
+            anchors.topMargin: -header.height * 0.18
+            anchors.horizontalCenter: header.horizontalCenter
+            width: header.width * 0.9
+            height: 34
+            radius: 17
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Style.alpha("#0D3B3A", 0.16) }
+                GradientStop { position: 1.0; color: Style.alpha("#0D3B3A", 0.0) }
+            }
+        }
         Header {
             id: header
             width: parent.width
@@ -185,6 +201,32 @@ ApplicationWindow {
             z: 50
         }
 
+        HandlebarInput {
+            id: handlebar
+            anchors.fill: parent
+            z: 60
+            canvas: root
+            stack: stack
+            pages: ["home", "map", "phone", "music", "charging", "settings"]
+            currentPage: root.currentPage
+            onNavigate: page => root.navigate(page)
+        }
+
+        // Handlebar buttons that arrive over CAN go the same way as keys.
+        Connections {
+            target: canSource
+            function onButtonPressed(button) {
+                switch (button) {
+                case "up": handlebar.step(false); break
+                case "down": handlebar.step(true); break
+                case "left": handlebar.screen(false); break
+                case "right": handlebar.screen(true); break
+                case "ok": handlebar.ok(); break
+                case "back": handlebar.back(); break
+                }
+            }
+        }
+
         Loader {
             active: snapshotDir.length > 0
             source: "qrc:/Component/SnapshotDriver.qml"
@@ -210,7 +252,16 @@ ApplicationWindow {
         }
     }
 
-    // Bench keys: the handlebar buttons on the desk, and a quick way through the demo.
+    // The handlebar keys. On the board, buttons and a rotary encoder wired as
+    // gpio-keys / rotary-encoder arrive as these keys (docs/Inputs.md).
+    Shortcut { sequences: ["Up", "PgUp"]; onActivated: handlebar.step(false) }
+    Shortcut { sequences: ["Down", "PgDown"]; onActivated: handlebar.step(true) }
+    Shortcut { sequence: "Left"; onActivated: handlebar.screen(false) }
+    Shortcut { sequence: "Right"; onActivated: handlebar.screen(true) }
+    Shortcut { sequences: ["Return", "Enter", "Select"]; onActivated: handlebar.ok() }
+    Shortcut { sequences: ["Escape", "Back"]; onActivated: handlebar.back() }
+
+    // Bench keys: a quick way through the demo.
     Shortcut { sequence: "M"; onActivated: dashboardData.cycleRideMode() }
     Shortcut { sequence: "C"; onActivated: phone.callState === 1 ? phone.answer() : phone.simulateIncomingCall() }
     Shortcut { sequence: "X"; onActivated: phone.simulateMessage() }
@@ -222,7 +273,7 @@ ApplicationWindow {
     Shortcut { sequence: "O"; onActivated: simulator.trigger("overheat") }
     Shortcut { sequence: "Z"; onActivated: simulator.trigger("hazard") }
     Shortcut { sequence: "R"; onActivated: simulator.trigger("reverse") }
-    Shortcut { sequence: "Escape"; onActivated: simulator.trigger("clear") }
+    Shortcut { sequence: "Backspace"; onActivated: simulator.trigger("clear") }
     Shortcut { sequence: "1"; onActivated: root.navigate("home") }
     Shortcut { sequence: "2"; onActivated: root.navigate("map") }
     Shortcut { sequence: "3"; onActivated: root.navigate("phone") }

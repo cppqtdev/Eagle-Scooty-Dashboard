@@ -53,6 +53,7 @@ ListView {
 
     delegate: AbstractButton {
         id: tab
+        focusPolicy: Qt.StrongFocus
         required property int index
         required property var modelData
         readonly property bool current: ListView.isCurrentItem

@@ -83,7 +83,15 @@ void ThemeController::toggle()
 bool ThemeController::automaticDark() const
 {
     const int hour = QDateTime::currentDateTime().time().hour();
-    return hour < 6 || hour >= 18;
+    return m_lightsOn || hour < 6 || hour >= 18;
+}
+
+void ThemeController::setLightsOn(bool on)
+{
+    if (m_lightsOn == on)
+        return;
+    m_lightsOn = on;
+    refreshAutomaticTheme();
 }
 
 void ThemeController::refreshAutomaticTheme()

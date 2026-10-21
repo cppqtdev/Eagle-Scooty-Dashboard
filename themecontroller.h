@@ -29,6 +29,8 @@ public slots:
     void setDark(bool dark);
     void setBrightness(int brightness);
     void toggle();
+    // The bike's lights are on: Auto turns dark with them, whatever the hour.
+    void setLightsOn(bool on);
 
 signals:
     void modeChanged();
@@ -41,6 +43,7 @@ private:
 
     ThemeMode m_mode = Auto;
     bool m_dark = false;
+    bool m_lightsOn = false;
     int m_brightness = 76;
     QTimer m_clockTimer;
 };

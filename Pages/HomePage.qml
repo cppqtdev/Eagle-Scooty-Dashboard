@@ -190,61 +190,41 @@ Page {
                 text: phone.trackArtist
             }
         }
-        Image {
+        MediaControls {
             Layout.alignment: Qt.AlignHCenter
-            source: "qrc:/Icons/fooo.svg"
-            opacity: phone.playing ? 1 : 0.35
-            transformOrigin: Item.Center
-            SequentialAnimation on scale {
-                running: phone.playing
-                loops: Animation.Infinite
-                NumberAnimation { to: 1.06; duration: 420; easing.type: Easing.InOutSine }
-                NumberAnimation { to: 0.96; duration: 420; easing.type: Easing.InOutSine }
-            }
-            Behavior on opacity { NumberAnimation { duration: Style.motion.normal } }
-        }
-        RowLayout {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 20
-            IconButton {
-                setIcon: "qrc:/Icons/Music/first_page.svg"
-                onClicked: phone.previous()
-            }
-            IconButton {
-                roundIcon: true
-                implicitHeight: 60
-                implicitWidth: 60
-                iconWidth: 24
-                iconHeight: 28
-                setIcon: phone.playing ? "qrc:/Icons/Music/pause_paly.svg" : "qrc:/Icons/Music/Play.svg"
-                onClicked: phone.playPause()
-            }
-            IconButton {
-                setIcon: "qrc:/Icons/Music/last_page.svg"
-                onClicked: phone.next()
-            }
+            diameter: 64
+            tone: page.modeColor
         }
     }
 
-    // Vehicle.
+    // Vehicle. A fixed width, so the column never shifts when a value (a motor
+    // temperature, a regen figure) gets a character longer or shorter; a value
+    // too long for it elides.
     ColumnLayout {
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
         anchors.rightMargin: 48
+        width: 360
         spacing: 18
 
         component Stat: ColumnLayout {
             property string title
             property string value
             property color valueColor: Style.textMuted
+            Layout.fillWidth: true
             spacing: 2
             PrefsLabel {
+                Layout.fillWidth: true
                 isStyle: true
+                elide: Text.ElideRight
+                wrapMode: Text.NoWrap
                 text: parent.title
             }
             PrefsLabel {
+                Layout.fillWidth: true
                 font.pixelSize: Style.h5
                 color: parent.valueColor
+                elide: Text.ElideRight
                 wrapMode: Text.NoWrap
                 text: parent.value
             }

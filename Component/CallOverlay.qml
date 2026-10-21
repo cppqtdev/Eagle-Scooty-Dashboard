@@ -18,11 +18,12 @@ Item {
 
     component RoundAction: AbstractButton {
         id: action
+        focusPolicy: Qt.StrongFocus
         property color tone
         property real iconRotation: 0
         implicitWidth: 96
         implicitHeight: 96
-        scale: pressed ? 0.94 : 1
+        scale: pressed ? 0.98 : 1
         Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
         background: Rectangle { radius: width / 2; color: action.tone }
         contentItem: Item {

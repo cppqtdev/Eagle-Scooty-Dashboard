@@ -37,6 +37,10 @@ QtObject {
         ["14c-map-hazard", 1.6, () => { canvas.rideLock = false; canvas.navigate("map"); simulator.trigger("hazard"); dashboardData.highBeam = true }],
         ["14d-map-reverse", 9.0, () => { simulator.trigger("hazard"); dashboardData.highBeam = false; simulator.trigger("reverse") }],
         ["14e-home-reverse", 1.4, () => canvas.navigate("home")],
+        ["14f-settings", 1.0, () => canvas.navigate("settings")],
+        ["14g-keys-settings", 1.0, () => { for (let i = 0; i < 3; ++i) canvas.handlebar.step(true) }],
+        ["14h-phone", 1.0, () => { canvas.handlebar.screen(true); canvas.handlebar.screen(true); canvas.handlebar.screen(true) }],
+        ["14i-keys-phone", 1.0, () => { canvas.handlebar.step(true); canvas.handlebar.step(true) }],
         ["15-home-sport-dark", 3.0, () => { simulator.trigger("clear"); canvas.navigate("home"); Style.setMode(Style.darkMode); dashboardData.rideMode = 2 }],
     ]
 

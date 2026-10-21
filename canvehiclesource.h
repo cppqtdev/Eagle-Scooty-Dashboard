@@ -30,6 +30,8 @@ public:
 
 signals:
     void statusChanged();
+    // A handlebar key went down: "up", "down", "left", "right", "ok" or "back".
+    void buttonPressed(const QString &button);
 
 private:
     void readFrames();
@@ -39,4 +41,5 @@ private:
     QCanBusDevice *m_device = nullptr;
     bool m_connected = false;
     QString m_status;
+    quint8 m_buttonsHeld = 0;
 };

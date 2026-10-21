@@ -98,11 +98,12 @@ EaglePage {
 
                 delegate: AbstractButton {
                     id: card
+                    focusPolicy: Qt.StrongFocus
                     required property var modelData
                     width: 360
                     height: ListView.view.height
                     padding: 18
-                    scale: pressed ? 0.97 : 1
+                    scale: pressed ? 0.98 : 1
                     Behavior on scale { NumberAnimation { duration: Style.motion.fast } }
                     onClicked: root.shown = modelData
 

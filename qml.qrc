@@ -183,6 +183,9 @@
         <file>Component/TabRail.qml</file>
         <file>Component/BlinkClock.qml</file>
         <file>Component/DriveStatus.qml</file>
+        <file>Component/HandlebarInput.qml</file>
+        <file>Component/GlyphTelltale.qml</file>
+        <file>Component/MediaControls.qml</file>
         <file>Component/SegmentedControl.qml</file>
         <file>Component/RoundIconButton.qml</file>
     </qresource>

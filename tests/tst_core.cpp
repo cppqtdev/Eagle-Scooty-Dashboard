@@ -43,6 +43,29 @@ private slots:
         QCOMPARE(data.rideMode(), DashboardData::Sport);
     }
 
+    void canButtonsFireOnPressAndDetents()
+    {
+        DashboardData data;
+        CanVehicleSource can(&data);
+        QSignalSpy spy(&can, &CanVehicleSource::buttonPressed);
+        can.apply(0x107, QByteArray::fromHex("10" "00")); // ok goes down
+        can.apply(0x107, QByteArray::fromHex("10" "00")); // still held: nothing new
+        can.apply(0x107, QByteArray::fromHex("00" "fe")); // released, encoder two detents back
+        QCOMPARE(spy.count(), 3);
+        QCOMPARE(spy.at(0).at(0).toString(), QStringLiteral("ok"));
+        QCOMPARE(spy.at(1).at(0).toString(), QStringLiteral("up"));
+        QCOMPARE(spy.at(2).at(0).toString(), QStringLiteral("up"));
+    }
+
+    void canFaultsCarryCheckEngine()
+    {
+        DashboardData data;
+        CanVehicleSource can(&data);
+        can.apply(0x105, QByteArray::fromHex("04"));
+        QVERIFY(data.checkEngine());
+        QVERIFY(!data.motorFault());
+    }
+
     void canShortFrameIsIgnored()
     {
         DashboardData data;
@@ -119,6 +142,21 @@ private slots:
         phone.simulateIncomingCall();
         phone.decline();
         QCOMPARE(phone.recents().first().toMap().value(QStringLiteral("kind")).toString(), QStringLiteral("missed"));
+    }
+
+    void playerStateFollowsPlaybackCallsAndConnection()
+    {
+        PhoneService phone;
+        QCOMPARE(phone.playerState(), PhoneService::Playing);
+        phone.playPause();
+        QCOMPARE(phone.playerState(), PhoneService::Paused);
+        phone.playPause();
+        phone.simulateIncomingCall();          // the music holds while the phone rings
+        QCOMPARE(phone.playerState(), PhoneService::Paused);
+        phone.decline();
+        QCOMPARE(phone.playerState(), PhoneService::Playing);
+        phone.setConnected(false);
+        QCOMPARE(phone.playerState(), PhoneService::NoSource);
     }
 
     void documentStatuses()
