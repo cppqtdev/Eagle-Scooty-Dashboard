@@ -152,7 +152,8 @@ int main(int argc, char *argv[])
         options.firmware = QCoreApplication::applicationVersion();
         phoneLink = std::make_unique<phonelink::ProtocolPhoneLink>(std::move(transport), options);
         phone.attachLink(phoneLink.get());
-        phoneBridge = std::make_unique<PhoneLinkBridge>(phoneLink.get(), &dashboardData, &simulator);
+        phoneBridge = std::make_unique<PhoneLinkBridge>(phoneLink.get(), &dashboardData, &simulator,
+                                                        &themeController, &phone);
         phoneLink->start();
     }
 

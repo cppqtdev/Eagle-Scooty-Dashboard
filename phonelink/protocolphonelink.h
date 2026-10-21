@@ -64,6 +64,7 @@ public slots:
     void previousTrack() override;
     void callContact(int slot) override;
     void publishVehicle(const phonelink::VehicleSummary &summary) override;
+    void publishSettings(const QList<std::pair<int, int>> &values) override;
 
 private:
     struct PhoneState
@@ -118,6 +119,7 @@ private:
     std::optional<qint64> m_clockOffsetSeconds;
     int m_utcOffsetMinutes = 0;
     std::optional<VehicleSummary> m_vehicle;
+    std::optional<wire::Settings> m_settings;
 };
 
 } // namespace phonelink

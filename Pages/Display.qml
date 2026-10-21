@@ -27,6 +27,15 @@ EaglePage {
             text: qsTr("Auto uses the light theme by day and the dark theme from 6 pm to 6 am.")
         }
 
+        Caption { Layout.topMargin: 24; text: qsTr("Navigation arrow") }
+        SegmentedControl {
+            // Display order; the stored values are solid 0, ribbon 1, chevrons 2, outline 3, sign 4.
+            readonly property var styles: [4, 1, 0, 2, 3]
+            model: [qsTr("Sign"), qsTr("Ribbon"), qsTr("Solid"), qsTr("Chevrons"), qsTr("Outline")]
+            currentIndex: styles.indexOf(themeController.arrowStyle)
+            onActivated: index => themeController.arrowStyle = styles[index]
+        }
+
         Caption { Layout.topMargin: 24; text: qsTr("Brightness") }
         RowLayout {
             spacing: 18

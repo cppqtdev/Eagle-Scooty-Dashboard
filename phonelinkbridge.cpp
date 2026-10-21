@@ -2,6 +2,9 @@
 
 #include "dashboarddata.h"
 #include "phonelink/iphonelink.h"
+#include "phonelink/phonelinkcodec.h"
+#include "phoneservice.h"
+#include "themecontroller.h"
 #include "vehiclesimulator.h"
 
 #include <QImage>
@@ -38,8 +41,8 @@ DashboardData::Maneuver toDashboard(phonelink::Maneuver maneuver)
 } // namespace
 
 PhoneLinkBridge::PhoneLinkBridge(phonelink::IPhoneLink *link, DashboardData *data, VehicleSimulator *simulator,
-                                 QObject *parent)
-    : QObject(parent), m_link(link), m_data(data), m_simulator(simulator)
+                                 ThemeController *theme, PhoneService *phone, QObject *parent)
+    : QObject(parent), m_link(link), m_data(data), m_simulator(simulator), m_theme(theme), m_phone(phone)
 {
     connect(link, &phonelink::IPhoneLink::guidanceChanged, this, &PhoneLinkBridge::syncGuidance);
     connect(link, &phonelink::IPhoneLink::connectionChanged, this, &PhoneLinkBridge::publishVehicle);
@@ -51,7 +54,61 @@ PhoneLinkBridge::PhoneLinkBridge(phonelink::IPhoneLink *link, DashboardData *dat
                         &DashboardData::rideModeChanged, &DashboardData::faultsChanged})
         connect(data, signal, &m_publish, qOverload<>(&QTimer::start));
 
+    // Settings both ways.
+    connect(link, &phonelink::IPhoneLink::settingRequested, this, &PhoneLinkBridge::applySetting);
+    connect(link, &phonelink::IPhoneLink::connectionChanged, this, &PhoneLinkBridge::publishSettings);
+    connect(theme, &ThemeController::modeChanged, this, &PhoneLinkBridge::publishSettings);
+    connect(theme, &ThemeController::brightnessChanged, this, &PhoneLinkBridge::publishSettings);
+    connect(theme, &ThemeController::arrowStyleChanged, this, &PhoneLinkBridge::publishSettings);
+    connect(data, &DashboardData::rideModeChanged, this, &PhoneLinkBridge::publishSettings);
+    connect(data, &DashboardData::chargingChanged, this, &PhoneLinkBridge::publishSettings);
+    connect(phone, &PhoneService::volumeChanged, this, &PhoneLinkBridge::publishSettings);
+
     syncGuidance();
+    publishSettings();
+}
+
+void PhoneLinkBridge::publishSettings()
+{
+    namespace setting = phonelink::wire::setting;
+    m_link->publishSettings({{setting::Theme, int(m_theme->mode())},
+                             {setting::Brightness, m_theme->brightness()},
+                             {setting::RideMode, int(m_data->rideMode())},
+                             {setting::ChargeLimit, m_data->chargeLimitPercent()},
+                             {setting::Volume, m_phone->volume()},
+                             {setting::ArrowStyle, m_theme->arrowStyle()}});
+}
+
+void PhoneLinkBridge::applySetting(int key, int value)
+{
+    namespace setting = phonelink::wire::setting;
+    switch (key) {
+    case setting::Theme:
+        if (value >= ThemeController::Auto && value <= ThemeController::Dark)
+            m_theme->setMode(ThemeController::ThemeMode(value));
+        break;
+    case setting::Brightness:
+        m_theme->setBrightness(value);
+        break;
+    case setting::RideMode:
+        // Never from a pocket while riding: only at a standstill.
+        if (m_data->speed() == 0 && value >= DashboardData::Eco && value <= DashboardData::Sport)
+            m_data->setRideMode(DashboardData::RideMode(value));
+        break;
+    case setting::ChargeLimit:
+        if (value == 80 || value == 90 || value == 100)
+            m_data->setChargeLimitPercent(value);
+        break;
+    case setting::Volume:
+        m_phone->setVolume(value);
+        break;
+    case setting::ArrowStyle:
+        m_theme->setArrowStyle(value);
+        break;
+    default:
+        break;   // a setting this cluster does not have
+    }
+    publishSettings();   // the app sees what was actually taken
 }
 
 void PhoneLinkBridge::syncGuidance()

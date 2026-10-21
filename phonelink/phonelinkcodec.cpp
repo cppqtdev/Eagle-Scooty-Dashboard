@@ -365,6 +365,15 @@ std::optional<PhoneStatus> decodePhoneStatus(const QByteArray &payload)
     return valid(in, message);
 }
 
+std::optional<SettingSet> decodeSettingSet(const QByteArray &payload)
+{
+    Reader in(payload);
+    SettingSet message;
+    message.key = in.u8();
+    message.value = in.u16();
+    return valid(in, message);
+}
+
 QByteArray encode(const NavUpdate &message)
 {
     Writer out;
@@ -445,6 +454,11 @@ QByteArray encode(const PhoneStatus &message)
     return out.frame(MessageType::PhoneStatus);
 }
 
+QByteArray encode(const SettingSet &message)
+{
+    return Writer().u8(message.key).u16(message.value).frame(MessageType::SettingSet);
+}
+
 QByteArray encodeNavStop()
 {
     return encodeFrame(MessageType::NavStop);
@@ -516,6 +530,27 @@ std::optional<ClusterInfo> decodeClusterInfo(const QByteArray &payload)
     message.features = in.u32();
     message.model = in.text();
     message.firmware = in.text();
+    return valid(in, message);
+}
+
+QByteArray encode(const Settings &message)
+{
+    Writer out;
+    out.u8(int(message.values.size()));
+    for (const auto &[key, value] : message.values)
+        out.u8(key).u16(value);
+    return out.frame(MessageType::Settings);
+}
+
+std::optional<Settings> decodeSettings(const QByteArray &payload)
+{
+    Reader in(payload);
+    Settings message;
+    const int count = in.u8();
+    for (int i = 0; i < count; ++i) {
+        const int key = in.u8();
+        message.values.append({key, in.u16()});
+    }
     return valid(in, message);
 }
 

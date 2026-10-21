@@ -110,6 +110,7 @@ private slots:
     void contactsAndRemindersFillTheirSlots();
     void vehicleStatusGoesOutWhenPublishedAndOnSubscribe();
     void framesSplitAcrossWritesStillArrive();
+    void settingsGoOutAndRequestsComeIn();
 };
 
 void PhoneLinkTest::crcIsCcittFalse()
@@ -353,7 +354,7 @@ void PhoneLinkTest::clusterInfoGoesOutWhenThePhoneSubscribes()
     QVERIFY(!rig.transport->sent().isEmpty());
     const auto info = wire::decodeClusterInfo(payloadOf(rig.transport->sent().constFirst()));
     QVERIFY(info);
-    QCOMPARE(info->minorVersion, 1);
+    QCOMPARE(info->minorVersion, 2);
     QCOMPARE(info->features, ProtocolPhoneLink::features());
     QCOMPARE(info->model, QStringLiteral("APEX EV"));
     QCOMPARE(info->firmware, QStringLiteral("0.2.0"));
@@ -677,6 +678,34 @@ void PhoneLinkTest::framesSplitAcrossWritesStillArrive()
         rig.phoneSends(stream.mid(offset, 7));
     QCOMPARE(rig.link->batteryPercent(), 90);
     QVERIFY(rig.link->guidance().active);
+}
+
+void PhoneLinkTest::settingsGoOutAndRequestsComeIn()
+{
+    LinkRig rig;
+    QVERIFY(ProtocolPhoneLink::features() & wire::feature::Settings);
+
+    // Published settings go out once, again only when they change, and to the next phone after ClusterInfo.
+    rig.transport->clearSent();
+    const QList<std::pair<int, int>> values{{wire::setting::Theme, 2}, {wire::setting::Brightness, 80}};
+    rig.link->publishSettings(values);
+    rig.link->publishSettings(values);
+    QCOMPARE(rig.transport->sent().size(), 1);
+    QCOMPARE(wire::decodeSettings(payloadOf(rig.transport->sent().constFirst()))->values, values);
+    rig.transport->disconnectPhone();
+    rig.transport->clearSent();
+    rig.transport->connectPhone();
+    QCOMPARE(wire::decodeSettings(payloadOf(rig.transport->sent().at(1)))->values, values);
+
+    // A request from the app arrives as a signal; the cluster decides.
+    QSignalSpy requested(rig.link.get(), &IPhoneLink::settingRequested);
+    rig.phoneSends(wire::encode(wire::SettingSet{wire::setting::Volume, 40}));
+    QCOMPARE(requested.count(), 1);
+    QCOMPARE(requested.at(0).at(0).toInt(), wire::setting::Volume);
+    QCOMPARE(requested.at(0).at(1).toInt(), 40);
+
+    // The bytes, for the app's codec to test against: Volume (5) to 40.
+    QCOMPARE(payloadOf(wire::encode(wire::SettingSet{5, 40})), QByteArray::fromHex("05 28 00"));
 }
 
 QTEST_GUILESS_MAIN(PhoneLinkTest)

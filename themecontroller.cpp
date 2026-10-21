@@ -7,6 +7,7 @@ namespace {
 constexpr auto kThemeModeKey = "appearance/themeMode";
 constexpr auto kLegacyDarkThemeKey = "appearance/darkTheme";
 constexpr auto kBrightnessKey = "display/brightness";
+constexpr auto kArrowStyleKey = "navigation/arrowStyle";
 }
 
 ThemeController::ThemeController(QObject *parent)
@@ -20,6 +21,7 @@ ThemeController::ThemeController(QObject *parent)
         m_mode = settings.value(QLatin1String(kLegacyDarkThemeKey)).toBool() ? Dark : Light;
     }
     m_brightness = qBound(20, settings.value(QLatin1String(kBrightnessKey), 76).toInt(), 100);
+    m_arrowStyle = qBound(0, settings.value(QLatin1String(kArrowStyleKey), 4).toInt(), 4);
     m_dark = m_mode == Auto ? automaticDark() : m_mode == Dark;
 
     m_clockTimer.setInterval(60'000);
@@ -73,6 +75,16 @@ void ThemeController::setBrightness(int brightness)
     m_brightness = brightness;
     QSettings().setValue(QLatin1String(kBrightnessKey), m_brightness);
     emit brightnessChanged();
+}
+
+void ThemeController::setArrowStyle(int style)
+{
+    style = qBound(0, style, 4);
+    if (m_arrowStyle == style)
+        return;
+    m_arrowStyle = style;
+    QSettings().setValue(QLatin1String(kArrowStyleKey), m_arrowStyle);
+    emit arrowStyleChanged();
 }
 
 void ThemeController::toggle()

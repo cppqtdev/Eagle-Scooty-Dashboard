@@ -47,6 +47,8 @@ public slots:
     virtual void previousTrack() = 0;
     virtual void callContact(int slot);
     virtual void publishVehicle(const phonelink::VehicleSummary &summary);
+    // The cluster's settings as (key, value) pairs (wire::setting), for the app to show.
+    virtual void publishSettings(const QList<std::pair<int, int>> &values);
 
 signals:
     void connectionChanged();
@@ -57,6 +59,8 @@ signals:
     void albumArtChanged();
     void notificationChanged();
     void listsChanged();
+    // The app asks to change a setting; the cluster decides whether to.
+    void settingRequested(int key, int value);
 };
 
 } // namespace phonelink

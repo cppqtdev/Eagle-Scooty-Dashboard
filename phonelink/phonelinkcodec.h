@@ -14,7 +14,7 @@ namespace phonelink::wire {
 
 constexpr std::uint8_t kStartOfFrame = 0xA5;
 constexpr std::uint8_t kVersion = 1;
-constexpr std::uint8_t kMinorVersion = 1;
+constexpr std::uint8_t kMinorVersion = 2; // 1.2: settings from the app
 constexpr int kHeaderSize = 5;
 constexpr int kCrcSize = 2;
 constexpr int kMaxPayload = 160;
@@ -34,11 +34,13 @@ enum class MessageType : std::uint8_t
     MediaArt = 0x14,
     TimeSync = 0x20,
     PhoneStatus = 0x21,
+    SettingSet = 0x23,   // 1.2
     Heartbeat = 0x30,
     MediaCommand = 0x40,
     CallCommand = 0x41,
     VehicleStatus = 0x60,
     ClusterInfo = 0x61,
+    Settings = 0x63,     // 1.2
 };
 
 struct Frame
@@ -267,7 +269,37 @@ constexpr quint32 ContactsDial = 1u << 2;
 constexpr quint32 NextManeuver = 1u << 3;
 constexpr quint32 Notifications = 1u << 4;
 constexpr quint32 Reminders = 1u << 5;
+constexpr quint32 WifiJoin = 1u << 6;
+constexpr quint32 Settings = 1u << 9;
 } // namespace feature
+
+// The settings the app may read and change (1.2). Values are small whole numbers.
+namespace setting {
+constexpr int Theme = 1;        // 0 auto, 1 light, 2 dark
+constexpr int Brightness = 2;   // 20..100 %
+constexpr int RideMode = 3;     // 0 eco, 1 city, 2 sport; taken only at a standstill
+constexpr int ChargeLimit = 4;  // 80, 90 or 100 %
+constexpr int Volume = 5;       // 0..100 %
+constexpr int Language = 6;     // index into the cluster's language list
+constexpr int ArrowStyle = 7;   // 0 solid, 1 ribbon, 2 chevrons, 3 outline, 4 sign
+} // namespace setting
+
+// Phone to cluster: change one setting.
+struct SettingSet
+{
+    int key = 0;
+    int value = 0;
+
+    bool operator==(const SettingSet &) const = default;
+};
+
+// Cluster to phone: every setting and its value, after ClusterInfo and on any change.
+struct Settings
+{
+    QList<std::pair<int, int>> values;
+
+    bool operator==(const Settings &) const = default;
+};
 
 struct ClusterInfo
 {
@@ -289,6 +321,7 @@ struct ClusterInfo
 [[nodiscard]] std::optional<MediaArt> decodeMediaArt(const QByteArray &payload);
 [[nodiscard]] std::optional<TimeSync> decodeTimeSync(const QByteArray &payload);
 [[nodiscard]] std::optional<PhoneStatus> decodePhoneStatus(const QByteArray &payload);
+[[nodiscard]] std::optional<SettingSet> decodeSettingSet(const QByteArray &payload);
 
 [[nodiscard]] QByteArray encode(const NavUpdate &message);
 [[nodiscard]] QByteArray encode(const CallState &message);
@@ -299,6 +332,7 @@ struct ClusterInfo
 [[nodiscard]] QByteArray encode(const TimeSync &message);
 [[nodiscard]] QByteArray encode(const PhoneStatus &message);
 [[nodiscard]] QByteArray encodeNavStop();
+[[nodiscard]] QByteArray encode(const SettingSet &message);
 
 // Cluster to phone.
 [[nodiscard]] QByteArray encodeHeartbeat();
@@ -308,6 +342,8 @@ struct ClusterInfo
 [[nodiscard]] QByteArray encode(const ClusterInfo &message);
 [[nodiscard]] std::optional<VehicleStatus> decodeVehicleStatus(const QByteArray &payload);
 [[nodiscard]] std::optional<ClusterInfo> decodeClusterInfo(const QByteArray &payload);
+[[nodiscard]] QByteArray encode(const Settings &message);
+[[nodiscard]] std::optional<Settings> decodeSettings(const QByteArray &payload);
 
 // Puts a cover back together from its MediaArt chunks. Only the picture of the track now
 // playing is kept: chunks for any other id are ignored.

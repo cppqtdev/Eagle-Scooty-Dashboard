@@ -87,6 +87,7 @@ a5 01 01 16 00 06 00 fa 00 00 00 70 30 00 00 17 00 07 04 07 4d 47 20 52 6f 61 64
 | 0x14 | MediaArt (1.1) | `u32 artId, u16 offset, u16 total, bytes chunk` |
 | 0x20 | TimeSync | `u32 unixSeconds, i16 utcOffsetMinutes` |
 | 0x21 | PhoneStatus | `u8 battery%, u8 signalBars (0..4), u8 internet` + v1.1: `u8 charging` |
+| 0x23 | SettingSet (1.2) | `u8 key, u16 value` — the app asks to change one setting (keys below); the cluster may refuse, and answers with Settings either way |
 | 0x22 | WifiJoin (1.1) | `text ssid, text password` — the password may be 64 bytes. Taken only over an encrypted link, by a cluster with feature bit 6 |
 | 0x30 | Heartbeat | — (both ways, every 2 s) |
 
@@ -99,6 +100,7 @@ a5 01 01 16 00 06 00 fa 00 00 00 70 30 00 00 17 00 07 04 07 4d 47 20 52 6f 61 64
 | 0x41 | CallCommand | `u8 cmd` (1 answer, 2 decline or hang up) + v1.1: cmd 3 call contact, followed by `u8 slot` of the contacts list |
 | 0x60 | VehicleStatus (1.1) | `u8 soc%, u16 range_km, u32 odometer_hm, u32 tripA_hm, u8 charging (0 no, 1 charging, 2 full), u8 rideMode, u8 gear, u16 activeFaults` — every 5 s while subscribed, and the last one again right after ClusterInfo |
 | 0x61 | ClusterInfo (1.1) | `u8 minorVersion, u32 features, text model, text firmware` — once, right after the phone subscribes |
+| 0x63 | Settings (1.2) | `u8 count`, then `count` × (`u8 key, u16 value`) — after ClusterInfo and whenever a value changes |
 | 0x62 | WifiStatus (1.1) | `u8 state (0 off, 1 no network saved, 2 joining, 3 joined, 4 failed), text ssid, text address` — after ClusterInfo and on every change |
 
 `odometer_hm` and `tripA_hm` are in hectometres (0.1 km). `activeFaults` is the number of fault
@@ -106,9 +108,25 @@ codes active on the bike, not a bit mask. `rideMode`: 0 eco, 1 city, 2 sport,
 3 track. `gear`: 0 N, 1 D, 2 R.
 
 ClusterInfo `features` bits: 0 album art, 1 vehicle status, 2 contacts dial, 3 next maneuver,
-4 notifications, 5 reminders, 6 Wi-Fi (this dashboard does not set it). A cluster that never sends ClusterInfo is a v1.0 cluster: the
+4 notifications, 5 reminders, 6 Wi-Fi (this dashboard does not set it), 9 settings (1.2). A cluster that never sends ClusterInfo is a v1.0 cluster: the
 app sends v1.0 messages only (it may still append v1.1 fields, which a v1.0 parser ignores, but
 it skips MediaArt to save airtime).
+
+### Settings (1.2)
+
+| Key | Setting | Values |
+|---|---|---|
+| 1 | Theme | 0 auto, 1 light, 2 dark |
+| 2 | Brightness | 20–100 % |
+| 3 | Ride mode | 0 eco, 1 city, 2 sport — taken only at a standstill |
+| 4 | Charge limit | 80, 90 or 100 % |
+| 5 | Volume | 0–100 % |
+| 6 | Language | index into the cluster's list (reserved) |
+| 7 | Navigation arrow | 0 solid, 1 ribbon, 2 chevrons, 3 outline, 4 sign |
+
+Test vector: SettingSet volume (5) to 40 has the payload `05 28 00`. A cluster
+without feature bit 9 never sends Settings; the app then hides its settings
+screen. Unknown keys are ignored both ways.
 
 ### Codes
 

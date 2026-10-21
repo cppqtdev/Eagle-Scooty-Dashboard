@@ -125,7 +125,7 @@ ProtocolPhoneLink::~ProtocolPhoneLink()
 quint32 ProtocolPhoneLink::features()
 {
     using namespace wire::feature;
-    return AlbumArt | VehicleStatus | ContactsDial | NextManeuver | Notifications | Reminders;
+    return AlbumArt | VehicleStatus | ContactsDial | NextManeuver | Notifications | Reminders | Settings;
 }
 
 bool ProtocolPhoneLink::isConnected() const
@@ -288,6 +288,15 @@ void ProtocolPhoneLink::publishVehicle(const VehicleSummary &summary)
     send(wire::encode(toWire(summary)));
 }
 
+void ProtocolPhoneLink::publishSettings(const QList<std::pair<int, int>> &values)
+{
+    wire::Settings settings{values};
+    if (m_settings && *m_settings == settings)
+        return;
+    m_settings = settings;
+    send(wire::encode(settings));
+}
+
 void ProtocolPhoneLink::onPeerConnected()
 {
     qCInfo(lcPhoneLink) << "Phone subscribed over" << m_transport->name();
@@ -295,6 +304,8 @@ void ProtocolPhoneLink::onPeerConnected()
     send(wire::encode(wire::ClusterInfo{wire::kMinorVersion, features(), m_options.model, m_options.firmware}));
     if (m_vehicle)
         send(wire::encode(toWire(*m_vehicle)));
+    if (m_settings)
+        send(wire::encode(*m_settings));
     m_heartbeat.start();
     m_silence.start();
 }
@@ -375,6 +386,12 @@ void ProtocolPhoneLink::handle(const wire::Frame &frame)
         break;
     case MessageType::PhoneStatus:
         applyDecoded(wire::decodePhoneStatus(frame.payload));
+        break;
+    case MessageType::SettingSet:
+        if (const auto message = wire::decodeSettingSet(frame.payload)) {
+            qCInfo(lcPhoneLink) << "App sets" << message->key << "to" << message->value;
+            emit settingRequested(message->key, message->value);
+        }
         break;
     default:
         // Heartbeat, or a message from a newer app this cluster does not know.

@@ -44,4 +44,9 @@ void IPhoneLink::publishVehicle(const VehicleSummary &summary)
     Q_UNUSED(summary)
 }
 
+void IPhoneLink::publishSettings(const QList<std::pair<int, int>> &values)
+{
+    Q_UNUSED(values)
+}
+
 } // namespace phonelink

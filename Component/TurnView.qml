@@ -175,7 +175,7 @@ Item {
     Canvas {
         id: arrow
         anchors.fill: parent
-        visible: !root.reverse
+        visible: !root.reverse && Style.arrowStyle !== "sign"
         readonly property var key: [root.maneuver, Math.round(root.joinY), root.arrowColor, root.drop > 0,
                                     Math.round(root.drop * 20), root.width, root.height, Style.arrowStyle, Style.isDark]
         onKeyChanged: requestPaint()
@@ -337,6 +337,19 @@ Item {
             }
             ctx.globalAlpha = 1
         }
+    }
+
+    // The sign style: one compact arrow standing on the road where the turn is.
+    ManeuverGlyph {
+        visible: !root.reverse && Style.arrowStyle === "sign"
+        running: visible
+        maneuver: root.maneuver
+        color: root.arrowColor
+        width: Math.min(root.width * 0.2, root.height * 0.42)
+        height: width
+        x: root.cx - width / 2
+        y: Math.min(root.height - height - root.height * 0.04,
+                    (root.hasSideRoad ? root.joinY : root.height * 0.45) - height * 0.35)
     }
 
     // Hazards: both edges lit green, flashing with the telltales.
