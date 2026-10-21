@@ -158,5 +158,14 @@
         <file>Icons/dark/top_dark.png</file>
         <file>Icons/dark/background.png</file>
         <file>Icons/dark/stars.png</file>
+        <file>Component/Telltale.qml</file>
+        <file>Component/ManeuverIcon.qml</file>
+        <file>Component/AlertIcon.qml</file>
+        <file>Component/AlertBanner.qml</file>
+        <file>Component/CriticalAlert.qml</file>
+        <file>Component/CallOverlay.qml</file>
+        <file>Component/BootScreen.qml</file>
+        <file>Pages/Documents.qml</file>
+        <file>Pages/Diagnostics.qml</file>
     </qresource>
 </RCC>

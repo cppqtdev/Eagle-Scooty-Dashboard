@@ -1,18 +1,29 @@
 import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
-import QtQuick.Layouts
 import Style 1.0
 
 import "./Component"
 import "./Pages"
+
+// The dashboard is laid out once on a 1920 × 1080 canvas and scaled to whatever
+// panel it runs on (1024 × 600, 1280 × 720 or a desktop window), keeping its
+// proportions. On the board it runs full screen without window decorations.
 ApplicationWindow {
-    id:root
-    width: 1920
-    height: 1080
+    id: window
+
+    readonly property int designWidth: 1920
+    readonly property int designHeight: 1080
+
+    width: 1440
+    height: 810
+    minimumWidth: 640
+    minimumHeight: 360
     visible: true
-    color: Style.background
-    title: qsTr("Eagle Theme")
+    visibility: boardMode ? Window.FullScreen : Window.Windowed
+    flags: boardMode ? Qt.FramelessWindowHint | Qt.Window : Qt.Window
+    color: "#000000"
+    title: qsTr("Eagle Dashboard")
 
     palette.window: Style.background
     palette.windowText: Style.textPrimary
@@ -30,113 +41,149 @@ ApplicationWindow {
     palette.dark: Style.textPrimary
     palette.shadow: Style.shadow
 
-    background: Item{
-        anchors.fill: parent
+    Item {
+        id: root
+
+        property string currentPage: "home"
+        readonly property var pages: ({
+            home: homePage, map: mapPage, phone: callingPage,
+            music: musicPage, charging: chargingPage, settings: settingsPage
+        })
+
+        function navigate(page) {
+            if (page === currentPage || !pages[page])
+                return
+            currentPage = page
+            stack.replace(null, pages[page])
+        }
+
+        width: window.designWidth
+        height: window.designHeight
+        anchors.centerIn: parent
+        scale: Math.min(window.width / window.designWidth, window.height / window.designHeight)
+
         Rectangle {
             anchors.fill: parent
             color: Style.background
         }
-        Image{
+        Image {
             anchors.fill: parent
             visible: Style.isDark
             source: "qrc:/Icons/dark/background.png"
         }
-    }
 
-    Component.onCompleted: root.showMaximized()
-
-    header: Header{}
-    footer: Footer{
-        id:footerLayout
-        onSettingsClicked: {
-            mainLoader.item.replace(null,settingsPage)
+        Header {
+            id: header
+            width: parent.width
         }
-        onMusicClicked: mainLoader.item.replace(null,musicPage)
-        onCallingClicked: mainLoader.item.replace(null,callingPage)
-        onHomeClicked: mainLoader.item.replace(null,homePage)
-        onChargeClicked: mainLoader.item.replace(null,chargingPage)
-        onMapClicked: mainLoader.item.replace(null,mapPage)
 
-    }
+        StackView {
+            id: stack
+            anchors.top: header.bottom
+            anchors.bottom: footer.visible ? footer.top : parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            clip: true
+            initialItem: homePage
 
-    Component{
-        id:chargingPage
-        Charing{
-
-        }
-    }
-
-    Component{
-        id:mapPage
-        MapPage{
-
-        }
-    }
-
-    Component{
-        id:homePage
-        HomePage{
-
-        }
-    }
-
-    Component{
-        id:callingPage
-        Callling{
-
-        }
-    }
-
-    Component{
-        id:musicPage
-        MusicPage{
-
-        }
-    }
-
-    Component{
-        id:settingsPage
-        SettingsPage{
-            objectName: "SettingsPage"
-            onBackToHome: {
-                mainLoader.item.replace(null,homePage)
+            replaceEnter: Transition {
+                ParallelAnimation {
+                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Style.motion.normal; easing.type: Easing.OutCubic }
+                    NumberAnimation { property: "y"; from: 24; to: 0; duration: Style.motion.theme; easing.type: Easing.OutCubic }
+                }
             }
-        }
-    }
-
-    contentData:Loader{
-        id:mainLoader
-        anchors.fill: parent
-        sourceComponent:StackView{
-            id:mainStack
-            initialItem:homePage
-            onCurrentItemChanged: {
-                var footer = footerlayout()
-                if(currentItem.objectName == "SettingsPage"){
-                    footer.visible = false
-                }else{
-                    footer.visible = true
+            replaceExit: Transition {
+                NumberAnimation { property: "opacity"; from: 1; to: 0; duration: Style.motion.fast; easing.type: Easing.InCubic }
+            }
+            pushEnter: Transition {
+                ParallelAnimation {
+                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Style.motion.normal }
+                    NumberAnimation { property: "x"; from: 60; to: 0; duration: Style.motion.theme; easing.type: Easing.OutCubic }
+                }
+            }
+            pushExit: Transition {
+                NumberAnimation { property: "opacity"; from: 1; to: 0; duration: Style.motion.fast }
+            }
+            popEnter: Transition {
+                NumberAnimation { property: "opacity"; from: 0; to: 1; duration: Style.motion.normal }
+            }
+            popExit: Transition {
+                ParallelAnimation {
+                    NumberAnimation { property: "opacity"; from: 1; to: 0; duration: Style.motion.fast }
+                    NumberAnimation { property: "x"; from: 0; to: 60; duration: Style.motion.normal }
                 }
             }
         }
-    }
 
-    function footerlayout(){
-        return footerLayout
-    }
+        Footer {
+            id: footer
+            anchors.bottom: parent.bottom
+            width: parent.width
+            visible: root.currentPage !== "settings"
+            currentPage: root.currentPage
+            onNavigate: page => root.navigate(page)
+        }
 
-    Rectangle {
-        z: 10000
-        anchors.fill: parent
-        color: "black"
-        // Desktop preview of a panel backlight. The production target can
-        // connect the same persisted value to its display driver instead.
-        opacity: Math.max(0, (76 - themeController.brightness) / 160)
-        visible: opacity > 0
-        enabled: false
+        Component { id: homePage; HomePage {} }
+        Component { id: mapPage; MapPage {} }
+        Component { id: callingPage; Callling {} }
+        Component { id: musicPage; MusicPage {} }
+        Component { id: chargingPage; Charing {} }
+        Component {
+            id: settingsPage
+            SettingsPage { onBackToHome: root.navigate("home") }
+        }
 
-        Behavior on opacity {
-            NumberAnimation { duration: Style.motion.normal }
+        AlertBanner {
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: header.height + 12
+            z: 20
+        }
+
+        CallOverlay {
+            anchors.fill: parent
+            z: 30
+            phonePageOpen: root.currentPage === "phone"
+            onOpenPhone: root.navigate("phone")
+        }
+
+        CriticalAlert {
+            anchors.fill: parent
+            z: 40
+        }
+
+        BootScreen {
+            anchors.fill: parent
+            z: 50
+        }
+
+        // Desktop preview of the panel backlight; the board drives the real one.
+        Rectangle {
+            anchors.fill: parent
+            z: 100
+            color: "black"
+            opacity: Math.max(0, (76 - themeController.brightness) / 160)
+            visible: opacity > 0
+            enabled: false
+            Behavior on opacity { NumberAnimation { duration: Style.motion.normal } }
         }
     }
+
+    // Bench keys: the handlebar buttons on the desk, and a quick way through the demo.
+    Shortcut { sequence: "M"; onActivated: dashboardData.cycleRideMode() }
+    Shortcut { sequence: "C"; onActivated: phone.callState === 1 ? phone.answer() : phone.simulateIncomingCall() }
+    Shortcut { sequence: "X"; onActivated: phone.simulateMessage() }
+    Shortcut { sequence: "P"; onActivated: simulator.toggleCharging() }
+    Shortcut { sequence: "T"; onActivated: Style.toggle() }
+    Shortcut { sequence: "H"; onActivated: dashboardData.highBeam = !dashboardData.highBeam }
+    Shortcut { sequence: "F"; onActivated: simulator.trigger("motorFault") }
+    Shortcut { sequence: "L"; onActivated: simulator.trigger("lowTyre") }
+    Shortcut { sequence: "O"; onActivated: simulator.trigger("overheat") }
+    Shortcut { sequence: "Escape"; onActivated: simulator.trigger("clear") }
+    Shortcut { sequence: "1"; onActivated: root.navigate("home") }
+    Shortcut { sequence: "2"; onActivated: root.navigate("map") }
+    Shortcut { sequence: "3"; onActivated: root.navigate("phone") }
+    Shortcut { sequence: "4"; onActivated: root.navigate("music") }
+    Shortcut { sequence: "5"; onActivated: root.navigate("charging") }
+    Shortcut { sequence: "6"; onActivated: root.navigate("settings") }
 }

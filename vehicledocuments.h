@@ -30,7 +30,9 @@ private:
         QString title;
         QString number;
         QString issuer;
-        QDate validUntil;
+        QDate validUntil;   // invalid: does not expire
+        QString image;      // card artwork, if any
+        QString group;      // "rider" or "vehicle"
     };
 
     QString statusOf(const Document &document) const;

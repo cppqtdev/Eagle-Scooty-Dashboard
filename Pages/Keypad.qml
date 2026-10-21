@@ -4,214 +4,105 @@ import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// Dial pad: digits into the field, backspace on the red key, call on the green.
 EaglePage {
-    id:root
-    width: parent.width
-    header:RowLayout{
-        Layout.alignment: Qt.AlignHCenter
-        width: root.width * 0.8
-        spacing: 5
-        Item{
-            Layout.preferredWidth: 10
-        }
-        RowLayout{
-            spacing: 15
-            IconButton{
-                roundIcon: true
-                iconWidth: 50
-                iconHeight: 50
-                setIcon: "qrc:/Icons/topIcons/icn_leftindicator.svg"
-                onClicked: gEagleStack.pop()
-            }
+    id: root
 
-            PrefsLabel{
-                Layout.alignment: Qt.AlignLeft
-                font.pixelSize: Style.h2
-                isStyle: true
-                text: qsTr("Back")
-            }
+    header: RowLayout {
+        width: root.width
+        spacing: 15
+        Item { Layout.preferredWidth: 40 }
+        IconButton {
+            roundIcon: true
+            iconWidth: 50
+            iconHeight: 50
+            setIcon: "qrc:/Icons/topIcons/icn_leftindicator.svg"
+            onClicked: root.gEagleStack.pop()
         }
+        PrefsLabel {
+            font.pixelSize: Style.h2
+            isStyle: true
+            text: qsTr("Back")
+        }
+        Item { Layout.fillWidth: true }
     }
-    contentItem: Item{
-        anchors.fill: parent
 
-        Rectangle{
+    component Key: Rectangle {
+        id: key
+        property string label
+        property string icon
+        property color tone: Style.surface
+        signal pressed()
+        implicitWidth: 150
+        implicitHeight: 96
+        radius: 20
+        color: tap.pressed ? Qt.darker(tone, 1.15) : tone
+        border.color: Style.border
+        Behavior on color { ColorAnimation { duration: Style.motion.instant } }
+        PrefsLabel {
             anchors.centerIn: parent
-            width: 600
-            height: 460
-            radius: 12
-            color: Style.accentSoft
-            TextFieldInput{
-                id:inputField
-                anchors.top: parent.top
-                anchors.topMargin: 10
-                anchors.horizontalCenter: parent.horizontalCenter
-                implicitWidth: parent.width * 0.9
-                implicitHeight: 55
-                isBold:true
-                placeholderText: qsTr("Primary")
-                selectedTextColor: "#FFFFFF"
-                selectionColor: "green"
-                radius: 8
-                borderColor : Style.accent
+            visible: key.label.length > 0
+            font.pixelSize: Style.typography.display + 8
+            isBold: true
+            text: key.label
+        }
+        Image {
+            anchors.centerIn: parent
+            visible: key.icon.length > 0
+            source: key.icon
+        }
+        TapHandler { id: tap; onTapped: key.pressed() }
+    }
+
+    Rectangle {
+        anchors.centerIn: parent
+        width: 620
+        height: 640
+        radius: 24
+        color: Style.accentSoft
+
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 22
+
+            TextFieldInput {
+                id: inputField
+                Layout.preferredWidth: 520
+                implicitHeight: 64
+                isBold: true
+                readOnly: true
+                horizontalAlignment: Text.AlignHCenter
+                placeholderText: qsTr("Enter a number")
+                radius: 10
+                borderColor: Style.accent
             }
-            ColumnLayout{
-                anchors.top: inputField.bottom
-                anchors.topMargin: 20
-                anchors.horizontalCenter: inputField.horizontalCenter
-                width: parent.width * 0.75
-                RowLayout{
-                    Layout.preferredWidth: parent.width
-                    Layout.alignment: Qt.AlignHCenter
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("1")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("2")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("3")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
+
+            GridLayout {
+                Layout.alignment: Qt.AlignHCenter
+                columns: 3
+                columnSpacing: 18
+                rowSpacing: 16
+                Repeater {
+                    model: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "0", "#"]
+                    Key {
+                        required property string modelData
+                        label: modelData
+                        onPressed: if (inputField.text.length < 16) inputField.text += modelData
                     }
                 }
-                RowLayout{
-                    Layout.preferredWidth: parent.width
-                    Layout.alignment: Qt.AlignHCenter
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("4")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("5")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("6")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
+                Key {
+                    icon: "qrc:/Icons/cross.svg"
+                    tone: Style.danger
+                    onPressed: inputField.text = inputField.text.slice(0, -1)
                 }
-                RowLayout{
-                    Layout.preferredWidth: parent.width
-                    Layout.alignment: Qt.AlignHCenter
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("7")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("8")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("9")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                }
-                RowLayout{
-                    Layout.preferredWidth: parent.width
-                    Layout.alignment: Qt.AlignHCenter
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        IconButton{
-                            radius:19.33
-                            setIcon: "qrc:/Icons/cross.svg"
-                            anchors.fill: parent
-                            iconBackground:"#FF0000"
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        PrefsLabel{
-                            anchors.centerIn: parent
-                            font.pixelSize: Style.h1
-                            color: Style.grayColor
-                            text: qsTr("0")
-                        }
-                        IconButton{
-                            anchors.fill: parent
-                        }
-                    }
-                    Image{
-                        source: "qrc:/Icons/button.png"
-                        IconButton{
-                            radius:19.33
-                            setIcon: "qrc:/Icons/call.svg"
-                            anchors.fill: parent
-                            iconBackground:"#11B411"
-                        }
+                Item { implicitWidth: 150; implicitHeight: 96 }
+                Key {
+                    icon: "qrc:/Icons/call.svg"
+                    tone: Style.success
+                    onPressed: {
+                        phone.dial(inputField.text)
+                        if (phone.callState !== 0)
+                            root.gEagleStack.pop()
                     }
                 }
             }

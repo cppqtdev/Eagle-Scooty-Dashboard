@@ -73,6 +73,18 @@ QtObject {
     Behavior on accentStrong { ColorAnimation { duration: root.motion.theme } }
     Behavior on accentSoft { ColorAnimation { duration: root.motion.theme } }
 
+    // Ride-mode accents: the speed, the mode chip and the battery bar follow the mode.
+    readonly property color modeEco: isDark ? "#31D158" : "#16A34A"
+    readonly property color modeCity: isDark ? "#18B8B3" : "#087F83"
+    readonly property color modeSport: isDark ? "#FF7A2F" : "#EA580C"
+
+    function modeColor(mode) {
+        return mode === 2 ? modeSport : mode === 1 ? modeCity : modeEco
+    }
+
+    // Shadows and glows need the GPU scene graph; the board's software renderer skips them.
+    readonly property bool effects: typeof effectsEnabled === "undefined" ? true : effectsEnabled
+
     function setDark(dark) {
         themeController.dark = dark
     }

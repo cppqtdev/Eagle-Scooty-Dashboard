@@ -59,6 +59,16 @@ EaglePage {
         SystemUpdate{
         }
     }
+    Component{
+        id:documentsPage
+        Documents{
+        }
+    }
+    Component{
+        id:diagnosticsPage
+        Diagnostics{
+        }
+    }
 
 
     function switchPage(index){
@@ -87,6 +97,12 @@ EaglePage {
         case 7:
             settingsLoader.sourceComponent =  systemUpdatePage
             break;
+        case 8:
+            settingsLoader.sourceComponent =  documentsPage
+            break;
+        case 9:
+            settingsLoader.sourceComponent =  diagnosticsPage
+            break;
         }
     }
 
@@ -112,7 +128,7 @@ EaglePage {
                 highlightFollowsCurrentItem :true
                 highlight:null
                 spacing:20
-                model:["Profile","Display","Bluetooth","MyTrip","Sound","About","Notification","System Update"]
+                model:[qsTr("Profile"),qsTr("Display"),qsTr("Bluetooth"),qsTr("My Trips"),qsTr("Sound"),qsTr("About"),qsTr("Notifications"),qsTr("System Update"),qsTr("Documents"),qsTr("Diagnostics")]
                 delegate:ListItemDelegate{
                     spacing: 20
                     title: modelData

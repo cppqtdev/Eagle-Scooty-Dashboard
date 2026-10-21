@@ -4,144 +4,151 @@ import QtQuick.Layouts
 import Style 1.0
 import "../Component"
 
+// What the phone is playing, with the controls that send commands back to it.
 EaglePage {
-    id:root
-    width: parent.width
-    contentItem: ColumnLayout{
-        width: parent.width
-        RowLayout{
-            Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: root.width * 0.5
-            Image{
-                id:musicIcon
+    id: root
+
+    readonly property color modeColor: Style.modeColor(dashboardData.rideMode)
+
+    ColumnLayout {
+        anchors.centerIn: parent
+        width: Math.min(parent.width * 0.6, 1100)
+        spacing: 34
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 48
+
+            Image {
+                id: art
+                Layout.preferredWidth: 300
+                Layout.preferredHeight: 300
+                fillMode: Image.PreserveAspectCrop
                 source: "qrc:/Icons/Music/codex-omega.png"
-            }
-            ColumnLayout{
-                Layout.preferredHeight: musicIcon.height
-                PrefsLabel{
-                    Layout.alignment: Qt.AlignLeft
-                    font.pixelSize: Style.h6
-                    color: Style.grayColor
-                    text: qsTr("Now Playing")
-                }
-                Item{
-                    Layout.preferredHeight: 50
-                }
-                ColumnLayout{
-                    spacing: 5
-                    PrefsLabel{
-                        Layout.alignment: Qt.AlignLeft
-                        color: Style.grayColor
-                        text: qsTr("Purple Haze")
-                    }
-
-                    PrefsLabel{
-                        Layout.alignment: Qt.AlignLeft
-                        font.pixelSize: Style.h5
-                        color: Style.grayColor
-                        text: qsTr("Jonathan Wishperbrook")
-                    }
-
-                    PrefsLabel{
-                        Layout.alignment: Qt.AlignLeft
-                        font.pixelSize: Style.paragraph
-                        color: Style.grayColor
-                        text: qsTr("Woodstock")
-                    }
-                }
-            }
-            Item{
-                Layout.preferredWidth: root.width * 0.1
+                scale: phone.playing ? 1 : 0.94
+                Behavior on scale { NumberAnimation { duration: Style.motion.theme; easing.type: Easing.OutBack } }
             }
 
-            ColumnLayout{
-                Layout.preferredHeight: musicIcon.height
-                IconButton{
-                    iconBackground: "#FFFFFF"
-                    setIcon: "qrc:/Icons/Music/Like.svg"
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                PrefsLabel {
+                    font.pixelSize: Style.h5
+                    color: Style.textMuted
+                    text: phone.connected ? qsTr("Now playing on %1").arg(phone.deviceName) : qsTr("No phone connected")
                 }
-                IconButton{
-                    roundIcon: true
-                    iconWidth: 36
-                    iconHeight: 36
-                    iconBackground: "#FFFFFF"
-                    setIcon: "qrc:/Icons/Music/AddPlaylist.svg"
+                PrefsLabel {
+                    Layout.topMargin: 20
+                    font.pixelSize: 52
+                    isBold: true
+                    text: phone.trackTitle
                 }
-                IconButton{
-                    iconBackground: "#FFFFFF"
-                    setIcon: "qrc:/Icons/Music/Share.svg"
+                PrefsLabel {
+                    font.pixelSize: Style.h1
+                    color: Style.textSecondary
+                    text: phone.trackArtist
+                }
+                PrefsLabel {
+                    font.pixelSize: Style.h4
+                    color: Style.textMuted
+                    text: phone.trackAlbum
                 }
             }
         }
 
-        PrefsSlider{
-            tooltipVisible:false
-            Layout.alignment: Qt.AlignHCenter
-            value: 76
-            checkedColor: Style.styleColor
-            handlerColor: Style.surfaceRaised
-            width:  parent.width * 0.5
-        }
-
-        RowLayout{
-            Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: root.width * 0.5
-            PrefsLabel{
-                Layout.alignment: Qt.AlignLeft
-                font.pixelSize: Style.paragraph
-                color: Style.grayColor
-                text: qsTr("00:00")
+        // Progress.
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: 8
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 10
+                radius: 5
+                color: Style.surfaceSunken
+                Rectangle {
+                    width: parent.width * Math.min(1, phone.positionSeconds / Math.max(1, phone.durationSeconds))
+                    height: parent.height
+                    radius: 5
+                    color: root.modeColor
+                    Behavior on width { NumberAnimation { duration: 900 } }
+                }
             }
-
-            PrefsLabel{
-                Layout.alignment: Qt.AlignRight
-                font.pixelSize: Style.paragraph
-                color: Style.grayColor
-                text: qsTr("04:00")
+            RowLayout {
+                Layout.fillWidth: true
+                PrefsLabel { font.pixelSize: Style.h6; color: Style.textMuted; text: phone.formatDuration(phone.positionSeconds) }
+                Item { Layout.fillWidth: true }
+                PrefsLabel { font.pixelSize: Style.h6; color: Style.textMuted; text: phone.formatDuration(phone.durationSeconds) }
             }
         }
 
-        RowLayout{
+        // Transport.
+        RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            Layout.preferredWidth: root.width * 0.5
-            IconButton{
-                setIcon: "qrc:/Icons/Music/Suffle.svg"
-            }
-            IconButton{
-                setIcon: "qrc:/Icons/Music/Repeat.svg"
-            }
-
-            IconButton{
-                iconWidth: 20
-                iconHeight: 24
+            spacing: 40
+            IconButton {
                 roundIcon: true
-                iconBackground: Style.styleColor
+                implicitWidth: 80
+                implicitHeight: 80
+                iconWidth: 22
+                iconHeight: 26
+                iconBackground: root.modeColor
                 setIcon: "qrc:/Icons/Music/Left.svg"
+                onClicked: phone.previous()
             }
-
-            IconButton{
+            IconButton {
                 roundIcon: true
-                implicitHeight: 60
-                implicitWidth: 60
-                iconWidth: 24
-                iconHeight: 28
-                iconBackground: Style.styleColor
-                setIcon: "qrc:/Icons/Music/Play.svg"
+                implicitWidth: 110
+                implicitHeight: 110
+                iconWidth: 30
+                iconHeight: 34
+                iconBackground: root.modeColor
+                setIcon: phone.playing ? "qrc:/Icons/Music/pause_paly.svg" : "qrc:/Icons/Music/Play.svg"
+                onClicked: phone.playPause()
             }
-
-            IconButton{
-                iconWidth: 20
-                iconHeight: 24
+            IconButton {
                 roundIcon: true
-                iconBackground: Style.styleColor
+                implicitWidth: 80
+                implicitHeight: 80
+                iconWidth: 22
+                iconHeight: 26
+                iconBackground: root.modeColor
                 setIcon: "qrc:/Icons/Music/right.svg"
+                onClicked: phone.next()
             }
+        }
 
-            IconButton{
-                setIcon: "qrc:/Icons/Music/Repeat2.svg"
+        // Volume.
+        RowLayout {
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 18
+            IconButton {
+                setIconText: "−"
+                setIconSize: 34
+                onClicked: phone.volume = phone.volume - 10
             }
-            IconButton{
-                setIcon: "qrc:/Icons/Music/Settings.svg"
+            Rectangle {
+                Layout.preferredWidth: 360
+                Layout.preferredHeight: 8
+                radius: 4
+                color: Style.surfaceSunken
+                Rectangle {
+                    width: parent.width * phone.volume / 100
+                    height: parent.height
+                    radius: 4
+                    color: root.modeColor
+                    Behavior on width { NumberAnimation { duration: Style.motion.fast } }
+                }
+            }
+            IconButton {
+                setIconText: "+"
+                setIconSize: 34
+                onClicked: phone.volume = phone.volume + 10
+            }
+            PrefsLabel {
+                Layout.preferredWidth: 70
+                font.pixelSize: Style.h5
+                color: Style.textMuted
+                text: qsTr("%1%").arg(phone.volume)
             }
         }
     }
